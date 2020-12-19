@@ -11,4 +11,7 @@ db.sqlite3-journal
 # Environments
 venv/
 
+fighter/.env
+
 frontend/node_modules
+frontend/.env
