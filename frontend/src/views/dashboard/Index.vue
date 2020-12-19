@@ -6,7 +6,7 @@
       :lazy-src="require('@/assets/register.jpg')" 
     > 
     </v-img> -->
-    <dashboard-core-app-bar v-model="expandOnHover" />
+    <dashboard-core-app-bar :key="key" v-model="expandOnHover" />
 
     <!-- <dashboard-core-drawer :expand-on-hover.sync="expandOnHover" /> -->
 
@@ -34,13 +34,13 @@
 
     data: () => ({
       expandOnHover: false,
+      key: 0
     }),
 
-    computed: {
-      isAuthenticated () {
-        console.log('auth', this.$store.getters['auth/isAuthenticated'])
-        return this.$store.getters['auth/isAuthenticated']
-      },
+    mounted() {
+      this.$store.subscribe((mutation, state) => {
+        this.key++
+      })
     },
   }
 </script>

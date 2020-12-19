@@ -159,7 +159,6 @@
     },
 
     mounted() {
-      console.log('===', this.isAuthenticated)
     },
 
     methods: {
@@ -169,7 +168,7 @@
 
       goTo (name) {
         if (name === 'Logout') {
-          this.$router.push({ 'path': 'pages/logout' })
+          window.location.href = '/pages/logout'
           return
         } 
         
