@@ -1,8 +1,18 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import createPersistedState from 'vuex-persistedstate';
+// import createPersistedState from 'vuex-persistedstate';
+import VuexPersist from 'vuex-persist';
+import localForage from 'localforage';
 
 Vue.use(Vuex)
+
+const vuexStorage = new VuexPersist({
+    key: 'sourcelink',
+    storage: localForage,  
+    // You can change this explicitly use 
+    // either window.localStorage  or window.sessionStorage
+    // However we are going to make use of localForage
+})
 
 import auth from './auth'
 import password from './password';
@@ -16,7 +26,7 @@ export default new Vuex.Store({
     barImage: 'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
     drawer: null,
   },
-  plugins: [createPersistedState()],
+  plugins: [vuexStorage.plugin],
   mutations: {
     SET_BAR_IMAGE (state, payload) {
       state.barImage = payload

@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 
-import store from './store';
+import store from '@/store';
 
 const requireAuthenticated = (to, from, next) => {
+  const self = store
   store.dispatch('auth/initialize')
     .then(() => {
-      if (!store.getters['auth/isAuthenticated']) {
+      if (!self.getters['auth/isAuthenticated']) {
         next('/pages/login');
       } else {
         next();
@@ -15,9 +16,10 @@ const requireAuthenticated = (to, from, next) => {
 };
 
 const requireUnauthenticated = (to, from, next) => {
+  const self = store
   store.dispatch('auth/initialize')
     .then(() => {
-      if (store.getters['auth/isAuthenticated']) {
+      if (self.getters['auth/isAuthenticated']) {
         next('/');
       } else {
         next();
@@ -95,6 +97,7 @@ let router = new Router({
           name: 'Contest',
           path: 'contest',
           component: () => import('@/views/dashboard/component/Contest'),
+          beforeEnter: requireAuthenticated
         },
       ],
     },

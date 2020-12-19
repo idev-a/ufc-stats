@@ -57,7 +57,7 @@
   import session from '@/api/session'
   import { beautifyDate } from '@/util'
   import ToggleSwitch from './ToggleSwitch.vue'
-  import { mapState } from 'vuex'
+  import { mapState, mapGetters } from 'vuex'
 
   export default {
     name: 'Selection',
@@ -93,6 +93,7 @@
 
     computed: {
       ...mapState('auth', ['authUser']),
+      ...mapGetters('auth', ['isAuthenticated']),
       bgHeight() {
         return this.$vuetify.breakpoint.height - 147
       }
@@ -154,6 +155,10 @@
         }
       },
       async submit () {
+        if (!this.isAuthenticated) {
+          window.location.href = '/pages/login'
+          return
+        }
         const event_id = this.bouts[0].event
         const payload = []
         for (const bout in this.contests) {
