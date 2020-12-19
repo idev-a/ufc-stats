@@ -26,7 +26,6 @@ import signup from './signup';
 // import snackbar from './snackbar';
 
 export default new Vuex.Store({
-  strict: process.env.NODE_ENV !== 'production',
   state: {
     barColor: 'rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)',
     barImage: 'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
