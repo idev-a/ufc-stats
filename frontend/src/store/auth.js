@@ -86,10 +86,14 @@ const mutations = {
   [SET_TOKEN](state, token) {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
     session.defaults.headers.Authorization = `Token ${token}`;
-    state.token = token;
+    state.token = token 
+    state = Object.assign({}, state)
   },
   [SET_AUTH_USER] (state, user) {
-    state.authUser = Object.assign({}, user)
+    state = { 
+     ...state,
+     authUser: Object.assign({}, user),
+    }
   },
   [SET_USER_CONTEST_STATUS] (state, data) {
     state.userContestStatus = data.status
@@ -98,6 +102,10 @@ const mutations = {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     delete session.defaults.headers.Authorization;
     state.token = null;
+    state = { 
+     ...state,
+     token: null,
+    }
   },
 };
 

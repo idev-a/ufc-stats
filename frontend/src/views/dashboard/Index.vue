@@ -20,6 +20,7 @@
 <script>
   import { BASE_API } from '../../api'
   import axios from 'axios'
+  import { mapGetters } from 'vuex'
   
   export default {
     name: 'DashboardIndex',
@@ -34,6 +35,13 @@
     data: () => ({
       expandOnHover: false,
     }),
+
+    computed: {
+      isAuthenticated () {
+        console.log('auth', this.$store.getters['auth/isAuthenticated'])
+        return this.$store.getters['auth/isAuthenticated']
+      },
+    },
   }
 </script>
 

@@ -55,9 +55,9 @@ let router = new Router({
           name: 'Login',
           path: 'login',
           component: () => import('@/views/pages/Login'),
-          beforeEnter: requireUnauthenticated
         },
         {
+          name: 'Logout',
           path: 'logout',
           beforeEnter: redirectLogout,
         },
