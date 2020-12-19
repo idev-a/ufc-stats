@@ -1,0 +1,19 @@
+server {
+        listen 80;
+        listen [::]:80;
+
+        root /home/ubuntu/test-dashboard/dist;
+        index index.html index.htm index.nginx-debian.html;
+
+        server_name 165.227.87.27;
+
+        location / {
+                try_files $uri $uri/  /index.html;
+        }
+
+        location /api {
+        	proxy_pass http://unix:/root/backend/backend.sock;
+        }
+}
+
+chmod g+x /root && chmod g+x /root/frontend && chmod g+x /root/frontend/dist
