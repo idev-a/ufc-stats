@@ -4,7 +4,7 @@ import Router from 'vue-router'
 import store from '@/store';
 
 const requireAuthenticated = (to, from, next) => {
-  const self = store
+  const self = Object.assign({}, store)
   store.dispatch('auth/initialize')
     .then(() => {
       if (!self.getters['auth/isAuthenticated']) {
@@ -16,7 +16,7 @@ const requireAuthenticated = (to, from, next) => {
 };
 
 const requireUnauthenticated = (to, from, next) => {
-  const self = store
+  const self = Object.assign({}, store)
   store.dispatch('auth/initialize')
     .then(() => {
       if (self.getters['auth/isAuthenticated']) {
