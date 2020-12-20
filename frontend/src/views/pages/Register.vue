@@ -165,15 +165,17 @@
     },
 
     watch: {
-      registrationLoading() {
-        if (this.registrationError) {
-          this.snackbar.message = this.registrationError
-          this.snackbar.status = 'failed'
-        } else {
-          this.snackbar.message = 'Successfully registered.'
-          this.snackbar.status = 'success'
+      registrationLoading(val) {
+        if (!val) {
+          if (this.registrationError) {
+            this.snackbar.message = this.registrationError
+            this.snackbar.status = 'failed'
+          } else {
+            this.snackbar.message = 'Successfully registered.'
+            this.snackbar.status = 'success'
+          }
+          this.snackbar.snack = true
         }
-        this.snackbar.snack = true
       }
     },
     methods: {

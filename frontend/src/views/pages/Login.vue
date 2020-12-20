@@ -160,8 +160,8 @@
     },
 
     watch: {
-      authenticating () {
-        if (!this.error) {
+      authenticating (val) {
+        if (!val && !this.error) {
           this.$router.push({name: 'Dashboard'})
         }
       }
