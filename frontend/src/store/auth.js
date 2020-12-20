@@ -56,13 +56,10 @@ const actions = {
   initialize({ commit }) {
     const token = localStorage.getItem(TOKEN_STORAGE_KEY);
 
-    if (isProduction && token) {
-      commit(REMOVE_TOKEN);
-    }
-
-    if (!isProduction && token) {
-      commit(SET_TOKEN, token);
-    }
+    // if (isProduction && token) {
+    //   commit(REMOVE_TOKEN);
+    // }
+    commit(SET_TOKEN, token);
   },
 };
 
