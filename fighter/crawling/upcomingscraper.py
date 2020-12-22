@@ -34,9 +34,9 @@ class ScraperSpider(scrapy.Spider):
 		yield scrapy.Request(self.start_urls[0], dont_filter=True, callback=self.parse_event)
 
 		# scan db to get the scraped events to get the stats
-		events = Event.objects.all()
-		for event in events:
-			yield scrapy.Request(event.detail_link, meta={'event_id': event.id}, callback=self.parse_event_detail)
+		# events = Event.objects.all()
+		# for event in events:
+		# 	yield scrapy.Request(event.detail_link, dont_filter=True, meta={'event_id': event.id}, callback=self.parse_event_detail)
 
 	def parse_event(self, response):
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
@@ -53,9 +53,13 @@ class ScraperSpider(scrapy.Spider):
 					detail_link=detail_link,
 					status='upcoming'
 				)
+
+				if detail_link == 'http://ufcstats.com/event-details/307064d3e0f036c2':
+					continue
+
 				event_id = self.save_event(item)
 
-				yield scrapy.Request(detail_link, meta={'event_id': event_id}, callback=self.parse_event_detail)
+				yield scrapy.Request(detail_link, dont_filter=True, meta={'event_id': event_id}, callback=self.parse_event_detail)
 
 	def parse_event_detail(self, response):
 		event_id = response.meta['event_id']
@@ -63,15 +67,21 @@ class ScraperSpider(scrapy.Spider):
 		trs = response.css('table.b-fight-details__table tr.b-fight-details__table-row')
 		if trs:
 			for tr in trs[1:]:
-				fight_detail = _valid(tr.xpath('.//td[1]//text()').get())
+				fight_detail = strip_list1(tr.xpath('.//td[1]//text()').getall())
 				detail_link = tr.xpath('@data-link').get()
 				fighters = strip_list1(tr.xpath('.//td[2]/p/a/text()').getall())
 				weight_class = _valid(tr.xpath('.//td[7]/p/text()').get())
+				method = _valid(' '.join(strip_list1(tr.xpath('.//td[8]//text()').getall())))
+				round = _valid(tr.xpath('.//td[9]/p/text()').get())
+				time = _valid(tr.xpath('.//td[10]/p/text()').get())
 
 				item = dict(
 					fighter1=self.save_fighter({'name': fighters[0]}).id,
 					fighter2=self.save_fighter({'name': fighters[1]}).id,
 					weight_class=weight_class,
+					method=method,
+					round=round,
+					time=time,
 					detail_link=detail_link,
 					status='pending',
 					event=event.id
@@ -83,7 +93,7 @@ class ScraperSpider(scrapy.Spider):
 					event.save()
 
 				try:
-					yield scrapy.Request(detail_link, meta={'bout_id': bout.id}, callback=self.parse_bout_detail)
+					yield scrapy.Request(detail_link, dont_filter=True, meta={'bout_id': bout.id}, callback=self.parse_bout_detail)
 				except:
 					pass
 
@@ -146,10 +156,15 @@ class ScraperSpider(scrapy.Spider):
 			bout = Bout.objects.get(detail_link=item['detail_link'])
 		except:
 			pass
+
+		if bout:
+			item['id'] = bout.id
 		if not bout:
 			bout_serializer = BoutSerializer(data=item)
 			if bout_serializer.is_valid():
 				bout = bout_serializer.save()
+			else:
+				print('[save_bout] error', bout_serializer.errors)
 
 		return bout
 

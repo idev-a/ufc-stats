@@ -78,7 +78,11 @@ export const beautifyDateTime = (date) => {
 }
 
 export const beautifyDate = (date) => {
-  return moment(date).format('MMMM DD, YYYY')
+  if (date) {
+    return moment(date).format('MMMM DD, YYYY')
+  } else {
+    return ''
+  }
 }
 
 export const beautifyDateZ = (date) => {

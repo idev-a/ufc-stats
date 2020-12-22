@@ -32,7 +32,7 @@
           </template>
         </v-virtual-scroll>
         <div class="d-flex justify-center w-100">
-          <v-btn class="grey darken-4 mt-2 mb-2" small @click="submit">Submit</v-btn>
+          <v-btn class="grey darken-4 mt-2 mb-2" :disabled="loading || !event " small @click="submit">Submit</v-btn>
         </div>
       </v-card-text>
     </v-card>

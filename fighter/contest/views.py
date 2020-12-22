@@ -4,6 +4,7 @@ from rest_framework.decorators import action
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
+import copy
 
 from django.contrib.auth.models import User, Group
 from contest.models import (
@@ -50,12 +51,19 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def get_latestevent(self, request, **kwarg):
-        latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
-        bouts = Bout.objects.filter(event__pk=latest_event.id)
-        return Response(dict(
-            bouts=BoutSerializer(bouts, many=True).data,
-            event=EventSerializer(latest_event).data
-        ))
+        events = Event.objects.all().filter(status='upcoming')
+        if events:
+            latest_event = events.latest('-date')
+            bouts = Bout.objects.filter(event__pk=latest_event.id)
+            return Response(dict(
+                bouts=BoutSerializer(bouts, many=True).data,
+                event=EventSerializer(latest_event).data
+            ))
+        else:
+            return Response(dict(
+                bouts=[],
+                event=None
+            ))
 
 class BoutViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -119,6 +127,43 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             })
 
         return Response(dict(contests=contests, event=EventSerializer(latest_event).data))
+
+    @action(methods=['get'], detail=False)
+    def get_score_by_user(self, request, **kwarg):
+        entries = Entry.objects.all().filter(bout__status='completed')
+        score = {}
+        default_score = {
+            'surviving_fighters': 0,
+            'wins': 0,
+            'losses': 0,
+            'dead': 0
+        }
+        for entry in entries:
+            username = entry.user.username
+            score[username] = score.get(username, copy.deepcopy(default_score)) 
+            method = entry.bout.method
+            winner_id = entry.bout.winner.id # winner from bout
+            fighter_id = entry.fighter.id # user-selected fighter in the contest
+            if method.startswith('S-DEC') or \
+                method.startswith('U-DEC') or \
+                method.startswith('SUB'):
+                if fighter_id == winner_id:
+                    score[username]['surviving_fighters'] += 1
+                else:
+                    score[username]['dead'] += 1
+            if method.startswith('KO') or \
+                'TKO' in method:
+                if fighter_id == winner_id:
+                    score[username]['wins'] += 1
+                else:
+                    score[username]['losses'] += 1
+
+        data = []
+        for key, value in score.items():
+            value.update({'username': key})
+            data.append(value)
+
+        return Response(dict(scores=data))
 
     def create(self, request):
         serializer = EntrySerializer(many=True, data=request.data)

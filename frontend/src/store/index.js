@@ -6,14 +6,6 @@ import localForage from 'localforage';
 
 Vue.use(Vuex)
 
-// const vuexStorage = new VuexPersist({
-//     key: 'sourcelink',
-//     storage: localForage,  
-//     // You can change this explicitly use 
-//     // either window.localStorage  or window.sessionStorage
-//     // However we are going to make use of localForage
-// })
-
 const vuexLocal = new VuexPersistence({
   key: 'issuer-vuex',
   storage: window.localStorage,

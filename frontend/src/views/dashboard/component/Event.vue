@@ -19,7 +19,6 @@
           single-line
           hide-details
         ></v-text-field>
-        <v-spacer></v-spacer>
       </v-card-title>
       <v-card-text>
         <v-data-table

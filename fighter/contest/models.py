@@ -72,6 +72,9 @@ class Bout(models.Model):
 
 	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='pending')
 	weight_class = models.CharField(max_length=50, blank=True, default='')
+	method = models.CharField(max_length=100, blank=True, default='')
+	round = models.IntegerField(blank=True, default=1)
+	time = models.TimeField()
 	detail_link = models.CharField(max_length=500, blank=True, default='')
 
 	def __str__(self):

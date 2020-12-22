@@ -99,6 +99,12 @@ let router = new Router({
           component: () => import('@/views/dashboard/component/Contest'),
           beforeEnter: requireAuthenticated
         },
+        {
+          name: 'Score',
+          path: 'score',
+          component: () => import('@/views/dashboard/component/Score'),
+          beforeEnter: requireAuthenticated
+        },
       ],
     },
     {

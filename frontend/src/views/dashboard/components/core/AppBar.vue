@@ -20,7 +20,6 @@
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
-          class="ml-2"
           min-width="0"
           text
           to="/"
@@ -36,7 +35,6 @@
         <v-btn
           v-if="isAuthenticated"
           v-on="on"
-          class="ml-2"
           min-width="0"
           text
           to="/contest"
@@ -45,6 +43,20 @@
         </v-btn>
       </template>
       <span>Live Contest</span>
+    </v-tooltip>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-if="isAuthenticated"
+          v-on="on"
+          min-width="0"
+          text
+          to="/score"
+        >
+          <v-icon color="white">mdi-application</v-icon>
+        </v-btn>
+      </template>
+      <span>Live Score By User</span>
     </v-tooltip>
     <v-menu
       bottom
@@ -56,7 +68,6 @@
     >
       <template v-slot:activator="{ attrs, on }">
         <v-btn
-          class="ml-2"
           min-width="0"
           text
           v-bind="attrs"
