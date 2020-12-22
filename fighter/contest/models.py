@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 class Event(models.Model):
@@ -74,7 +75,7 @@ class Bout(models.Model):
 	weight_class = models.CharField(max_length=50, blank=True, default='')
 	method = models.CharField(max_length=100, blank=True, default='')
 	round = models.IntegerField(blank=True, default=1)
-	time = models.TimeField()
+	time = models.TimeField(default='00:00:00')
 	detail_link = models.CharField(max_length=500, blank=True, default='')
 
 	def __str__(self):
