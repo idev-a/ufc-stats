@@ -31,12 +31,12 @@ class ScraperSpider(scrapy.Spider):
 
 	def start_requests(self):
 		# upcoming events
-		yield scrapy.Request(self.start_urls[0], dont_filter=True, callback=self.parse_event)
+		# yield scrapy.Request(self.start_urls[0], dont_filter=True, callback=self.parse_event)
 
 		# scan db to get the scraped events to get the stats
-		# events = Event.objects.all()
-		# for event in events:
-		# 	yield scrapy.Request(event.detail_link, dont_filter=True, meta={'event_id': event.id}, callback=self.parse_event_detail)
+		events = Event.objects.all()
+		for event in events:
+			yield scrapy.Request(event.detail_link, dont_filter=True, meta={'event_id': event.id}, callback=self.parse_event_detail)
 
 	def parse_event(self, response):
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
