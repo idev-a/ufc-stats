@@ -154,17 +154,15 @@ class ScraperSpider(scrapy.Spider):
 		bout = None
 		try:
 			bout = Bout.objects.get(detail_link=item['detail_link'])
+			item['id'] = bout.id
 		except:
 			pass
 
-		if bout:
-			item['id'] = bout.id
-		if not bout:
-			bout_serializer = BoutSerializer(data=item)
-			if bout_serializer.is_valid():
-				bout = bout_serializer.save()
-			else:
-				print('[save_bout] error', bout_serializer.errors)
+		bout_serializer = BoutSerializer(data=item)
+		if bout_serializer.is_valid():
+			bout = bout_serializer.save()
+		else:
+			print('[save_bout] error', bout_serializer.errors)
 
 		return bout
 
