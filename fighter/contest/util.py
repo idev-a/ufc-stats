@@ -9,10 +9,10 @@ def _valid(val):
 def strip_list1(arr):
 	new_list = []
 	for item in arr:
-		if item:
+		if item and item.strip():
 			new_list.append(_valid(item))
-		else:
-			new_list.append(' ')
+		# else:
+			# new_list.append(' ')
 
 	return new_list
 
