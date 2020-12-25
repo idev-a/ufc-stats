@@ -23,7 +23,7 @@ export default new Vuex.Store({
     barImage: 'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
     drawer: null,
   },
-  plugins: [vuexLocal.plugin],
+  // plugins: [vuexLocal.plugin],
   mutations: {
     SET_BAR_IMAGE (state, payload) {
       state.barImage = payload

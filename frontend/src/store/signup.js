@@ -1,4 +1,5 @@
 import auth from '../api/auth';
+import session from '../api/session';
 
 import {
   ACTIVATION_BEGIN,
@@ -9,6 +10,7 @@ import {
   REGISTRATION_CLEAR,
   REGISTRATION_FAILURE,
   REGISTRATION_SUCCESS,
+  TOKEN_STORAGE_KEY,
 } from './types';
 
 export default {
@@ -20,12 +22,16 @@ export default {
     registrationCompleted: false,
     registrationError: '',
     registrationLoading: false,
+    launchRegister: false
+  },
+  getters: {
+    launchRegister: state => state.launchRegister,
   },
   actions: {
     createAccount({ commit }, { username, password1, password2, email }) {
       commit(REGISTRATION_BEGIN);
       return auth.createAccount(username, password1, password2, email)
-        .then(() => commit(REGISTRATION_SUCCESS))
+        .then(({data}) => commit(REGISTRATION_SUCCESS, data.key))
         .catch((err) => commit(REGISTRATION_FAILURE, err));
     },
     activateAccount({ commit }, { key }) {
@@ -77,10 +83,16 @@ export default {
       state.registrationError = errorMsg;
       state.registrationLoading = false;
     },
-    [REGISTRATION_SUCCESS](state) {
+    [REGISTRATION_SUCCESS](state, token) {
       state.registrationCompleted = true;
       state.registrationError = '';
       state.registrationLoading = false;
+
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      session.defaults.headers.Authorization = `Token ${token}`;
     },
+    showRegisterDlg(state, payload=true) {
+      state.launchRegister = payload
+    }
   },
 };

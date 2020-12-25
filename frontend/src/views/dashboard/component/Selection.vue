@@ -32,7 +32,7 @@
           </template>
         </v-virtual-scroll>
         <div class="d-flex justify-center w-100">
-          <v-btn class="grey darken-4 mt-2 mb-2" :disabled="loading || !event " small @click="submit">Submit</v-btn>
+          <v-btn class="grey darken-4 mt-2 mb-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -96,6 +96,9 @@
       ...mapGetters('auth', ['isAuthenticated']),
       bgHeight() {
         return this.$vuetify.breakpoint.height - 147
+      },
+      submitDisabled() {
+        return this.loading || !this.event || this.bouts.length < 1
       }
     },
 
@@ -127,12 +130,12 @@
         })
       },
       async getLatestBouts () {
-        const { data } = await session.get(`api/latest_event`)
+        const { data } = await session.get(`api/latest_event/`)
         this.bouts = data.bouts
         this.event = data.event
       },
       async getFighters () {
-        const { data } = await session.get('api/fighters')
+        const { data } = await session.get('api/fighters/')
         this.fighters = data.results
       },
       _fighter (id) {
@@ -156,7 +159,7 @@
       },
       async submit () {
         if (!this.isAuthenticated) {
-          window.location.href = '/pages/login'
+          this.$store.commit('auth/showLoginDlg')
           return
         }
         const event_id = this.bouts[0].event

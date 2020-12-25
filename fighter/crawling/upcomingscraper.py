@@ -88,9 +88,6 @@ class ScraperSpider(scrapy.Spider):
 				)
 				bout = self.save_bout(item)
 
-				if not method:
-					pdb.set_trace()
-
 				if fight_detail:
 					event.status='completed'
 					event.save()

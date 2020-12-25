@@ -14,15 +14,25 @@ import {
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+const getAuthUser = () => {
+  let user = {}
+  try {
+    user = JSON.parse(localStorage.getItem('authUser'))
+  } catch (e) {}
+  return user
+}
+
 const initialState = {
+  launchLogin: false,
   authenticating: false,
-  authUser: {},
+  authUser: getAuthUser(),
   userContestStatus: false,
   error: false,
   token: null,
 };
 
 const getters = {
+  launchLogin: state => state.launchLogin,
   isAuthenticated: state => !!state.token,
 };
 
@@ -33,18 +43,17 @@ const actions = {
       .then(({ data }) => {
         commit(SET_TOKEN, data.key)
 
-        // retrieve auth user
         auth.getAccountDetails()
-        .then(({ data }) => {
-          commit(SET_AUTH_USER, data)
+          .then(({ data }) => {
+            commit(SET_AUTH_USER, data)
 
-          // check if user already took part in this contest
-          auth.checkAlreadyTaken(data.pk)
-          .then(({data}) => {
-            commit(SET_USER_CONTEST_STATUS, data)
-            commit(LOGIN_SUCCESS)
+            // check if user already took part in this contest
+            auth.checkAlreadyTaken(data.pk)
+            .then(({data}) => {
+              commit(SET_USER_CONTEST_STATUS, data)
+              commit(LOGIN_SUCCESS)
+            })
           })
-        })
       })
       .catch(() => commit(LOGIN_FAILURE));
   },
@@ -84,9 +93,9 @@ const mutations = {
     localStorage.setItem(TOKEN_STORAGE_KEY, token);
     session.defaults.headers.Authorization = `Token ${token}`;
     state.token = token 
-    state = Object.assign({}, state)
   },
   [SET_AUTH_USER] (state, user) {
+    localStorage.setItem(user, JSON.stringify(user))
     state.authUser = Object.assign({}, user)
   },
   [SET_USER_CONTEST_STATUS] (state, data) {
@@ -97,6 +106,9 @@ const mutations = {
     delete session.defaults.headers.Authorization;
     state.token = null
   },
+  showLoginDlg(state, payload=true) {
+    state.launchLogin = payload
+  }
 };
 
 export default {

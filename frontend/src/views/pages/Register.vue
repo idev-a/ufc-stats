@@ -1,8 +1,7 @@
 <template>
-  <v-container
-    id="register"
-    class="fill-height justify-center"
-    tag="section"
+  <v-dialog
+    v-model="propDlg"
+    fullscreen
   >
     <v-snackbar v-model="snackbar.snack" :timeout="5000" :color="snackbar.status">
       {{ snackbar.message }}
@@ -17,22 +16,25 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <v-row justify="center">
+    <v-row justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
-        <base-material-card
-          color="light-blue accent-3"
+        <v-card
           light
           max-width="100%"
           width="400"
           class="px-5 py-3"
         >
-          <template v-slot:heading>
-            <div class="text-center">
-              <div class="display-2 font-weight-bold">
-                Register to UFC Survivor
-              </div>
+           <v-app-bar
+            flat
+            color="rgba(0, 0, 0, 0)"
+          >
+            <div class="text-center display-2 font-weight-bold">
+              Register to UFC Survivor
             </div>
-          </template>
+            <v-spacer />
+            <v-btn icon @click="propDlg=false"><v-icon>mdi-close</v-icon></v-btn>
+          </v-app-bar>
+
 
           <div
             class="text-center"
@@ -77,6 +79,7 @@
                 :type="show1 ? 'text' : 'password'" 
                 name="input-10-1" 
                 label="Confirm Password" 
+                @keyup.enter="submit"
                 counter 
                 @click:prepend="show1 = !show1" />
 
@@ -94,10 +97,10 @@
               </div>
             </v-form>
           </div>
-        </base-material-card>
+        </v-card>
       </v-slide-y-transition>
     </v-row>
-  </v-container>
+  </v-dialog>
 </template>
 
 <script>
@@ -105,6 +108,8 @@
 
   export default {
     name: 'PagesRegister',
+
+    props: ['value'],
 
     data () {
       const defaultForm = Object.freeze({
@@ -156,12 +161,17 @@
         'registrationError',
         'registrationLoading',
       ]),
+      ...mapState('auth', ['authenticating', 'error']),
       formHasErrors () {
         return  !this.errorMessages.email.required || !this.errorMessages.email.invalid
       },
       passwordMatch() {
         return () => this.form.password1 === this.form.password2 || "Password must match";
-      }
+      },
+      propDlg: {
+        get () { return this.$store.getters['signup/launchRegister'] },
+        set (value) { this.$store.commit('signup/showRegisterDlg', value) },
+      },
     },
 
     watch: {
@@ -175,12 +185,27 @@
             this.snackbar.status = 'success'
           }
           this.snackbar.snack = true
+
+          const data = {
+            username: this.form.username,
+            password: this.form.password1
+          }
+          this.$store.dispatch('auth/login', data)
         }
+      },
+      authenticating (val) {
+        if (!val && !this.error) {
+          this.$store.commit('auth/showLoginDlg', false)
+        }
+      },
+      registrationCompleted (val) {
+        console.log('registrationCompleted')
       }
     },
     methods: {
       gotoLogin () {
-        this.$router.push({ name: "Login" });
+        this.$store.commit('signup/showRegisterDlg', false)
+        this.$store.commit('auth/showLoginDlg')
       },
       resetForm () {
         this.form = Object.assign({}, this.defaultForm)

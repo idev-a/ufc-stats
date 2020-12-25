@@ -13,6 +13,9 @@
     <dashboard-core-view />
 
     <!-- <dashboard-core-settings v-model="expandOnHover" /> -->
+    <login-view  />
+    <register-view />
+    <v-overlay :value="overlay" :opacity=".7" absolute></v-overlay>
 
   </v-app>
 </template>
@@ -30,14 +33,25 @@
       DashboardCoreDrawer: () => import('./components/core/Drawer'),
       DashboardCoreSettings: () => import('./components/core/Settings'),
       DashboardCoreView: () => import('./components/core/View'),
+      LoginView: () => import('../pages/Login'),
+      RegisterView: () => import('../pages/Register')
     },
 
     data: () => ({
       expandOnHover: false,
-      key: 0
+      key: 0,
+      loginDlg: false,
+      registerDlg: false
     }),
 
+    computed: {
+      overlay () {
+        return this.$store.getters['auth/launchLogin'] || this.$store.getters['signup/launchRegister']
+      }
+    },
+
     mounted() {
+      // login
       this.$store.subscribe((mutation, state) => {
         this.key++
       })

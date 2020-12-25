@@ -8,7 +8,7 @@ const requireAuthenticated = (to, from, next) => {
   store.dispatch('auth/initialize')
     .then(() => {
       if (!self.getters['auth/isAuthenticated']) {
-        next('/pages/login');
+        self.commit('auth/showLoginDlg')
       } else {
         next();
       }
@@ -28,8 +28,9 @@ const requireUnauthenticated = (to, from, next) => {
 };
 
 const redirectLogout = (to, from, next) => {
+  const self = Object.assign({}, store)
   store.dispatch('auth/logout')
-    .then(() => next('/pages/login'));
+    .then(() => self.commit('auth/showLoginDlg'));
 };
 
 Vue.use(Router)

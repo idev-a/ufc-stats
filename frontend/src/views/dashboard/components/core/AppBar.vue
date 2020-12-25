@@ -83,12 +83,21 @@
         nav
       >
         <div>
-          <app-bar-item
+          <v-btn
+            text
+            v-if="!isAuthenticated"
+            @click="launchLogin"
+            block
+            plain
+          >
+            Login
+          </v-btn>
+          <!-- <app-bar-item
             v-if="!isAuthenticated"
           >
             <v-list-item-title 
               v-text="`Login`" 
-              @click="goTo('Login')"
+              @click="launchLogin"
             />
           </app-bar-item>
           <app-bar-item
@@ -98,7 +107,7 @@
               v-text="`Logout`" 
               @click="goTo('Logout')"
             />
-          </app-bar-item>
+          </app-bar-item> -->
         </div>
       </v-list>
     </v-menu>
@@ -184,6 +193,9 @@
         } 
         
         this.$router.push({ name })
+      },
+      launchLogin () {
+        this.$store.commit('auth/showLoginDlg')
       }
     },
   }

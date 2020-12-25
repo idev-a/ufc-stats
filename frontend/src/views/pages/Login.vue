@@ -1,8 +1,7 @@
 <template>
-  <v-container
-    id="login"
-    class="fill-height justify-center"
-    tag="section"
+  <v-dialog
+    v-model="propDlg"
+    fullscreen
   >
     <v-snackbar
       v-model="snackbar"
@@ -19,23 +18,24 @@
         mdi-checkbox-marked-circle
       </v-icon>
     </v-snackbar>
-    <v-row justify="center">
+    <v-row justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
-        <base-material-card
-          color="light-blue accent-3"
+        <v-card
           light
           max-width="100%"
           width="400"
-          class="px-5 py-3"
+          class="px-5 py-5"
         >
-          <template v-slot:heading>
-            <div class="text-center">
-              <h1 class="display-2 font-weight-bold">
-                Login
-              </h1>
-             
+          <v-app-bar
+            flat
+            color="rgba(0, 0, 0, 0)"
+          >
+            <div class="text-center display-2 font-weight-bold">
+              Login
             </div>
-          </template>
+            <v-spacer />
+            <v-btn icon @click="propDlg=false"><v-icon>mdi-close</v-icon></v-btn>
+          </v-app-bar>
 
           <v-card-text
             class="text-center"
@@ -86,23 +86,25 @@
               </div>
             </v-form>
           </v-card-text>
-        </base-material-card>
+        </v-card>
       </v-slide-y-transition>
     </v-row>
-  </v-container>
+  </v-dialog>
 </template>
 
 <script>
   import { BASE_API } from '../../api'
   import { DOMAIN_LIST } from '../../util'
   import axios from 'axios'
-  import { mapState } from 'vuex'
+  import { mapState, mapGetters } from 'vuex'
 
   export default {
     name: 'PagesLogin',
 
     components: {
     },
+
+    props: ['value'],
 
     data () {
       const defaultForm = Object.freeze({
@@ -156,7 +158,14 @@
     },
 
     computed: {
-      ...mapState('auth', ['authenticating', 'error'])
+      ...mapState('auth', ['authenticating', 'error']),
+      ...mapGetters('auth', ['isAuthenticated']),
+      propDlg: {
+        get () { return this.$store.getters['auth/launchLogin'] },
+        set (value) { 
+          this.$store.commit('auth/showLoginDlg', value)
+        },
+      },
     },
 
     watch: {
@@ -164,56 +173,25 @@
         if (!val && !this.error) {
           this.$router.push({name: 'Dashboard'})
         }
-      }
+      },
     },
 
     methods: {
       gotoSignup () {
-        this.$router.push({ name: "Register" });
+        this.$store.commit('auth/showLoginDlg', false)
+        this.$store.commit('signup/showRegisterDlg')
       },
       gotoDashboard (user) {
         localStorage.setItem('jwt', 'success')
         localStorage.setItem('user', JSON.stringify(user))
-        this.$router.push({ name: "Dashboard" });
+        // this.$router.push({ name: "Dashboard" });
+        this.$store.commit('signup/showRegisterDlg', false)
       },
       resetForm () {
         this.form = Object.assign({}, this.defaultForm)
         this.$refs.form.reset()
         this.formHasErrors = false
       },
-      request () {
-        this.formHasErrors = !this.errorMessages.email.required || !this.errorMessages.email.invalid
-
-        if (!this.formHasErrors) {
-          this.loading = true
-          const self = this
-          const data = {
-            email: this.form.email,
-          }
-          axios({
-            url: `${BASE_API}/api/users/login/code`,
-            method: 'POST',
-            data,
-            withCredentials: false,
-            crossdomain: true,
-          })
-            .then(function (res) {
-              self.loading = false
-              self.snackbar_message = res.data.message
-              if (res.data.status === 'failure') {
-                self.snackbar_color = 'error'
-              } else {
-                self.snackbar_color = 'success'
-              }
-              self.snackbar = true
-            })
-            .catch(error => {
-              console.log(error)
-              self.loading = false
-            })
-        }
-      },
-
       submit () {
         this.$refs.form.validate()
 
