@@ -94,7 +94,6 @@
 
 <script>
   import { BASE_API } from '../../api'
-  import { DOMAIN_LIST } from '../../util'
   import axios from 'axios'
   import { mapState, mapGetters } from 'vuex'
 
@@ -142,11 +141,6 @@
             this.errorMessages.email.invalid = pattern.test(value)
             return this.errorMessages.email.invalid || 'Invalid e-mail.'
           },
-          validEmail: value => {
-            const domain = value.split('@')[1]
-            this.errorMessages.email.business = value.includes('@') && !DOMAIN_LIST.includes(domain.toLowerCase()) 
-            return this.errorMessages.email.business || 'Please enter a business email'
-          }
         },
         socials: [
           {
@@ -170,7 +164,7 @@
 
     watch: {
       authenticating (val) {
-        if (!val && !this.error) {
+        if (!val && !this.error && this.$route.name != 'Dashboard') {
           this.$router.push({name: 'Dashboard'})
         }
       },

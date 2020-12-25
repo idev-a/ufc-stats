@@ -8,7 +8,9 @@ const requireAuthenticated = (to, from, next) => {
   store.dispatch('auth/initialize')
     .then(() => {
       if (!self.getters['auth/isAuthenticated']) {
-        self.commit('auth/showLoginDlg')
+        if (from != to) { 
+          next('/')
+        }
       } else {
         next();
       }

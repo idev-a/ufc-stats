@@ -92,6 +92,15 @@
           >
             Login
           </v-btn>
+          <v-btn
+            v-else
+            text
+            @click="logout"
+            block
+            plain
+          >
+            Logout
+          </v-btn>
           <!-- <app-bar-item
             v-if="!isAuthenticated"
           >
@@ -196,6 +205,9 @@
       },
       launchLogin () {
         this.$store.commit('auth/showLoginDlg')
+      },
+      logout () {
+        this.$store.dispatch('auth/logout')
       }
     },
   }

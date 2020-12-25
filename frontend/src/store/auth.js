@@ -33,7 +33,7 @@ const initialState = {
 
 const getters = {
   launchLogin: state => state.launchLogin,
-  isAuthenticated: state => !!state.token,
+  isAuthenticated: state => !!state.token && state.token != 'null',
 };
 
 const actions = {
@@ -95,7 +95,7 @@ const mutations = {
     state.token = token 
   },
   [SET_AUTH_USER] (state, user) {
-    localStorage.setItem(user, JSON.stringify(user))
+    localStorage.setItem('authUser', JSON.stringify(user))
     state.authUser = Object.assign({}, user)
   },
   [SET_USER_CONTEST_STATUS] (state, data) {
@@ -105,6 +105,7 @@ const mutations = {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
     delete session.defaults.headers.Authorization;
     state.token = null
+    window.location.href = '/'
   },
   showLoginDlg(state, payload=true) {
     state.launchLogin = payload

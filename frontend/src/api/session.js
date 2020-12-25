@@ -11,8 +11,11 @@ const session = axios.create({
 });
 
 const token = localStorage.getItem(TOKEN_STORAGE_KEY)
-if (token) {
+// console.log(session.defaults.headers)
+if (token && token != 'null') {
 	session.defaults.headers.Authorization = `Token ${token}`;
+} else {
+	delete session.defaults.headers.Authorization;
 }
 
 export default session;
