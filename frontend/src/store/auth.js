@@ -150,6 +150,7 @@ const mutations = {
   },
   [REMOVE_TOKEN](state) {
     localStorage.removeItem(TOKEN_STORAGE_KEY);
+    localStorage.removeItem('authUser');
     delete session.defaults.headers.Authorization;
     state.token = null
     window.location.href = '/'

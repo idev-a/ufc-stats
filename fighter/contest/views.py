@@ -174,7 +174,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             value.update({'username': key})
             data.append(value)
 
-        return Response(dict(scores=data)),
+        return Response(dict(scores=data))
 
     def create(self, request):
         serializer = EntrySerializer(many=True, data=request.data)
