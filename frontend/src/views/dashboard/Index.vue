@@ -1,18 +1,10 @@
 <template>
   <v-app>
     <span class="bg"></span>
-    <!-- <v-img
-      :src="require('@/assets/register.jpg')" 
-      :lazy-src="require('@/assets/register.jpg')" 
-    > 
-    </v-img> -->
     <dashboard-core-app-bar :key="key" v-model="expandOnHover" />
-
-    <!-- <dashboard-core-drawer :expand-on-hover.sync="expandOnHover" /> -->
 
     <dashboard-core-view />
 
-    <!-- <dashboard-core-settings v-model="expandOnHover" /> -->
     <login-view  />
     <register-view />
     <v-overlay :value="overlay" :opacity=".7" absolute></v-overlay>
@@ -21,8 +13,6 @@
 </template>
 
 <script>
-  import { BASE_API } from '../../api'
-  import axios from 'axios'
   import { mapGetters } from 'vuex'
   
   export default {
@@ -30,8 +20,6 @@
 
     components: {
       DashboardCoreAppBar: () => import('./components/core/AppBar'),
-      DashboardCoreDrawer: () => import('./components/core/Drawer'),
-      DashboardCoreSettings: () => import('./components/core/Settings'),
       DashboardCoreView: () => import('./components/core/View'),
       LoginView: () => import('../pages/Login'),
       RegisterView: () => import('../pages/Register')

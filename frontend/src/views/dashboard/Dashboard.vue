@@ -10,7 +10,7 @@
 
 <script>
   import upperFirst from 'lodash/upperFirst'
-  import { Get, Post, BASE_API } from '@/api'
+  import { Get, Post, BASE_API } from '@/api/index'
 
   export default {
     name: 'DashboardDashboard',

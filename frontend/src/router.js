@@ -111,10 +111,14 @@ let router = new Router({
       ],
     },
     {
-      path: '/auth/callback',
-      component: {
-        template: '<div class="auth-component"></div>'
-      }
+      path: '/twitter/callback',
+      component: () => import('@/views/dashboard/layout/Layout'),
+      children: [
+        {
+          path: '',
+          component: () => import('@/views/dashboard/component/Callback'),
+        }
+      ]
     },
     {
       path: '*',

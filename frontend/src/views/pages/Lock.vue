@@ -38,8 +38,7 @@
 </template>
 
 <script>
-  import { BASE_API } from '../../api'
-  import axios from 'axios'
+  import { BASE_API } from '@/api'
 
   export default {
     name: 'PagesLock',
@@ -55,8 +54,6 @@
     mounted () {
       // logout
       localStorage.setItem('jwt', null)
-      
-      
     },
 
     methods: {

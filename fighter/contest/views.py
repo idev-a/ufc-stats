@@ -5,6 +5,17 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 import copy
+from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
+from rest_auth.registration.views import SocialLoginView
+from rest_auth.social_serializers import TwitterLoginSerializer
+from requests_oauthlib import OAuth1
+from urllib.parse import urlencode
+from rest_framework.views import APIView
+from django.http import HttpResponse
+from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.debug import sensitive_post_parameters
+import requests
 
 from django.contrib.auth.models import User, Group
 from contest.models import (
@@ -163,7 +174,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             value.update({'username': key})
             data.append(value)
 
-        return Response(dict(scores=data))
+        return Response(dict(scores=data)),
 
     def create(self, request):
         serializer = EntrySerializer(many=True, data=request.data)
@@ -173,3 +184,66 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         return Response({'status': 'failed', 'message': 'Something wrong happened.'})
 
+
+# Social
+class TwitterLogin(SocialLoginView):
+    serializer_class = TwitterLoginSerializer
+    adapter_class = TwitterOAuthAdapter
+
+
+class TwitterAuthRedirectEndpoint(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            oauth = OAuth1(
+                settings.TWITTER_API_KEY, 
+                client_secret=settings.TWITTER_API_SECRET_KEY
+            )
+             #Step one: obtaining request token
+            request_token_url = "https://api.twitter.com/oauth/request_token"
+            data = urlencode({
+                "oauth_callback": settings.TWITTER_AUTH_CALLBACK_URL
+            })
+            response = requests.post(request_token_url, auth=oauth, data=data)
+            response.raise_for_status()
+            response_split = response.text.split("&")
+            oauth_token = response_split[0].split("=")[1]
+            oauth_token_secret = response_split[1].split("=")[1]  
+
+            #Step two: redirecting user to Twitter
+            twitter_redirect_url = (f"https://api.twitter.com/oauth/authenticate?oauth_token={oauth_token}")
+            return Response(dict(twitter_redirect_url=twitter_redirect_url), status=200)
+        except ConnectionError:
+            return Response(dict(message="You have no internet connection"), status=403)
+        except:
+            return Response(dict("Something went wrong.Try again."), status=403)
+
+
+class TwitterCallbackEndpoint(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            oauth_token = request.query_params.get("oauth_token")
+            oauth_verifier = request.query_params.get("oauth_verifier")
+            oauth = OAuth1(
+                settings.TWITTER_API_KEY,
+                client_secret=settings.TWITTER_API_SECRET_KEY,
+                resource_owner_key=oauth_token,
+                verifier=oauth_verifier,
+            )
+            res = requests.post(
+                f"https://api.twitter.com/oauth/access_token", auth=oauth
+            )
+            res_split = res.text.split("&")
+            oauth_token = res_split[0].split("=")[1]
+            oauth_secret = res_split[1].split("=")[1]
+
+            formdata = {
+                'access_token': oauth_token,
+                'token_secret': oauth_secret
+            }
+            url = f"{request.scheme}://{request.get_host()}/auth/twitter/"
+            res = requests.post(url, data=formdata).json()
+            return Response(dict(key=res['key']))
+        except ConnectionError:
+            return Response(dict(message="You have no internet connection"), status=403)
+        except:
+            return Response(dict("Something went wrong.Try again."), status=403)

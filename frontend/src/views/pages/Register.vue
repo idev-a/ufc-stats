@@ -86,9 +86,10 @@
               <v-btn
                 :loading="registrationLoading"
                 color="primary"
-                class="display-1"
+                class="display-1 my-5"
                 :diabled="!valid || registrationLoading"
                 @click="submit"
+                block
               >
                 Submit
               </v-btn>

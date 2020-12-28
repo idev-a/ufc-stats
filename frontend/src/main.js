@@ -24,7 +24,26 @@ import i18n from './i18n'
 import VueAxios from 'vue-axios'
 import VueAuthenticate from 'vue-authenticate'
 import axios from 'axios';
-import { BASE_API } from '@/api'
+import { BASE_API } from '@/api/index'
+import { TwitterAuthConfig } from '@/config'
+
+const LoginWithTwitter = require("login-with-twitter");
+
+const twitterAuth = new LoginWithTwitter({
+    consumerKey: TwitterAuthConfig.consumerKey,
+    consumerSecret: TwitterAuthConfig.consumerSecret,
+    callbackUrl: TwitterAuthConfig.callbackUrl
+  });
+
+  //Install Vue plugin
+Vue.twitterAuth = twitterAuth;
+Object.defineProperties(Vue.prototype, {
+  $twitterAuth: {
+    get: function() {
+      return Vue.twitterAuth;
+    }
+  }
+});
 
 Vue.use(VueAxios, axios)
 Vue.use(VueAuthenticate, {
@@ -35,8 +54,8 @@ Vue.use(VueAuthenticate, {
   providers: {
     twitter: {
       name: 'twitter',
+      url: '/auth/twitter/',
       clientId: 'Szk06qiHVrfrAEyP7XzrjJke7',
-      redirectUri: `${BASE_API}/twitter/callback`,
     }
   }
 })

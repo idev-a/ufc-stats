@@ -74,12 +74,24 @@
               />
 
               <v-btn
-                class="ma-1 mt-1"
+                class="mt-5"
                 color="primary"
                 :loading="authenticating"
                 @click="submit"
+                block
               >
-                Login
+                Submit
+              </v-btn>
+              <div class="my-2">Or</div>
+              <v-btn 
+                block
+                color="#1DA1F2"
+                class="mb-5"
+                :loading="authenticating"
+                @click="twitterLogin()"
+              >
+                Login with Twitter
+                <v-icon right>mdi-twitter</v-icon>
               </v-btn>
               <div class="text-center mt-2 grey--text body-1 font-weight-light">
                 If you don't have any account, please <a href="javascript:;" @click="gotoSignup" class="">sign up</a>
@@ -93,7 +105,7 @@
 </template>
 
 <script>
-  import { BASE_API } from '../../api'
+  import auth from '@/api/auth'
   import axios from 'axios'
   import { mapState, mapGetters } from 'vuex'
 
@@ -197,6 +209,9 @@
           this.$store.dispatch('auth/login', data)
         }
       },
+      twitterLogin() {
+        this.$store.dispatch('auth/twitterLogin')
+      }
     },
   }
 </script>

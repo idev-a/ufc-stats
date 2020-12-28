@@ -1,7 +1,7 @@
 const moment = require('moment');
 import Papa from "papaparse";
 
-import { companyId } from './api'
+import { companyId } from '@/api'
 
 // Highcharts.setOptions({
 //     global: {

@@ -37,25 +37,60 @@ const getters = {
 };
 
 const actions = {
-  login({ commit }, { username, password }) {
+  login({ commit, dispatch }, { username, password }) {
     commit(LOGIN_BEGIN);
     return auth.login(username, password)
       .then(({ data }) => {
-        commit(SET_TOKEN, data.key)
-
-        auth.getAccountDetails()
-          .then(({ data }) => {
-            commit(SET_AUTH_USER, data)
-
-            // check if user already took part in this contest
-            auth.checkAlreadyTaken(data.pk)
-            .then(({data}) => {
-              commit(SET_USER_CONTEST_STATUS, data)
-              commit(LOGIN_SUCCESS)
-            })
-          })
+        dispatch('afterLogin', { data })
       })
       .catch(() => commit(LOGIN_FAILURE));
+  },
+  twitterLogin({ commit }) {
+    commit(LOGIN_BEGIN);
+    auth.twitterRequestToken()
+      .then(({data}) => {
+        commit(LOGIN_SUCCESS)
+        // window.open(data.twitter_redirect_url);
+        window.open(
+          data.twitter_redirect_url,
+          'popUpWindow',
+          'height=300,width=400,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes'
+        )
+      })
+      .catch(() => commit(LOGIN_FAILURE))
+  },
+  twitterCallback({ commit, dispatch }, {oauth_token, oauth_verifier}) {
+    commit(LOGIN_BEGIN);
+    const url = `auth/twitter/callback/?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`
+    auth.twitterCallback(url)
+      .then(({ data }) => {
+        dispatch('afterLogin', { data, popup:true })
+      })
+      .catch(() => {
+        commit(LOGIN_FAILURE)
+        commit('showLoginDlg', false)
+      })
+  },
+  afterLogin ({ commit }, { data, popup }) {
+    commit(SET_TOKEN, data.key)
+
+    auth.getAccountDetails()
+    .then(({ data }) => {
+      commit(SET_AUTH_USER, data)
+
+      commit(SET_USER_CONTEST_STATUS, data)
+      commit(LOGIN_SUCCESS)
+
+      if (popup) {
+        window.close('','_parent','')
+      }
+
+      commit('showLoginDlg', false)
+      // check if user already took part in this contest
+      // auth.checkAlreadyTaken(data.pk)
+      // .then(({data}) => {
+      // })
+    })
   },
   logout({ commit }) {
     return auth.logout()

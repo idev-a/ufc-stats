@@ -1,6 +1,12 @@
 import session from './session';
 
 export default {
+  twitterRequestToken() {
+    return session.get('/auth/twitter/request_token/');
+  },
+  twitterCallback(url) {
+    return session.get(url);
+  },
   login(username, password) {
     return session.post('/auth/login/', { username, password });
   },

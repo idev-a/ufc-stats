@@ -74,9 +74,10 @@ INSTALLED_APPS = [
     'rest_auth',
 
     'allauth',
-    'allauth.socialaccount',
-    'django.contrib.sites',
     'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.twitter',
+    'django.contrib.sites',
     'rest_auth.registration',
     'contest.apps.ContestConfig',
 ]
@@ -177,3 +178,10 @@ ACCOUNT_EMAIL_VERIFICATION = None
 EMAIL_VERIFICATION = None
 AUTH_PASSWORD_VALIDATORS = []
 
+TWITTER_API_KEY = 'Szk06qiHVrfrAEyP7XzrjJke7'
+TWITTER_API_SECRET_KEY = 'oaD2hHGBOItuJ7eWDNb1GSc4kMbAeZflikyDJ04pU281Cg5CNn'
+TWITTER_AUTH_CALLBACK_URL = 'http://localhost:8085/twitter/callback/'
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_REQUIRED = False
+SOCIALACCOUNT_QUERY_EMAIL = True
