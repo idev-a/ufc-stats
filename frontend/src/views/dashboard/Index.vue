@@ -5,6 +5,7 @@
 
     <dashboard-core-view />
 
+    <snackbar />
     <login-view  />
     <register-view />
     <v-overlay :value="overlay" :opacity=".7" absolute></v-overlay>
@@ -22,7 +23,8 @@
       DashboardCoreAppBar: () => import('./components/core/AppBar'),
       DashboardCoreView: () => import('./components/core/View'),
       LoginView: () => import('../pages/Login'),
-      RegisterView: () => import('../pages/Register')
+      RegisterView: () => import('../pages/Register'),
+      Snackbar: () => import('./component/Snackbar'),
     },
 
     data: () => ({

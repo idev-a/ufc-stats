@@ -3,19 +3,6 @@
     v-model="propDlg"
     fullscreen
   >
-    <v-snackbar v-model="snackbar.snack" :timeout="5000" :color="snackbar.status">
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          dark
-          text
-          v-bind="attrs"
-          @click="snackbar.snack = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
     <v-row justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
         <v-card
@@ -186,6 +173,8 @@
             this.snackbar.status = 'success'
           }
           this.snackbar.snack = true
+
+          this.$store.dispatch('snackbar/setSnack', this.snackbar)
 
           const data = {
             username: this.form.username,

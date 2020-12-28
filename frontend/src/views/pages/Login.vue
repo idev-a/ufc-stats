@@ -3,21 +3,6 @@
     v-model="propDlg"
     fullscreen
   >
-    <v-snackbar
-      v-model="snackbar"
-      absolute
-      top
-      center
-      :color="snackbar_color"
-      :multi-line="multiLine"
-    >
-      <span>{{ snackbar_message }}</span>
-      <v-icon
-        dark
-      >
-        mdi-checkbox-marked-circle
-      </v-icon>
-    </v-snackbar>
     <v-row justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
         <v-card
@@ -134,9 +119,11 @@
             business: false
           },
         },
-        snackbar: false,
-        snackbar_message: '',
-        snackbar_color: 'success',
+        snackbar: {
+          snack: false,
+          message: '',
+          status: 'success',
+        },
         multiLine: true,
         defaultForm,
         form: Object.assign({}, defaultForm),
@@ -180,6 +167,16 @@
           this.$router.push({name: 'Dashboard'})
         }
       },
+      error (val) {
+        if (val) {
+          const snackbar = {
+            message: val,
+            status: 'failed',
+            snack: true
+          }
+          this.$store.dispatch('snackbar/setSnack', snackbar)
+        }
+      }
     },
 
     methods: {

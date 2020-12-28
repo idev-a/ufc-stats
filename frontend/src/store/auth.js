@@ -43,13 +43,14 @@ const actions = {
       .then(({ data }) => {
         dispatch('afterLogin', { data })
       })
-      .catch(() => commit(LOGIN_FAILURE));
+      .catch((err) => commit(LOGIN_FAILURE, err));
   },
   twitterLogin({ commit }) {
     commit(LOGIN_BEGIN);
     auth.twitterRequestToken()
       .then(({data}) => {
         commit(LOGIN_SUCCESS)
+        // window.location.href = data.twitter_redirect_url
         // window.open(data.twitter_redirect_url);
         window.open(
           data.twitter_redirect_url,
@@ -57,7 +58,7 @@ const actions = {
           'height=300,width=400,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes'
         )
       })
-      .catch(() => commit(LOGIN_FAILURE))
+      .catch((err) => commit(LOGIN_FAILURE, err))
   },
   twitterCallback({ commit, dispatch }, {oauth_token, oauth_verifier}) {
     commit(LOGIN_BEGIN);
@@ -66,8 +67,8 @@ const actions = {
       .then(({ data }) => {
         dispatch('afterLogin', { data, popup:true })
       })
-      .catch(() => {
-        commit(LOGIN_FAILURE)
+      .catch((err) => {
+        commit(LOGIN_FAILURE, err)
         commit('showLoginDlg', false)
       })
   },
@@ -78,7 +79,6 @@ const actions = {
     .then(({ data }) => {
       commit(SET_AUTH_USER, data)
 
-      commit(SET_USER_CONTEST_STATUS, data)
       commit(LOGIN_SUCCESS)
 
       if (popup) {
@@ -112,9 +112,15 @@ const mutations = {
     state.authenticating = true;
     state.error = false;
   },
-  [LOGIN_FAILURE](state) {
+  [LOGIN_FAILURE](state, error) {
+    let errorMsg = ''
+    for(let err in error.response.data) {
+      if (error.response.data[err].length) {
+        errorMsg += error.response.data[err].join('') + '\n'
+      }
+    }
     state.authenticating = false;
-    state.error = true;
+    state.error = errorMsg;
   },
   [LOGIN_SUCCESS](state) {
     state.authenticating = false;

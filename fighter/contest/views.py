@@ -213,9 +213,10 @@ class TwitterAuthRedirectEndpoint(APIView):
             twitter_redirect_url = (f"https://api.twitter.com/oauth/authenticate?oauth_token={oauth_token}")
             return Response(dict(twitter_redirect_url=twitter_redirect_url), status=200)
         except ConnectionError:
-            return Response(dict(message="You have no internet connection"), status=403)
-        except:
-            return Response(dict("Something went wrong.Try again."), status=403)
+            return Response(dict(message=["You have no internet connection"]), status=403)
+        except Exception as err:
+            print(err)
+            return Response(dict(message=["Something went wrong.Try again."]), status=403)
 
 
 class TwitterCallbackEndpoint(APIView):
@@ -236,6 +237,8 @@ class TwitterCallbackEndpoint(APIView):
             oauth_token = res_split[0].split("=")[1]
             oauth_secret = res_split[1].split("=")[1]
 
+            print(res.text)
+
             formdata = {
                 'access_token': oauth_token,
                 'token_secret': oauth_secret
@@ -244,6 +247,7 @@ class TwitterCallbackEndpoint(APIView):
             res = requests.post(url, data=formdata).json()
             return Response(dict(key=res['key']))
         except ConnectionError:
-            return Response(dict(message="You have no internet connection"), status=403)
-        except:
-            return Response(dict("Something went wrong.Try again."), status=403)
+            return Response(dict(message=["You have no internet connection"]), status=403)
+        except Exception as err:
+            print(err)
+            return Response(dict(message=["Something went wrong.Try again."]), status=403)

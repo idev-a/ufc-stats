@@ -15,7 +15,7 @@ const vuexLocal = new VuexPersistence({
 import auth from './auth'
 import password from './password';
 import signup from './signup';
-// import snackbar from './snackbar';
+import snackbar from './snackbar';
 
 export default new Vuex.Store({
   state: {
@@ -40,6 +40,7 @@ export default new Vuex.Store({
   modules: { 
     auth,
     password,
-    signup
+    signup,
+    snackbar
   },
 })
