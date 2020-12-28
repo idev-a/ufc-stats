@@ -13,7 +13,7 @@
         indeterminate
       ></v-progress-circular>
     </div>
-    <v-overlay :value="overlay" :opacity=".7" absolute></v-overlay>
+    <v-overlay :value="true" :opacity=".7" absolute></v-overlay>
   </v-container>
 </template>
 <script>
@@ -22,11 +22,6 @@
 
   export default {
     name: 'Callback',
-
-    data () {
-      return {
-      }
-    },
 
     mounted() {
       this.parseUrl()

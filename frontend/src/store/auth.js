@@ -28,7 +28,7 @@ const initialState = {
   authUser: getAuthUser(),
   userContestStatus: false,
   error: false,
-  token: null,
+  token: localStorage.getItem('TOKEN_STORAGE_KEY'),
 };
 
 const getters = {
@@ -50,13 +50,14 @@ const actions = {
     auth.twitterRequestToken()
       .then(({data}) => {
         commit(LOGIN_SUCCESS)
-        // window.location.href = data.twitter_redirect_url
-        // window.open(data.twitter_redirect_url);
-        window.open(
-          data.twitter_redirect_url,
-          'popUpWindow',
-          'height=300,width=400,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes'
-        )
+        window.location.href = data.twitter_redirect_url
+        localStorage.setItem('return_url', window.location.href)
+        // window.open(data.twitter_redirect_url, '_blank');
+        // window.open(
+        //   data.twitter_redirect_url,
+        //   'popUpWindow',
+        //   'height=300,width=400,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes'
+        // )
       })
       .catch((err) => commit(LOGIN_FAILURE, err))
   },
@@ -82,7 +83,12 @@ const actions = {
       commit(LOGIN_SUCCESS)
 
       if (popup) {
-        window.close('','_parent','')
+        if (window.opener) {
+          window.opener.location.href = '/'
+          window.close('','_parent','')
+        }
+        const return_url = localStorage.getItem('return_url')
+        window.location.href = return_url || '/'
       }
 
       commit('showLoginDlg', false)
