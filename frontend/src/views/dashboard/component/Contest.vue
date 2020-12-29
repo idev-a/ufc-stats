@@ -78,7 +78,8 @@
                     </div>
                   </template>
                   <template v-slot:item.entries_1="{ item }">
-                    <span><a href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a></span>
+                    <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a>
+                    <span v-else>{{item.entries_1.length}}</span>
                   </template>
                   <template #item.fighter2="{item}">
                     <div 

@@ -141,11 +141,11 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     entries_1=[],
                     entries_2=[],
                 )
+        
+            if selection.fighter_id == _bout.fighter1_id:
+                view['entries_1'].append(selection.entry.id)
             else:
-                if selection.fighter_id == _bout.fighter1_id:
-                    view['entries_1'].append(selection.entry.id)
-                else:
-                    view['entries_2'].append(selection.entry.id)
+                view['entries_2'].append(selection.entry.id)
 
             bout_views[view_id] = view
 
