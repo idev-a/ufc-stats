@@ -22,6 +22,7 @@ from contest.models import (
     Event,
     Bout,
     Fighter,
+    Selection,
     Entry
 )
 from contest.serializers import (
@@ -30,6 +31,7 @@ from contest.serializers import (
 	EventSerializer,
 	BoutSerializer,
 	FighterSerializer,
+    SelectionSerializer,
     EntrySerializer
 )
 import pdb
@@ -65,7 +67,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         events = Event.objects.all().filter(status='upcoming')
         if events:
             latest_event = events.latest('-date')
-            bouts = Bout.objects.filter(event__pk=latest_event.id)
+            bouts = Bout.objects.filter(event__id=latest_event.id)
             return Response(dict(
                 bouts=BoutSerializer(bouts, many=True).data,
                 event=EventSerializer(latest_event).data
@@ -112,32 +114,42 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_latestContest(self, request, **kwarg):
         latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
         entries = Entry.objects.all().filter(event__pk=latest_event.id)
-        bouts = entries.values_list('bout_id').distinct()
-        dead_users = [entry.user_id for entry in entries.filter(finished=True, status=False)]
-        contests = []
-        for bout in bouts:
-            _bout = Bout.objects.get(pk=bout[0])
-            users = []
-            for ii in entries.filter(bout_id=bout[0]):
-                status = True
-                if ii.user_id in dead_users:
-                    status = False
-                users.append(dict(
-                   username=f'{ii.user.username}-{ii.id}', 
-                   fighter=ii.fighter.name,
-                   status=status,
-                   finished=ii.finished
-                ))
-            contests.append({
-                'fighter1': _bout.fighter1.name,
-                'fighter2': _bout.fighter2.name,
-                'winner': _bout.winner and _bout.winner.name,
-                'loser': _bout.loser and _bout.loser.name,
-                'users': users,
-                'status': _bout.status
-            })
+        selections = Selection.objects.all()
 
-        return Response(dict(contests=contests, event=EventSerializer(latest_event).data))
+        # fight/bout view
+        bout_views = {}
+        for selection in selections:
+            _bout = selection.bout
+            view_id = f"{_bout.id}"
+            view = bout_views.get(view_id, {})
+            user = dict(
+                username=f'{selection.entry.user.username}-{selection.entry.id}', 
+                fighter=selection.fighter.name,
+                status=selection.bout.status
+            )
+            if not view:
+                view = dict(
+                    id=_bout.id,
+                    fighter1=_bout.fighter1.name,
+                    fighter2=_bout.fighter2.name,
+                    winner=_bout.winner and _bout.winner.name,
+                    loser=_bout.loser and _bout.loser.name,
+                    status=_bout.status,
+                    method=_bout.method,
+                    round=_bout.round,
+                    time=_bout.time,
+                    entries_1=[],
+                    entries_2=[],
+                )
+            else:
+                if selection.fighter_id == _bout.fighter1_id:
+                    view['entries_1'].append(selection.entry.id)
+                else:
+                    view['entries_2'].append(selection.entry.id)
+
+            bout_views[view_id] = view
+
+        return Response(dict(bouts=bout_views.values(), event=EventSerializer(latest_event).data))
 
     @action(methods=['get'], detail=False)
     def get_score_by_user(self, request, **kwarg):
@@ -176,11 +188,32 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         return Response(dict(scores=data))
 
+    @action(methods=['post'], detail=False)
+    def get_entries(self, request, **kwarg):
+        try:
+            entries = Entry.objects.all().filter(pk__in=request.data)
+            data = []
+            for entry in entries:
+                data.append(dict(
+                    event=entry.event.name,
+                    user=entry.user.username
+                ))
+            return Response(dict(entries=data))
+        except Exception as err:
+            return Response(dict(entries=[]), status=500)
+
+
     def create(self, request):
-        serializer = EntrySerializer(many=True, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'status': 'success', 'message': 'Successfully done.'})
+        entry_serializer = EntrySerializer(data=request.data['entry'])
+        if entry_serializer.is_valid():
+            entry = entry_serializer.save()
+            for selection in request.data['selections']:
+                selection['entry'] = entry.id
+
+            selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
+            if selection_serializer.is_valid():
+                selection_serializer.save()
+                return Response({'status': 'success', 'message': 'Successfully done.'})
 
         return Response({'status': 'failed', 'message': 'Something wrong happened.'})
 

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Event, Fighter, Bout
+from .models import Event, Fighter, Bout, Entry, Selection
 
 # Register your models here.
 
@@ -13,4 +13,12 @@ class FighterAdmin(admin.ModelAdmin):
 
 @admin.register(Bout)
 class BoutAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Entry)
+class EntryAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Selection)
+class SelectionAdmin(admin.ModelAdmin):
     pass

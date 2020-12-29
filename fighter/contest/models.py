@@ -82,16 +82,25 @@ class Bout(models.Model):
 		return "%s vs. %s" % (self.fighter1, self.fighter2)
 
 class Entry(models.Model):
-	user = models.ForeignKey(
-		User,
-		on_delete=models.CASCADE,
-		related_name='users',
-	) 
 	event = models.ForeignKey(
 		Event,
 		related_name='entry_events', 
 		on_delete=models.CASCADE,
 	)
+	user = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name='users',
+	)
+
+	def __str__(self):
+		return "%s - %s" % (self.user, self.event)
+
+class SelectionManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+class Selection(models.Model):
 	bout = models.ForeignKey(
 		Bout,
 		related_name='bouts', 
@@ -102,10 +111,20 @@ class Entry(models.Model):
 		on_delete=models.CASCADE,
 		related_name='fighters',
 	) 
+	entry = models.ForeignKey(
+		Entry,
+		related_name="entries",
+		on_delete=models.CASCADE
+	)
+
+	# objects = SelectionManager()
 	# Indicate whether the user won the contest based upon the bout result
 	# 1: winner 0: loser
-	status = models.BooleanField(default=False, null=True, blank=True)
+	# status = models.BooleanField(default=False, null=True, blank=True)
 	# Indicate whether the bout has finished
-	finished = models.BooleanField(default=False, null=True, blank=True)
+	# finished = models.BooleanField(default=False, null=True, blank=True)
+
+	def __str__(self):
+		return "%s - %s" % (self.bout, self.fighter)
 
 

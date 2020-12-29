@@ -3,6 +3,7 @@ from contest.models import (
 	Event,
 	Bout,
 	Fighter,
+	Selection,
 	Entry
 )
 from rest_framework import serializers
@@ -31,6 +32,11 @@ class EventSerializer(serializers.ModelSerializer):
 class BoutSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Bout
+		fields = '__all__'
+
+class SelectionSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Selection
 		fields = '__all__'
 
 class EntrySerializer(serializers.ModelSerializer):

@@ -114,21 +114,6 @@
     },
 
     methods: {
-      authenticate: function (provider) {
-        // if (this.$auth.isAuthenticated()) {
-        //   this.$auth.logout()
-        // }
-        this.response = null
-        var this_ = this;
-        this.$auth.authenticate(provider).then(function (authResponse) {
-          this_.isAuthenticated = this_.$auth.isAuthenticated();
-          this_.response = authResponse.body.profile
-          // Execute application logic after successful social authentication
-        }).catch(function (err) {
-          this_.isAuthenticated = this_.$auth.isAuthenticated()
-          this_.response = err
-        })
-      },
       async getLatestBouts () {
         const { data } = await session.get(`api/latest_event/`)
         this.bouts = data.bouts
@@ -163,11 +148,15 @@
           return
         }
         const event_id = this.bouts[0].event
-        const payload = []
-        for (const bout in this.contests) {
-          payload.push({
+        const payload = {
+          entry: {
             event: event_id,
             user: this.authUser.pk,
+          },
+          selections: []
+        }
+        for (const bout in this.contests) {
+          payload.selections.push({
             bout: bout,
             fighter: this.contests[bout]
           })

@@ -46,7 +46,6 @@ urlpatterns = [
     url(r'^auth/registration/', include('rest_auth.registration.urls')),
     path('api/latest_event/', views.EventViewSet.as_view({'get': 'get_latestevent'}), name='latest_event'),
     path('api/check_user_already_taken', views.EntryViewSet.as_view({'get': 'check_user_already_taken'}), name='check_user_already_taken'),
-    path('api/entries/save/', views.EntryViewSet.as_view({'post': 'save_entries'}), name='save_entries'),
     path('api/entries/contest', views.EntryViewSet.as_view({'get': 'get_latestContest'}), name='contest'),
     path('api/entries/score_by_user', views.EntryViewSet.as_view({'get': 'get_score_by_user'}), name='get_score_by_user'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

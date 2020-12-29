@@ -11,7 +11,7 @@
       class="px-5"
     >
       <v-card-title 
-        class="justify-center font-weight-medium mb-md-3"
+        class="justify-center font-weight-medium mb-md-3 mt-5"
       >
         <div class="text-center">
           <div>{{ this.event.name }}</div>
@@ -19,69 +19,131 @@
         </div>
       </v-card-title>
       <v-card-text>
-        <template
-          v-for="contest in contests"
+        <v-tabs
+          align-with-title
+          v-model="tab"
+          background-color="transparent"
+          color="basil"
+          grow
         >
-          <v-card 
-            :elevation="1"
-            class="contest-row"
-            :class="{'row-inactive': contest.status=='pending'}"
+          <!-- <v-tabs-slider color="yellow"></v-tabs-slider> -->
+
+          <v-tab
           >
-            <div class="contest-column">
-              <div 
-                class="contest-item"
-                :class="{'winner-item': contest.fighter1 == contest.winner, 'loser-item': contest.fighter1 == contest.loser}"
+            Fights
+          </v-tab>
+          <v-tab
+          >
+            Entries
+          </v-tab>
+        </v-tabs>
+        <v-tabs-items
+          v-model="tab"
+        >
+          <v-tab-item
+            >
+            <v-card
+              color="basil"
+              flat
+            >
+              <v-card-title
               >
-                {{contest.fighter1}}
-              </div>
-              <v-virtual-scroll
-                :items="contest.users"
-                :item-height="17"
-                height="80"
-              >
-                <template v-slot:default="{ item }">
-                  <div 
-                    :key="item.username"
-                    class="contest-user"
-                    :class="{'is-active': item.status}"
-                  > 
-                    {{ contest.fighter1 == item.fighter ? item.username : ''}}
-                  </div>
-                </template>
-              </v-virtual-scroll>
-            </div>
-            <div class="contest-column">
-              <div 
-                class="contest-item"
-                :class="{'winner-item': contest.fighter2 == contest.winner, 'loser-item': contest.fighter2 == contest.loser}"
-              >
-                <span>{{contest.fighter2}}</span>
-              </div>
-              <v-virtual-scroll
-                :items="contest.users"
-                :item-height="17"
-                height="80"
-              >
-                <template v-slot:default="{ item }">
-                  <div 
-                    :key="item.username"
-                    class="contest-user"
-                    :class="{'is-active': item.status}"
-                  > 
-                    {{ contest.fighter2 == item.fighter ? item.username : ''}}
-                  </div>
-                </template>
-              </v-virtual-scroll>
-            </div>
-          </v-card>
-        </template>
+                <v-text-field
+                  v-model="boutSearch"
+                  append-icon="mdi-magnify"
+                  label="Search"
+                  clearable
+                  class="mb-5"
+                  single-line
+                  hide-details
+                ></v-text-field>
+                <v-spacer />
+              </v-card-title>
+              <v-card-text>
+                <v-data-table
+                  :items="bouts"
+                  :loading="loading"
+                  :headers="boutHeaders"
+                  :items-per-page="5"
+                  fixed-header
+                  item-key="id"
+                  :search="boutSearch"
+                > 
+                  <template #item.fighter1="{item}">
+                    <div 
+                      class="contest-item"
+                      :class="{'winner-item': item.fighter1 == item.winner, 'loser-item': item.fighter1 == item.loser}"
+                    >
+                      <b>{{item.fighter1}}</b>
+                    </div>
+                  </template>
+                  <template v-slot:item.entries_1="{ item }">
+                    <span><a href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a></span>
+                  </template>
+                  <template #item.fighter2="{item}">
+                    <div 
+                      class="contest-item"
+                      :class="{'winner-item': item.fighter2 == item.winner, 'loser-item': item.fighter2 == item.loser}"
+                    >
+                      <b>{{item.fighter2}}</b>
+                    </div>
+                  </template>
+                  <template v-slot:item.entries_2="{ item }">
+                    <a v-if="item.entries_2.length" href="" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
+                    <span v-else>{{ item.entries_2.length }}</span>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+          </v-tab-item>
+        </v-tabs-items>
       </v-card-text>
     </v-card>
+
+    <!-- Entry dlg -->
+    <v-dialog
+      v-model="entryDlg"
+      max-width="680"
+    >
+      <v-card
+        color="basil"
+        flat
+      >
+        <v-card-title
+        >
+          {{curBout}}
+        </v-card-title>
+        <v-card-text>
+          <div class="d-flex">
+            <v-text-field
+              v-model="entrySearch"
+              append-icon="mdi-magnify"
+              label="Search"
+              clearable
+              class="mb-5"
+              single-line
+              hide-details
+            ></v-text-field>
+            <v-spacer />
+          </div>
+          <v-data-table
+            :items="entries"
+            :loading="loading"
+            :headers="entryHeaders"
+            :items-per-page="5"
+            fixed-header
+            item-key="id"
+            :search="entrySearch"
+          > 
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script>
-  import session from '@/api/session'
+  import main from '@/api/main'
   import { beautifyDate } from '@/util'
 
   export default {
@@ -91,7 +153,55 @@
       return {
         loading: false,
         contests: [],
-        event: ''
+        event: '',
+        boutSearch: '',
+        entrySearch: '',
+        tab: null,
+        boutHeaders: [
+          {
+            text: 'Fighter1',
+            value: 'fighter1'
+          },
+          {
+            text: 'Entries',
+            value: 'entries_1'
+          },
+          {
+            text: 'Fighter2',
+            value: 'fighter2'
+          },
+          {
+            text: 'Entries',
+            value: 'entries_2'
+          },
+          {
+            text: 'Method',
+            value: 'method'
+          },
+          {
+            text: 'Round',
+            value: 'round'
+          },
+          {
+            text: 'Time',
+            value: 'time'
+          },
+        ],
+        bouts: [],
+        entryDlg: false,
+        curBout: '',
+        entries: [],
+        entrySearch: '',
+        entryHeaders: [
+          {
+            text: 'Event',
+            value: 'event'
+          },
+          {
+            text: 'User',
+            value: 'user'
+          },
+        ]
       }
     },
 
@@ -106,10 +216,16 @@
     methods: {
       async getLatestContest() {
         this.loading = true
-        const { data } = await session.get('api/entries/contest')
-        this.contests = data.contests
+        const { data } = await main.getLatestContests()
+        this.bouts = data.bouts
         this.event = data.event
         this.loading = false
+      },
+      async gotoEntry (item, entries) {
+        this.entryDlg = true
+        this.curBout = `${item.fighter1} vs. ${item.fighter2}`
+        const {data} = await main.getEntries(entries)
+        this.entries = data.entries
       }
     }
   }
