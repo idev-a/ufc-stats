@@ -90,7 +90,7 @@
                     </div>
                   </template>
                   <template v-slot:item.entries_2="{ item }">
-                    <a v-if="item.entries_2.length" href="" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
+                    <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
                     <span v-else>{{ item.entries_2.length }}</span>
                   </template>
                 </v-data-table>
