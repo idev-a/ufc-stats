@@ -40,8 +40,8 @@
         <v-tabs-items
           v-model="tab"
         >
-          <v-tab-item
-            >
+          <!-- fight/bout view -->
+          <v-tab-item>
             <v-card
               color="basil"
               flat
@@ -61,7 +61,7 @@
               </v-card-title>
               <v-card-text>
                 <v-data-table
-                  :items="bouts"
+                  :items="boutViews"
                   :loading="loading"
                   :headers="boutHeaders"
                   :items-per-page="5"
@@ -92,6 +92,45 @@
                   <template v-slot:item.entries_2="{ item }">
                     <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
                     <span v-else>{{ item.entries_2.length }}</span>
+                  </template>
+                </v-data-table>
+              </v-card-text>
+            </v-card>
+          </v-tab-item>
+
+          <!-- Entry view -->
+          <v-tab-item>
+            <v-card
+              color="basil"
+              flat
+            >
+              <v-card-title
+              >
+                <v-text-field
+                  v-model="entryViewSearch"
+                  append-icon="mdi-magnify"
+                  label="Search"
+                  clearable
+                  class="mb-5"
+                  single-line
+                  hide-details
+                ></v-text-field>
+                <v-spacer />
+              </v-card-title>
+              <v-card-text>
+                <v-data-table
+                  :items="entryViews"
+                  :loading="loading"
+                  :headers="entryViewHeaders"
+                  :items-per-page="5"
+                  fixed-header
+                  item-key="id"
+                  :search="entryViewSearch"
+                > 
+                  <template v-slot:item.fighters="{ item }">
+                    <div class="d-flex flex-wrap">
+                      <v-chip class="mr-1 mb-1" v-for="fighter in item.fighters"><span>{{fighter}}</span></v-chip>
+                    </div>
                   </template>
                 </v-data-table>
               </v-card-text>
@@ -188,7 +227,7 @@
             value: 'time'
           },
         ],
-        bouts: [],
+        boutViews: [],
         entryDlg: false,
         curBout: '',
         entries: [],
@@ -201,6 +240,34 @@
           {
             text: 'User',
             value: 'user'
+          },
+        ],
+        entryViewSearch: '',
+        entryViews: [],
+        entryViewHeaders: [
+          {
+            text: 'Entry',
+            value: 'entry'
+          },
+          {
+            text: 'Survived',
+            value: 'survived'
+          },
+          {
+            text: 'Wins',
+            value: 'wins'
+          },
+          {
+            text: 'Losses',
+            value: 'losses'
+          },
+          {
+            text: 'Remainings',
+            value: 'remainings'
+          },
+          {
+            text: 'Fighters',
+            value: 'fighters'
           },
         ]
       }
@@ -218,7 +285,8 @@
       async getLatestContest() {
         this.loading = true
         const { data } = await main.getLatestContests()
-        this.bouts = data.bouts
+        this.boutViews = data.bout_views
+        this.entryViews = data.entry_views
         this.event = data.event
         this.loading = false
       },

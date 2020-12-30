@@ -110,15 +110,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         status = len(entries) > 0
         return Response(dict(status=status))
 
-    @action(methods=['get'], detail=False)
-    def get_latestContest(self, request, **kwarg):
-        latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
-        entries = Entry.objects.all().filter(event__pk=latest_event.id)
-        selections = Selection.objects.all()
-
-        # fight/bout view
+    def get_fight_views(self, selections):
         bout_views = {}
         for selection in selections:
+            # fight/bout view
             _bout = selection.bout
             view_id = f"{_bout.id}"
             view = bout_views.get(view_id, {})
@@ -149,44 +144,65 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
             bout_views[view_id] = view
 
-        return Response(dict(bouts=bout_views.values(), event=EventSerializer(latest_event).data))
+        return bout_views.values()
 
-    @action(methods=['get'], detail=False)
-    def get_score_by_user(self, request, **kwarg):
-        entries = Entry.objects.all().filter(bout__status='completed')
+    def get_entry_views(self, selections):
         score = {}
         default_score = {
-            'surviving_fighters': 0,
+            'entry': '', 
+            'survived': 0,
             'wins': 0,
             'losses': 0,
-            'dead': 0
+            'dead': 0,
+            'remainings': 0,
+            'fighters': []
         }
-        for entry in entries:
-            username = entry.user.username
-            score[username] = score.get(username, copy.deepcopy(default_score)) 
-            method = entry.bout.method
-            winner_id = entry.bout.winner.id # winner from bout
-            fighter_id = entry.fighter.id # user-selected fighter in the contest
+        for selection in selections:
+            username_id = f'{selection.entry.user.username}-{selection.entry.id}'
+            bout = selection.bout
+            method = bout.method
+
+            winner_id = bout.winner and bout.winner.id # winner from bout
+            fighter_id = selection.fighter.id # user-selected fighter in the contest
+            score[username_id] = score.get(username_id, copy.deepcopy(default_score))
+            score[username_id]['entry'] = username_id
+            fighter1 = bout.fighter1.name
+            fighter2 = bout.fighter2.name
+            if fighter1 not in score[username_id]['fighters']:
+                score[username_id]['fighters'].append(fighter1)
+
+            if fighter2 not in score[username_id]['fighters']:
+                score[username_id]['fighters'].append(fighter2)
+
+            # remainings
+            if bout.status != 'completed':
+                score[username_id]['remainings'] += 1
+
             if method.startswith('S-DEC') or \
                 method.startswith('U-DEC') or \
                 method.startswith('SUB'):
                 if fighter_id == winner_id:
-                    score[username]['surviving_fighters'] += 1
+                    score[username_id]['survived'] += 1
                 else:
-                    score[username]['dead'] += 1
+                    score[username_id]['dead'] += 1
             if method.startswith('KO') or \
                 'TKO' in method:
                 if fighter_id == winner_id:
-                    score[username]['wins'] += 1
+                    score[username_id]['wins'] += 1
                 else:
-                    score[username]['losses'] += 1
+                    score[username_id]['losses'] += 1
 
-        data = []
-        for key, value in score.items():
-            value.update({'username': key})
-            data.append(value)
+        return score.values()
 
-        return Response(dict(scores=data))
+    @action(methods=['get'], detail=False)
+    def get_latestContest(self, request, **kwarg):
+        latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
+        selections = Selection.objects.all()
+
+        bout_views = self.get_fight_views(selections)
+        entry_views = self.get_entry_views(selections)
+
+        return Response(dict(bout_views=bout_views, entry_views=entry_views, event=EventSerializer(latest_event).data))
 
     @action(methods=['post'], detail=False)
     def get_entries(self, request, **kwarg):
