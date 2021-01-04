@@ -26,7 +26,7 @@
           color="basil"
           grow
         >
-          <!-- <v-tabs-slider color="yellow"></v-tabs-slider> -->
+          <v-tabs-slider color="yellow"></v-tabs-slider>
 
           <v-tab
           >

@@ -18,8 +18,7 @@ from contest.models import (
 from contest.serializers import (
 	EventSerializer,
 	BoutSerializer,
-	FighterSerializer,
-	EntrySerializer
+	FighterSerializer
 )
 from contest.util import _valid, convert_date, strip_list1
 
@@ -72,6 +71,7 @@ class ScraperSpider(scrapy.Spider):
 				fighters = strip_list1(tr.xpath('.//td[2]/p/a/text()').getall())
 				weight_class = _valid(tr.xpath('.//td[7]/p/text()').get())
 				method = _valid(' '.join(strip_list1(tr.xpath('.//td[8]//text()').getall())))
+				go_the_distance = True if 'dec' in _valid(method) else False
 				round = _valid(tr.xpath('.//td[9]/p/text()').get())
 				time = _valid(tr.xpath('.//td[10]/p/text()').get())
 
@@ -82,6 +82,7 @@ class ScraperSpider(scrapy.Spider):
 					method=method,
 					round=round,
 					time=time,
+					go_the_distance=go_the_distance,
 					detail_link=detail_link,
 					status='pending',
 					event=event.id
@@ -113,16 +114,6 @@ class ScraperSpider(scrapy.Spider):
 			title = _valid(person.css('div.b-fight-details__person-text p.b-fight-details__person-title::text').get())
 			if marks: # bout finished
 				fighter = self.get_fighter(name)
-				if fighter:
-					entries = Entry.objects.all().filter(bout_id=fighter.id)
-					entries.update(finished=True)
-					for entry in entries:
-						status = False
-						if entry.fighter_id == fighter.id:
-							status = True
-						entry.statue=status
-						entry.save()
-
 				if marks == 'W':
 					bout.winner = fighter
 				elif marks == 'L':

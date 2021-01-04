@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 class Event(models.Model):
@@ -74,8 +75,9 @@ class Bout(models.Model):
 	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='pending')
 	weight_class = models.CharField(max_length=50, blank=True, default='')
 	method = models.CharField(max_length=100, blank=True, default='')
-	round = models.CharField(max_length=20, blank=True, default=1)
+	round = models.PositiveIntegerField(blank=True, default=1, validators=[MinValueValidator(1), MaxValueValidator(100)])
 	time = models.CharField(max_length=20, blank=True, default='00:00')
+	go_the_distance = models.BooleanField(null=True, blank=True)
 	detail_link = models.CharField(max_length=500, blank=True, default='')
 
 	def __str__(self):

@@ -5,16 +5,10 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 import copy
-from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
-from rest_auth.registration.views import SocialLoginView
-from rest_auth.social_serializers import TwitterLoginSerializer
 from requests_oauthlib import OAuth1
 from urllib.parse import urlencode
 from rest_framework.views import APIView
-from django.http import HttpResponse
 from django.conf import settings
-from django.utils.decorators import method_decorator
-from django.views.decorators.debug import sensitive_post_parameters
 import requests
 
 from django.contrib.auth.models import User, Group
@@ -34,6 +28,11 @@ from contest.serializers import (
     SelectionSerializer,
     EntrySerializer
 )
+
+from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
+from rest_auth.registration.views import SocialLoginView
+from rest_auth.social_serializers import TwitterLoginSerializer
+
 import pdb
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -178,19 +177,17 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if bout.status != 'completed':
                 score[username_id]['remainings'] += 1
 
-            if method.startswith('S-DEC') or \
-                method.startswith('U-DEC') or \
-                method.startswith('SUB'):
-                if fighter_id == winner_id:
-                    score[username_id]['survived'] += 1
-                else:
-                    score[username_id]['dead'] += 1
+            if 'DEC' in method:
+                score[username_id]['survived'] += 2
+                score[username_id]['wins'] += 1
+                score[username_id]['losses'] += 1
+
             if method.startswith('KO') or \
-                'TKO' in method:
-                if fighter_id == winner_id:
-                    score[username_id]['wins'] += 1
-                else:
-                    score[username_id]['losses'] += 1
+                'TKO' in method or 'SUB' in method:
+
+                score[username_id]['survived'] += 1
+                score[username_id]['wins'] += 1
+                score[username_id]['losses'] += 1
 
         return score.values()
 
