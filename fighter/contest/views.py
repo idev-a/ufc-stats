@@ -118,7 +118,6 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             view = bout_views.get(view_id, {})
             user = dict(
                 username=f'{selection.entry.user.username}-{selection.entry.id}', 
-                fighter=selection.fighter.name,
                 status=selection.bout.status
             )
             if not view:
@@ -136,9 +135,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     entries_2=[],
                 )
         
-            if selection.fighter_id == _bout.fighter1_id:
+            if selection.survivor1_id:
                 view['entries_1'].append(selection.entry.id)
-            else:
+            if selection.survivor2_id:
                 view['entries_2'].append(selection.entry.id)
 
             bout_views[view_id] = view
