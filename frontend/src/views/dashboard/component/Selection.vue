@@ -22,13 +22,38 @@
       <v-card-text
         class="pb-0"
       >
+
         <v-virtual-scroll
           :items="bouts"
-          :item-height="50"
+          :item-height="45"
           height="300"
         >
           <template v-slot:default="{ item }">
-            <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" />
+            <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
+            <v-btn-toggle
+              v-model="contests[item.id]"
+              :key="item.id"
+              dense
+              multiple
+              class="justify-space-between"
+              tile
+            >
+              <v-btn
+                :value="item.fighter1"
+                small
+                :width="112"
+              >
+                {{_fighter(item.fighter1).name}}
+              </v-btn>
+
+              <v-btn
+                :value="item.fighter2"
+                small
+                :width="112"
+              >
+                {{_fighter(item.fighter2).name}}
+              </v-btn>
+            </v-btn-toggle>
           </template>
         </v-virtual-scroll>
         <div class="d-flex justify-center w-100">
@@ -78,7 +103,8 @@
           snack: false,
           message: '',
           status: 'success'
-        }
+        },
+        toggle_multiple: [0, 1]
       }
     },
 
@@ -156,11 +182,14 @@
           selections: []
         }
         for (const bout in this.contests) {
+          const survivors = this.contests[bout]
           payload.selections.push({
             bout: bout,
-            fighter: this.contests[bout]
+            survivor1: survivors?.[0] || null,
+            survivor2: survivors?.[1] || null,
           })
         }
+        console.log(payload)
         const { data } = await session.post('api/entries/', payload)
         this.snackbar = {
           ...data,
@@ -171,14 +200,30 @@
   }
 </script>
 
-<style>
+<style lang="scss">
   .fixed-card {
     padding: .5rem 0;
     position: fixed;
     right: 10px;
   }
 
-  .v-item--active {
-    color: red;
+  #contest {
+    .v-btn-toggle {
+      display: flex;
+
+      .v-btn {
+        border-radius: 5px;
+        background-color: #d3d3d3;
+        color: black;
+      }
+    }
+   
+    .v-item--active {
+      color: white !important;
+      background-color: #008000 !important;
+    }
+
+
   }
+
 </style>

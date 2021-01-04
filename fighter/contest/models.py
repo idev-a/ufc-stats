@@ -108,10 +108,21 @@ class Selection(models.Model):
 		related_name='bouts', 
 		on_delete=models.CASCADE,
 	)
-	fighter = models.ForeignKey(
+	survivor1 = models.ForeignKey(
 		Fighter,
 		on_delete=models.CASCADE,
-		related_name='fighters',
+		related_name='survivor1s',
+		default=None,
+		blank=True,
+		null=True
+	) 
+	survivor2 = models.ForeignKey(
+		Fighter,
+		on_delete=models.CASCADE,
+		related_name='survivor2s',
+		default=None,
+		blank=True,
+		null=True
 	) 
 	entry = models.ForeignKey(
 		Entry,

@@ -162,7 +162,6 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             method = bout.method
 
             winner_id = bout.winner and bout.winner.id # winner from bout
-            fighter_id = selection.fighter.id # user-selected fighter in the contest
             score[username_id] = score.get(username_id, copy.deepcopy(default_score))
             score[username_id]['entry'] = username_id
             fighter1 = bout.fighter1.name
