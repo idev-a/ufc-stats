@@ -153,7 +153,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             'losses': 0,
             'dead': 0,
             'remainings': 0,
-            'fighters': []
+            'fighters': [],
+            'winners': [],
+            'losers': []
         }
         for selection in selections:
             username_id = f'{selection.entry.user.username}-{selection.entry.id}'
@@ -165,11 +167,19 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             score[username_id]['entry'] = username_id
             fighter1 = bout.fighter1.name
             fighter2 = bout.fighter2.name
+            winner = bout.winner and bout.winner.name
+            loser = bout.loser and bout.loser.name
             if fighter1 not in score[username_id]['fighters']:
                 score[username_id]['fighters'].append(fighter1)
 
             if fighter2 not in score[username_id]['fighters']:
                 score[username_id]['fighters'].append(fighter2)
+
+            if winner and winner not in score[username_id]['winners']:
+                score[username_id]['winners'].append(winner)
+
+            if loser and loser not in score[username_id]['losers']:
+                score[username_id]['losers'].append(loser)
 
             # remainings
             if bout.status != 'completed':

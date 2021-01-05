@@ -26,7 +26,7 @@
           color="basil"
           grow
         >
-          <v-tabs-slider color="yellow"></v-tabs-slider>
+          <v-tabs-slider color="black"></v-tabs-slider>
 
           <v-tab
           >
@@ -72,7 +72,7 @@
                   <template #item.fighter1="{item}">
                     <div 
                       class="contest-item"
-                      :class="{'winner-item': item.fighter1 == item.winner, 'loser-item': item.fighter1 == item.loser}"
+                      :class="{'winner': item.fighter1 == item.winner, 'loser': item.fighter1 == item.loser}"
                     >
                       <b>{{item.fighter1}}</b>
                     </div>
@@ -84,7 +84,7 @@
                   <template #item.fighter2="{item}">
                     <div 
                       class="contest-item"
-                      :class="{'winner-item': item.fighter2 == item.winner, 'loser-item': item.fighter2 == item.loser}"
+                      :class="{'winner': item.fighter2 == item.winner, 'loser': item.fighter2 == item.loser}"
                     >
                       <b>{{item.fighter2}}</b>
                     </div>
@@ -129,7 +129,9 @@
                 > 
                   <template v-slot:item.fighters="{ item }">
                     <div class="d-flex flex-wrap">
-                      <v-chip class="mr-1 mb-1" v-for="fighter in item.fighters"><span>{{fighter}}</span></v-chip>
+                      <template v-for="fighter in item.fighters">
+                        <v-chip class="mr-1 mb-1" :class="{'winner': item.winners.includes(fighter), 'loser': item.losers.includes(fighter)}" ><span>{{fighter}}</span></v-chip>
+                      </template>
                     </div>
                   </template>
                 </v-data-table>
@@ -301,18 +303,6 @@
 </script>
 
 <style>
-  .contest-row {
-    display: flex;
-
-    justify-content:space-around;
-    margin-bottom: 1.5rem;
-    border-radius: 5px;
-  }
-
-  .row-inactive {
-    background-color: #ECEFF1 !important;
-  }
-
   .contest-item {
     width: 10rem;
     height: 80px;
@@ -323,29 +313,5 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-  }
-
-  .winner-item {
-    background-color: #4CAF50;
-  }
-
-  .loser-item {
-    background-color: #FF5722;
-  }
-
-  .contest-column {
-    display: flex;
-    flex-basis: 100%;
-    flex: 1;
-  }
-
-  .contest-user {
-    font-size: 14px;
-    color: #BDBDBD;
-    margin-bottom: .5rem;
-  }
-
-  .is-active {
-    color: #212121;
   }
 </style>

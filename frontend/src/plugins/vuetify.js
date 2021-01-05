@@ -10,6 +10,8 @@ const theme = {
   secondary: '#9C27b0',
   accent: '#9C27b0',
   info: '#00CAE3',
+  winner: '#4caf50',
+  loser: '#F44336'
 }
 
 export default new Vuetify({
