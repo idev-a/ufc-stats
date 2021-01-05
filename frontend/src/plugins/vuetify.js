@@ -11,7 +11,8 @@ const theme = {
   accent: '#9C27b0',
   info: '#00CAE3',
   winner: '#4caf50',
-  loser: '#F44336'
+  loser: '#F44336',
+  died: '#B71C1C'
 }
 
 export default new Vuetify({

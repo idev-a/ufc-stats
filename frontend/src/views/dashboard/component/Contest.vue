@@ -130,7 +130,18 @@
                   <template v-slot:item.fighters="{ item }">
                     <div class="d-flex flex-wrap">
                       <template v-for="fighter in item.fighters">
-                        <v-chip class="mr-1 mb-1" :class="{'winner': item.winners.includes(fighter), 'loser': item.losers.includes(fighter)}" ><span>{{fighter}}</span></v-chip>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-chip 
+                              v-bind="attrs"
+                              v-on="on"
+                              class="mr-1 mb-1" 
+                              :class="{'winner': item.winners.includes(fighter), 'loser': item.losers.includes(fighter), 'died': item.died.includes(fighter)}" >
+                              <span>{{fighter}}</span>
+                            </v-chip>
+                          </template>
+                          <span>{{ item.method }}</span>
+                        </v-tooltip>
                       </template>
                     </div>
                   </template>
@@ -269,7 +280,8 @@
           },
           {
             text: 'Fighters',
-            value: 'fighters'
+            value: 'fighters',
+            width: 600
           },
         ]
       }
@@ -314,4 +326,5 @@
     justify-content: center;
     text-align: center;
   }
+
 </style>
