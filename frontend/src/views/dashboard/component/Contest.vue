@@ -6,9 +6,8 @@
     class="d-flex justify-center"
   >
     <v-card
-      :loading="loading"
-      min-width="60%"
-      class="px-5"
+      class="px-3"
+      max-width="60%"
     >
       <v-card-title 
         class="justify-center font-weight-medium mb-md-3 mt-5"
@@ -24,7 +23,6 @@
           v-model="tab"
           background-color="transparent"
           color="basil"
-          grow
         >
           <v-tabs-slider color="black"></v-tabs-slider>
 
@@ -43,8 +41,9 @@
           <!-- fight/bout view -->
           <v-tab-item>
             <v-card
-              color="basil"
+              min-width="50%"
               flat
+              class="mt-0"
             >
               <v-card-title
               >
@@ -64,9 +63,13 @@
                   :items="boutViews"
                   :loading="loading"
                   :headers="boutHeaders"
-                  :items-per-page="5"
                   fixed-header
                   item-key="id"
+                  height="350px"
+                  dense
+                  fixed-header
+                  :disable-pagination="true"
+                  hide-default-footer
                   :search="boutSearch"
                 > 
                   <template #item.fighter1="{item}">
@@ -101,8 +104,9 @@
           <!-- Entry view -->
           <v-tab-item>
             <v-card
-              color="basil"
+              min-width="50%"
               flat
+              class="mt-0"
             >
               <v-card-title
               >
@@ -122,10 +126,15 @@
                   :items="entryViews"
                   :loading="loading"
                   :headers="entryViewHeaders"
-                  :items-per-page="5"
                   fixed-header
+                  :disable-pagination="true"
                   item-key="id"
+                  dense
+                  height="350px"
+                  fixed-header
+                  hide-default-footer
                   :search="entryViewSearch"
+                  :item-class="entryItemClass"
                 > 
                   <template v-slot:item.fighters="{ item }">
                     <div class="d-flex flex-wrap">
@@ -135,6 +144,7 @@
                             <v-chip 
                               v-bind="attrs"
                               v-on="on"
+                              small
                               class="mr-1 mb-1" 
                               :class="{'winner': item.winners.includes(fighter), 'loser': item.losers.includes(fighter), 'died': item.died.includes(fighter)}" >
                               <span>{{fighter}}</span>
@@ -213,31 +223,38 @@
         boutHeaders: [
           {
             text: 'Fighter1',
-            value: 'fighter1'
+            value: 'fighter1',
+            align: 'center'
           },
           {
             text: 'Entries',
-            value: 'entries_1'
+            value: 'entries_1',
+            align: 'center'
           },
           {
             text: 'Fighter2',
-            value: 'fighter2'
+            value: 'fighter2',
+            align: 'center'
           },
           {
             text: 'Entries',
-            value: 'entries_2'
+            value: 'entries_2',
+            align: 'center'
           },
           {
             text: 'Method',
-            value: 'method'
+            value: 'method',
+            align: 'center'
           },
           {
             text: 'Round',
-            value: 'round'
+            value: 'round',
+            align: 'center'
           },
           {
             text: 'Time',
-            value: 'time'
+            value: 'time',
+            align: 'center'
           },
         ],
         boutViews: [],
@@ -248,40 +265,54 @@
         entryHeaders: [
           {
             text: 'Event',
-            value: 'event'
+            value: 'event',
+            align: 'center'
           },
           {
             text: 'User',
-            value: 'user'
+            value: 'user',
+            align: 'center'
           },
         ],
         entryViewSearch: '',
         entryViews: [],
         entryViewHeaders: [
+          // {
+          //   text: '',
+          //   value: 'sign',
+          //   align: 'center',
+          //   width: 10
+          // },
           {
             text: 'Entry',
-            value: 'entry'
+            value: 'entry',
+            align: 'center'
           },
           {
             text: 'Survived',
-            value: 'survived'
+            value: 'survived',
+            align: 'center'
           },
           {
             text: 'Wins',
-            value: 'wins'
+            value: 'wins',
+            align: 'center'
           },
           {
             text: 'Losses',
-            value: 'losses'
+            value: 'losses',
+            align: 'center'
           },
           {
             text: 'Remainings',
-            value: 'remainings'
+            value: 'remainings',
+            align: 'center'
           },
           {
             text: 'Fighters',
             value: 'fighters',
-            width: 600
+            width: 600,
+            align: 'center'
           },
         ]
       }
@@ -309,6 +340,9 @@
         this.curBout = `${item.fighter1} vs. ${item.fighter2}`
         const {data} = await main.getEntries(entries)
         this.entries = data.entries
+      },
+      entryItemClass (item) {
+        return item.died.length ? 'strike-through' : ''
       }
     }
   }
@@ -316,15 +350,40 @@
 
 <style>
   .contest-item {
-    width: 10rem;
-    height: 80px;
+    width: 110px;
+    height: 38px;
     border: 1px solid;
-    border-radius: 5px;
+    border-radius: 10px;
+    line-height: 17px;
     margin: 0 .5rem 0 0;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+  }
+
+  table { border-collapse: collapse; empty-cells: show; }
+
+td { position: relative; }
+
+  tr.strike-through td:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 1px solid #E65100;
+    width: 100%;
+  }
+
+  tr.strike-through td:after {
+    content: "\00B7";
+    font-size: 1px;
+  }
+
+
+  .v-chip__content {
+    font-size: 12px;
+    font-weight: 400;
   }
 
 </style>

@@ -201,12 +201,6 @@
 </script>
 
 <style lang="scss">
-  .fixed-card {
-    padding: .5rem 0;
-    position: fixed;
-    right: 10px;
-  }
-
   #contest {
     .v-btn-toggle {
       display: flex;

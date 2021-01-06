@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <span class="bg"></span>
+    <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage}"></span>
     <dashboard-core-app-bar :key="key" v-model="expandOnHover" />
 
     <dashboard-core-view />
@@ -30,13 +30,17 @@
     data: () => ({
       expandOnHover: false,
       key: 0,
-      loginDlg: false,
-      registerDlg: false
     }),
 
     computed: {
       overlay () {
         return this.$store.getters['auth/launchLogin'] || this.$store.getters['signup/launchRegister']
+      },
+      contestPage () {
+        return this.$route.name == 'Contest'
+      },
+      selectionPage () {
+        return this.$route.name == 'Selection'
       }
     },
 
@@ -88,8 +92,20 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: url( '../../assets/bg.jpg') no-repeat center center;
     background-size: cover;
-    transform: scale(1.1);
+  }
+
+  .contest-bg {
+    background: url( '../../assets/contest.jpeg') no-repeat center center;
+  }
+
+  .selection-bg {
+    background: url( '../../assets/selection.jpeg') no-repeat center center;
+  }
+
+  .fixed-card {
+    padding: .5rem 0;
+    position: fixed;
+    right: 10px;
   }
 </style>
