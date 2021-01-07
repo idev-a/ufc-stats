@@ -6,7 +6,7 @@
     class="d-flex justify-center"
   >
     <v-card
-      class="px-3"
+      class="px-3 mt-0"
       max-width="60%"
     >
       <v-card-title 
@@ -65,7 +65,7 @@
                   :headers="boutHeaders"
                   fixed-header
                   item-key="id"
-                  height="240px"
+                  height="280px"
                   dense
                   fixed-header
                   :disable-pagination="true"
@@ -130,7 +130,7 @@
                   :disable-pagination="true"
                   item-key="id"
                   dense
-                  height="150px"
+                  height="280px"
                   fixed-header
                   hide-default-footer
                   :search="entryViewSearch"
