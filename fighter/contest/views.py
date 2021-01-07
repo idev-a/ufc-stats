@@ -73,32 +73,39 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def get_latestevent(self, request, **kwarg):
-        events = Event.objects.all().filter(status='upcoming')
-        if events:
-            latest_event = events.latest('-date')
-            bouts = Bout.objects.filter(event__id=latest_event.id)
-            _bouts = BoutSerializer(bouts, many=True).data
-            if request.user.id:
-                latest_entry = Entry.objects.get(user_id=request.user.id)
-                selections = Selection.objects.all().filter(entry__user_id=request.user.id)
-                for bout in _bouts:
-                    selected = self._selection(selections, bout)
-                    if selected:
-                        bout['survivors'] = []
-                        if selected.survivor1_id:
-                            bout['survivors'].append(selected.survivor1_id)
-                        if selected.survivor2_id:
-                            bout['survivors'].append(selected.survivor2_id)
+        try:
+            events = Event.objects.all().filter(status='upcoming')
+            if events:
+                latest_event = events.latest('-date')
+                bouts = Bout.objects.filter(event__id=latest_event.id)
+                _bouts = BoutSerializer(bouts, many=True).data
+                if request.user.id:
+                    latest_entry = Entry.objects.get(user_id=request.user.id)
+                    selections = Selection.objects.all().filter(entry__user_id=request.user.id)
+                    for bout in _bouts:
+                        selected = self._selection(selections, bout)
+                        if selected:
+                            bout['survivors'] = []
+                            if selected.survivor1_id:
+                                bout['survivors'].append(selected.survivor1_id)
+                            if selected.survivor2_id:
+                                bout['survivors'].append(selected.survivor2_id)
 
+                return Response(dict(
+                    bouts=_bouts,
+                    event=EventSerializer(latest_event).data
+                ))
+            else:
+                return Response(dict(
+                    bouts=[],
+                    event=None
+                ))
+        except Exception as err:
             return Response(dict(
-                bouts=_bouts,
-                event=EventSerializer(latest_event).data
-            ))
-        else:
-            return Response(dict(
-                bouts=[],
-                event=None
-            ))
+                    bouts=_bouts,
+                    event=EventSerializer(latest_event).data,
+                    message=str(err)
+                ), status=500)
 
 class BoutViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
