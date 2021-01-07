@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework import permissions
@@ -80,7 +80,6 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 bouts = Bout.objects.filter(event__id=latest_event.id)
                 _bouts = BoutSerializer(bouts, many=True).data
                 if request.user.id:
-                    latest_entry = Entry.objects.get(user_id=request.user.id)
                     selections = Selection.objects.all().filter(entry__user_id=request.user.id)
                     for bout in _bouts:
                         selected = self._selection(selections, bout)
