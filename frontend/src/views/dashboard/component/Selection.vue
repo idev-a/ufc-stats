@@ -79,7 +79,7 @@
 </template>
 
 <script>
-  import session from '@/api/session'
+  import main from '@/api/main'
   import { beautifyDate } from '@/util'
   import ToggleSwitch from './ToggleSwitch.vue'
   import { mapState, mapGetters } from 'vuex'
@@ -136,38 +136,46 @@
       this.loading = true
       await this.getFighters()
       await this.getLatestBouts()
+      this.preselectFighters()
       this.loading = false
     },
 
     methods: {
+      preselectFighters() {
+        this.bouts.map(bout => {
+          if (bout.survivors) {
+            this.contests[bout.id] = bout.survivors
+          }
+        })
+      },
       async getLatestBouts () {
-        const { data } = await session.get(`api/latest_event/`)
+        const { data } = await main.getLatestEvent()
         this.bouts = data.bouts
         this.event = data.event
       },
       async getFighters () {
-        const { data } = await session.get('api/fighters/')
+        const { data } = await main.getFighters()
         this.fighters = data.results
       },
       _fighter (id) {
         const fighters = this.fighters.filter(fighter => fighter.id == id)
         return fighters[0]
       },
-      myOptions (item) {
-        const fighter1 = this._fighter(item.fighter1)
-        const fighter2 = this._fighter(item.fighter2)
-        return {
-          items: {
-            delay: .4,
-            preSelected: 'unknown',
-            disabled: false,
-            labels: [
-              {name: fighter1.name, id: fighter1.id, color: 'white', backgroundColor: 'green'}, 
-              {name: fighter2.name, id: fighter2.id, color: 'white', backgroundColor: 'green'}
-            ]
-          }
-        }
-      },
+      // myOptions (item) {
+      //   const fighter1 = this._fighter(item.fighter1)
+      //   const fighter2 = this._fighter(item.fighter2)
+      //   return {
+      //     items: {
+      //       delay: .4,
+      //       preSelected: 'unknown',
+      //       disabled: false,
+      //       labels: [
+      //         {name: fighter1.name, id: fighter1.id, color: 'white', backgroundColor: 'green'}, 
+      //         {name: fighter2.name, id: fighter2.id, color: 'white', backgroundColor: 'green'}
+      //       ]
+      //     }
+      //   }
+      // },
       async submit () {
         if (!this.isAuthenticated) {
           this.$store.commit('auth/showLoginDlg')
@@ -183,17 +191,23 @@
         }
         for (const bout in this.contests) {
           const survivors = this.contests[bout]
-          payload.selections.push({
-            bout: bout,
-            survivor1: survivors?.[0] || null,
-            survivor2: survivors?.[1] || null,
-          })
+          if (survivors) {
+            payload.selections.push({
+              bout: bout,
+              survivor1: survivors?.[0] || null,
+              survivor2: survivors?.[1] || null,
+            })
+          }
         }
-        console.log(payload)
-        const { data } = await session.post('api/entries/', payload)
+        const { data } = await main.createEntries(payload)
         this.snackbar = {
           ...data,
           snack: true
+        }
+
+        if (data.status == 'success') {
+          const self = this
+          setTimeout(function(){ self.$router.push('Contest'); }, 1200);
         }
       }
     }

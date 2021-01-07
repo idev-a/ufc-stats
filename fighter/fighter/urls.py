@@ -44,7 +44,5 @@ urlpatterns = [
     url(r'^auth/twitter/$', views.TwitterLogin.as_view(), name='twitter_login'),
     url(r'^auth/twitter/request_token/', views.TwitterAuthRedirectEndpoint.as_view()),
     url(r'^auth/twitter/callback/$', views.TwitterCallbackEndpoint.as_view()),
-    path('api/latest_event/', views.EventViewSet.as_view({'get': 'get_latestevent'}), name='latest_event'),
-    path('api/entries/contest', views.EntryViewSet.as_view({'get': 'get_latestContest'}), name='contest'),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

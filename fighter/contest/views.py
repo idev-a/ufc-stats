@@ -10,6 +10,7 @@ from urllib.parse import urlencode
 from rest_framework.views import APIView
 from django.conf import settings
 import requests
+from datetime import datetime
 
 from django.contrib.auth.models import User, Group
 from contest.models import (
@@ -61,14 +62,36 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     # permission_classes = [permissions.IsAuthenticated]
 
+    def _selection(self, selections, bout):
+        selected = None
+        for selection in selections:
+            if selection.bout_id == bout['id']:
+                selected = selection
+                break
+
+        return selected
+
     @action(methods=['get'], detail=False)
     def get_latestevent(self, request, **kwarg):
         events = Event.objects.all().filter(status='upcoming')
         if events:
             latest_event = events.latest('-date')
             bouts = Bout.objects.filter(event__id=latest_event.id)
+            _bouts = BoutSerializer(bouts, many=True).data
+            if request.user.id:
+                latest_entry = Entry.objects.get(user_id=request.user.id)
+                selections = Selection.objects.all().filter(entry__user_id=request.user.id)
+                for bout in _bouts:
+                    selected = self._selection(selections, bout)
+                    if selected:
+                        bout['survivors'] = []
+                        if selected.survivor1_id:
+                            bout['survivors'].append(selected.survivor1_id)
+                        if selected.survivor2_id:
+                            bout['survivors'].append(selected.survivor2_id)
+
             return Response(dict(
-                bouts=BoutSerializer(bouts, many=True).data,
+                bouts=_bouts,
                 event=EventSerializer(latest_event).data
             ))
         else:
@@ -160,7 +183,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             'died': []
         }
         for selection in selections:
-            username_id = f'{selection.entry.user.username}-{selection.entry.id}'
+            username_id = f'{selection.entry.user.username}'
             bout = selection.bout
             method = bout.method
 
@@ -207,10 +230,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         return score.values()
 
     @action(methods=['get'], detail=False)
-    def get_latestContest(self, request, **kwarg):
+    def get_latestcontest(self, request, **kwarg):
         latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
         selections = Selection.objects.all()
-
         bout_views = self.get_fight_views(selections)
         entry_views = self.get_entry_views(selections)
 
@@ -232,16 +254,34 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
 
     def create(self, request):
-        entry_serializer = EntrySerializer(data=request.data['entry'])
+        data= request.data['entry']
+        entry = None
+        entry_serializer = None
+        is_exist = False
+        message = 'Successfully done.'
+        try:
+            entry = Entry.objects.get(event_id=data['event'], user_id=data['user'])
+        except:
+            pass
+        if entry:
+            is_exist = True
+            message = 'Successfully edited.'
+            data['last_edited'] = datetime.now()
+            entry_serializer = EntrySerializer(entry, data=data)
+        else:
+            entry_serializer = EntrySerializer(data=data)
+
         if entry_serializer.is_valid():
             entry = entry_serializer.save()
-            for selection in request.data['selections']:
-                selection['entry'] = entry.id
 
-            selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
-            if selection_serializer.is_valid():
-                selection_serializer.save()
-                return Response({'status': 'success', 'message': 'Successfully done.'})
+        Selection.objects.filter(entry_id=entry.id).delete()
+        for selection in request.data['selections']:
+            selection['entry'] = entry.id
+
+        selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
+        if selection_serializer.is_valid():
+            selection_serializer.save()
+            return Response({'status': 'success', 'message': message})
 
         return Response({'status': 'failed', 'message': 'Something wrong happened.'})
 

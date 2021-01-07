@@ -74,7 +74,11 @@ export const beautifyDateTimeFromUnix = (timestamp) => {
 }
 
 export const beautifyDateTime = (date) => {
-  return moment(date).format('DD MMM YYYY, HH:mm:ss')
+  if (date) {
+    return moment(date).format('DD MMM YYYY, HH:mm:ss')
+  } else {
+    return ""
+  }
 }
 
 export const beautifyDate = (date) => {
@@ -122,7 +126,7 @@ export const hexEncode = (str) =>  {
   return result.slice(1, result.length-2)
 }
 
-export const downloadCSV = (jsonData) => {
+export const downloadCSV = (jsonData, filename='filename.csv') => {
   const parseData = Papa.unparse(jsonData)
   var blob = new Blob([parseData], { type: 'text/csv;charset=utf-8;' });
 
@@ -130,7 +134,7 @@ export const downloadCSV = (jsonData) => {
 
   var url = URL.createObjectURL(blob);
   link.setAttribute("href", url);
-  link.setAttribute("download", 'filename.csv');
+  link.setAttribute("download", filename);
   link.style.visibility = 'hidden';
   document.body.appendChild(link);
   link.click();

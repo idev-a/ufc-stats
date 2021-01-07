@@ -95,6 +95,8 @@ class Entry(models.Model):
 		related_name='users',
 	)
 
+	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
 	def __str__(self):
 		return "%s - %s" % (self.user, self.event)
 

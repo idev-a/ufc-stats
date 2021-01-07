@@ -65,7 +65,7 @@
                   :headers="boutHeaders"
                   fixed-header
                   item-key="id"
-                  height="350px"
+                  height="240px"
                   dense
                   fixed-header
                   :disable-pagination="true"
@@ -73,24 +73,24 @@
                   :search="boutSearch"
                 > 
                   <template #item.fighter1="{item}">
-                    <div 
-                      class="contest-item"
+                    <v-chip 
+                      small
                       :class="{'winner': item.fighter1 == item.winner, 'loser': item.fighter1 == item.loser}"
                     >
                       <b>{{item.fighter1}}</b>
-                    </div>
+                    </v-chip>
                   </template>
                   <template v-slot:item.entries_1="{ item }">
                     <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a>
                     <span v-else>{{item.entries_1.length}}</span>
                   </template>
                   <template #item.fighter2="{item}">
-                    <div 
-                      class="contest-item"
+                    <v-chip 
+                      small
                       :class="{'winner': item.fighter2 == item.winner, 'loser': item.fighter2 == item.loser}"
                     >
                       <b>{{item.fighter2}}</b>
-                    </div>
+                    </v-chip>
                   </template>
                   <template v-slot:item.entries_2="{ item }">
                     <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
@@ -130,7 +130,7 @@
                   :disable-pagination="true"
                   item-key="id"
                   dense
-                  height="350px"
+                  height="150px"
                   fixed-header
                   hide-default-footer
                   :search="entryViewSearch"
@@ -311,7 +311,6 @@
           {
             text: 'Fighters',
             value: 'fighters',
-            width: 600,
             align: 'center'
           },
         ]
@@ -329,7 +328,7 @@
     methods: {
       async getLatestContest() {
         this.loading = true
-        const { data } = await main.getLatestContests()
+        const { data } = await main.getLatestContest()
         this.boutViews = data.bout_views
         this.entryViews = data.entry_views
         this.event = data.event
