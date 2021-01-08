@@ -10,9 +10,6 @@ from .managers import CustomUserManager
 
 # Customize User model
 class CustomUser(AbstractUser):
-    username = models.CharField(max_length=100, unique=True)
-    email = models.EmailField(_('email address'), unique=True)
-
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = []
 
@@ -23,7 +20,7 @@ class CustomUser(AbstractUser):
     last_name = models.CharField(blank=True, null=True, max_length=100)
 
     def __str__(self):
-        return self.email
+        return self.email or self.username
 
 # Create your models here.
 class Event(models.Model):

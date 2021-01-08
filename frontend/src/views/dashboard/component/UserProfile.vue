@@ -9,7 +9,9 @@
           User Profile
         </div>
       </v-card-title>
-      <v-card-text>
+      <v-card-text 
+        v-if="authUser"
+      >
         <v-form>
           <v-container class="py-0">
             <v-row>

@@ -185,7 +185,7 @@
         const payload = {
           entry: {
             event: event_id,
-            user: this.authUser.pk,
+            user: this.authUser.id,
           },
           selections: []
         }

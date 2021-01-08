@@ -328,6 +328,8 @@ class TwitterAuthRedirectEndpoint(APIView):
 
 
 class TwitterCallbackEndpoint(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def get(self, request, *args, **kwargs):
         try:
             oauth_token = request.query_params.get("oauth_token")

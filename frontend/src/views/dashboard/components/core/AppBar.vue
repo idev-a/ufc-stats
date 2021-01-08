@@ -188,7 +188,7 @@
 
     computed: {
       ...mapState(['drawer']),
-      ...mapGetters('auth', ['isAuthenticated'])
+      ...mapGetters('auth', ['isAuthenticated']),
     },
 
     mounted() {
