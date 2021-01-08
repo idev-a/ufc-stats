@@ -99,9 +99,11 @@ const actions = {
     })
   },
   updateUser({ commit }, payload) {
+    commit(LOGIN_BEGIN);
     auth.updateAccount(payload)
       .then(({data}) => {
-        console.log(data)
+        commit(SET_AUTH_USER, data)
+        commit(LOGIN_SUCCESS)
       })
   },
   logout({ commit }) {

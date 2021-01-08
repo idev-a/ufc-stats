@@ -345,8 +345,6 @@ class TwitterCallbackEndpoint(APIView):
             oauth_token = res_split[0].split("=")[1]
             oauth_secret = res_split[1].split("=")[1]
 
-            print(res.text)
-
             formdata = {
                 'access_token': oauth_token,
                 'token_secret': oauth_secret

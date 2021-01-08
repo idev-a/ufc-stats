@@ -130,7 +130,7 @@
     </v-menu>
 
     <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
-    <user-profile :value.sync="profileDlg" @update="profileDlg=false" />
+    <user-profile v-if="isAuthenticated" :value.sync="profileDlg" @update="profileDlg=false" />
   </v-app-bar>
 </template>
 
