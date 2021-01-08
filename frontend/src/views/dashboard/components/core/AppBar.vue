@@ -22,6 +22,20 @@
           v-on="on"
           min-width="0"
           text
+          @click.stop="showInstruction"
+        >
+          <v-icon color="white">mdi-information-outline</v-icon>
+        </v-btn>
+        </template>
+      <span>Instructions</span>
+    </v-tooltip>
+
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-on="on"
+          min-width="0"
+          text
           to="/"
         >
           <v-icon color="white">mdi-view-dashboard</v-icon>
@@ -42,7 +56,7 @@
           <v-icon color="white">mdi-lock-open-outline</v-icon>
         </v-btn>
       </template>
-      <span>Live Contest</span>
+      <span>Contest</span>
     </v-tooltip>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
@@ -101,25 +115,22 @@
           >
             Logout
           </v-btn>
-          <!-- <app-bar-item
-            v-if="!isAuthenticated"
+          <v-divider v-if="isAuthenticated" />
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            @click="profileDlg=true"
+            block
+            plain
           >
-            <v-list-item-title 
-              v-text="`Login`" 
-              @click="launchLogin"
-            />
-          </app-bar-item>
-          <app-bar-item
-            v-else
-          >
-            <v-list-item-title 
-              v-text="`Logout`" 
-              @click="goTo('Logout')"
-            />
-          </app-bar-item> -->
+            Profile
+          </v-btn>
         </div>
       </v-list>
     </v-menu>
+
+    <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
+    <user-profile :value.sync="profileDlg" @update="profileDlg=false" />
   </v-app-bar>
 </template>
 
@@ -129,11 +140,15 @@
 
   // Utilities
   import { mapState, mapMutations, mapGetters } from 'vuex'
+  import Instruction from '../../component/Instruction'
+  import UserProfile from '../../component/UserProfile'
 
   export default {
     name: 'DashboardCoreAppBar',
 
     components: {
+      Instruction,
+      UserProfile,
       AppBarItem: {
         render (h) {
           return h(VHover, {
@@ -167,19 +182,8 @@
     },
 
     data: () => ({
-      notifications: [
-        'Mike John Responded to your email',
-        'You have 5 new tasks',
-        'You\'re now friends with Andrew',
-        'Another Notification',
-        'Another one',
-      ],
-      profile: [
-        // { title: 'Profile', name: 'My Profile' },
-        // { title: 'Settings', name: 'Settings' },
-        // { divider: true },
-        { title: 'Log out', name: 'Login' },
-      ],
+      instructionDlg: false,
+      profileDlg: false
     }),
 
     computed: {
@@ -208,7 +212,16 @@
       },
       logout () {
         this.$store.dispatch('auth/logout')
+      },
+      showInstruction () {
+        this.instructionDlg = true
       }
     },
   }
 </script>
+
+<style>
+  .instruction-list {
+    list-style: none;
+  }
+</style>

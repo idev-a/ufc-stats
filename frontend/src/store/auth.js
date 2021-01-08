@@ -98,6 +98,12 @@ const actions = {
       // })
     })
   },
+  updateUser({ commit }, payload) {
+    auth.updateAccount(payload)
+      .then(({data}) => {
+        console.log(data)
+      })
+  },
   logout({ commit }) {
     return auth.logout()
       .then(() => commit(LOGOUT))

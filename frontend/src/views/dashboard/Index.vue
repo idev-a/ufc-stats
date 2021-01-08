@@ -40,7 +40,7 @@
         return this.$route.name == 'Contest'
       },
       selectionPage () {
-        return this.$route.name == 'Selection'
+        return this.$route.name == 'Dashboard'
       }
     },
 

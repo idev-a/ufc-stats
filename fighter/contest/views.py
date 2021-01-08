@@ -12,13 +12,14 @@ from django.conf import settings
 import requests
 from datetime import datetime
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from contest.models import (
     Event,
     Bout,
     Fighter,
     Selection,
-    Entry
+    Entry,
+    CustomUser
 )
 from contest.serializers import (
 	UserSerializer,
@@ -40,7 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = CustomUser.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -189,7 +190,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             'died': []
         }
         for selection in selections:
-            username_id = f'{selection.entry.user.username}'
+            username_id = f'{selection.entry.user.displayname}-{selection.entry.id}'
             bout = selection.bout
             method = bout.method
 

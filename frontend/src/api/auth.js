@@ -31,7 +31,7 @@ export default {
   checkAlreadyTaken(user_id) {
     return session.get(`/api/check_user_already_taken?user_id=${user_id}`);
   },
-  updateAccountDetails(data) {
+  updateAccount(data) {
     return session.patch('/auth/user/', data);
   },
   verifyAccountEmail(key) {

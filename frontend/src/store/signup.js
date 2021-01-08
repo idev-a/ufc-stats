@@ -87,6 +87,7 @@ export default {
       state.registrationCompleted = true;
       state.registrationError = '';
       state.registrationLoading = false;
+      state.launchRegister = false;
 
       localStorage.setItem(TOKEN_STORAGE_KEY, token);
       session.defaults.headers.Authorization = `Token ${token}`;

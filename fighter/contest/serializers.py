@@ -1,17 +1,18 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from contest.models import (
 	Event,
 	Bout,
 	Fighter,
 	Selection,
-	Entry
+	Entry,
+	CustomUser
 )
 from rest_framework import serializers
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
-		model = User
-		fields = ['url', 'username', 'email', 'groups']
+		model = CustomUser
+		fields = ['id', 'url', 'username', 'displayname', 'email']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):

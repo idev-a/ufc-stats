@@ -87,9 +87,9 @@ let router = new Router({
       component: () => import('@/views/dashboard/Index'),
       children: [
         {
-          name: 'Selection',
+          name: 'Dashboard',
           path: '',
-          component: () => import('@/views/dashboard/Dashboard'),
+          component: () => import('@/views/dashboard/component/Selection'),
         },
         {
           name: 'Selection',

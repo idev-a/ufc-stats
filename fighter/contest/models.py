@@ -1,7 +1,29 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
+from django.utils.translation import ugettext_lazy as _
+
+from .managers import CustomUserManager
+
+# Customize User model
+class CustomUser(AbstractUser):
+    username = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(_('email address'), unique=True)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = []
+
+    objects = CustomUserManager()
+
+    displayname = models.CharField(blank=True, max_length=100)
+    first_name = models.CharField(blank=True, max_length=100)
+    last_name = models.CharField(blank=True, max_length=100)
+
+    def __str__(self):
+        return self.email
 
 # Create your models here.
 class Event(models.Model):
@@ -90,7 +112,7 @@ class Entry(models.Model):
 		on_delete=models.CASCADE,
 	)
 	user = models.ForeignKey(
-		User,
+		CustomUser,
 		on_delete=models.CASCADE,
 		related_name='users',
 	)

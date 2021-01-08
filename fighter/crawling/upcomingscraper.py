@@ -89,9 +89,9 @@ class ScraperSpider(scrapy.Spider):
 				)
 				bout = self.save_bout(item)
 
-				if fight_detail:
-					event.status='completed'
-					event.save()
+				# if fight_detail:
+				# 	event.status='completed'
+				# 	event.save()
 
 				try:
 					yield scrapy.Request(detail_link, dont_filter=True, meta={'bout_id': bout.id}, callback=self.parse_bout_detail)

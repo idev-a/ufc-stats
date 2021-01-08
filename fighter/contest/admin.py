@@ -1,7 +1,10 @@
 from django.contrib import admin
-from .models import Event, Fighter, Bout, Entry, Selection
+from .models import Event, Fighter, Bout, Entry, Selection, CustomUser
 
 # Register your models here.
+@admin.register(CustomUser)
+class CustomUserAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):

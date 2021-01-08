@@ -6,8 +6,8 @@
     class="d-flex justify-center"
   >
     <v-card
-      class="px-3 mt-0"
-      max-width="60%"
+      class="mt-0"
+      :class="{'max-60': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
         class="justify-center font-weight-medium mb-md-3 mt-5"
@@ -363,7 +363,7 @@
 
   table { border-collapse: collapse; empty-cells: show; }
 
-td { position: relative; }
+  td { position: relative; }
 
   tr.strike-through td:before {
     content: " ";
@@ -383,6 +383,10 @@ td { position: relative; }
   .v-chip__content {
     font-size: 12px;
     font-weight: 400;
+  }
+
+  .max-60 {
+    max-width: 60%;
   }
 
 </style>
