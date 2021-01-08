@@ -18,9 +18,9 @@ class CustomUser(AbstractUser):
 
     objects = CustomUserManager()
 
-    displayname = models.CharField(blank=True, max_length=100)
-    first_name = models.CharField(blank=True, max_length=100)
-    last_name = models.CharField(blank=True, max_length=100)
+    displayname = models.CharField(blank=True, null=True, max_length=100)
+    first_name = models.CharField(blank=True, null=True, max_length=100)
+    last_name = models.CharField(blank=True, null=True, max_length=100)
 
     def __str__(self):
         return self.email
