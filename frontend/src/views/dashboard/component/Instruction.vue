@@ -5,7 +5,7 @@
   >
     <v-card>
       <v-card-title>
-        <b>Instructions</b>
+        <b class="display-2">Instructions</b>
       </v-card-title>
       <v-card-text>
         <ul class="instruction-list">
@@ -14,7 +14,7 @@
       </v-card-text>
 
       <v-card-title>
-        <b>Rules</b>
+        <b class="display-2">Rules</b>
       </v-card-title>
       <v-card-text>
         <ul class="instruction-list">

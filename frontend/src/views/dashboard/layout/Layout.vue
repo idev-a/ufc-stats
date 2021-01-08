@@ -22,7 +22,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: url( '../../../assets/bg.jpg') no-repeat center center;
+    background: url( '../../../assets/contest.jpeg') no-repeat center center;
     background-size: cover;
     transform: scale(1.1);
   }
