@@ -146,11 +146,11 @@
                               v-on="on"
                               small
                               class="mr-1 mb-1" 
-                              :class="{'winner': item.winners.includes(fighter), 'loser': item.losers.includes(fighter), 'died': item.died.includes(fighter)}" >
-                              <span>{{fighter}}</span>
+                              :class="{'winner': fighter.win, 'loser': fighter.lose, 'died': fighter.died}" >
+                              <span>{{fighter.name}}</span>
                             </v-chip>
                           </template>
-                          <span>{{ item.method }}</span>
+                          <span>{{ fighter.entry_cnt }}</span>
                         </v-tooltip>
                       </template>
                     </div>

@@ -102,6 +102,7 @@
     data () {
       const defaultForm = Object.freeze({
         username: '',
+        displayname: '',
         email: '',
         password1: '',
         password2: ''
@@ -206,7 +207,7 @@
         this.$refs.form.validate(true)
         
         if (this.valid) {
-          this.form.username = this.form.email
+          this.form.username = this.form.displayname = this.form.email
           this.$store.dispatch('signup/createAccount', this.form)          
         }
       },

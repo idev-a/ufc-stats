@@ -80,6 +80,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 latest_event = events.latest('-date')
                 bouts = Bout.objects.filter(event__id=latest_event.id)
                 _bouts = BoutSerializer(bouts, many=True).data
+                _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                 if request.user.id:
                     selections = Selection.objects.all().filter(entry__user_id=request.user.id)
                     for bout in _bouts:
@@ -172,7 +173,25 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
             bout_views[view_id] = view
 
-        return bout_views.values()
+        _bouts = bout_views.values()
+        return sorted(_bouts, key = lambda _bout: _bout['id'])
+
+    def _exist(self, item, arr):
+        is_exist = False
+        for _item in arr:
+            if _item['id'] == item['id']:
+                is_exist = True
+                break
+
+        return is_exist
+
+    def _count_entries(self, fighter, selections):
+        entries = set()
+        for selection in selections:
+            if selection.bout.fighter1.id == fighter.id or selection.bout.fighter2.id == fighter.id:
+                entries.add(selection.entry.id)
+
+        return len(entries)
 
     def get_entry_views(self, selections):
         score = {}
@@ -197,27 +216,55 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             winner_id = bout.winner and bout.winner.id # winner from bout
             score[username_id] = score.get(username_id, copy.deepcopy(default_score))
             score[username_id]['entry'] = username_id
-            fighter1 = bout.fighter1.name
-            fighter2 = bout.fighter2.name
-            winner = bout.winner and bout.winner.name
-            loser = bout.loser and bout.loser.name
+            fighter1 = { 
+                'id': bout.fighter1.id,
+                'name': bout.fighter1.name,
+                'entry_cnt': self._count_entries(bout.fighter1, selections)
+            }
+            fighter2 = { 
+                'id': bout.fighter2.id,
+                'name': bout.fighter2.name,
+                'entry_cnt': self._count_entries(bout.fighter2, selections)
+            }
+            winner = {}
+            if bout.winner:
+                winner = { 'id': bout.winner.id, 'name': bout.winner.name }
+            loser = {}
+            if bout.loser:
+                loser = { 'id': bout.loser.id, 'name': bout.loser.name }
+
+            if fighter1['id'] == loser['id']:
+                fighter1['lose'] = True
+            if fighter2['id'] == loser['id']:
+                fighter2['lose'] = True
+
+            if fighter1['id'] == winner['id']:
+                fighter1['win'] = True
+            if fighter2['id'] == winner['id']:
+                fighter2['win'] = True
+
+            if 'DEC' not in bout.method:
+                if fighter1['id'] == loser['id']:
+                    fighter1['died'] = True
+                if fighter2['id'] == loser['id']:
+                    fighter2['died'] = True
+
+                score[username_id]['died'].append(loser)
+
             score[username_id]['method'] = method
-            if fighter1 not in score[username_id]['fighters']:
-                score[username_id]['fighters'].append(fighter1)
+            # if not self._exist(fighter1, score[username_id]['fighters']):
+            score[username_id]['fighters'].append(fighter1)
 
-            if fighter2 not in score[username_id]['fighters']:
-                score[username_id]['fighters'].append(fighter2)
+            # if not self._exist(fighter2, score[username_id]['fighters']):
+            score[username_id]['fighters'].append(fighter2)
 
-            if winner and winner not in score[username_id]['winners']:
-                score[username_id]['winners'].append(winner)
+            # if not self._exist(winner, score[username_id]['winners']):
+            score[username_id]['winners'].append(winner)
 
-            if loser and loser not in score[username_id]['losers']:
-                score[username_id]['losers'].append(loser)
+            # if not self._exist(loser, score[username_id]['losers']):
+            score[username_id]['losers'].append(loser)
 
-                if 'DEC' not in bout.method and loser not in score[username_id]['died']:
-                    score[username_id]['died'].append(loser)
-
-
+            
             # remainings
             if bout.status != 'completed':
                 score[username_id]['remainings'] += 1

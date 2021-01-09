@@ -143,6 +143,7 @@
     methods: {
       preselectFighters() {
         this.bouts.map(bout => {
+          this.contests[bout.id] = []
           if (bout.survivors) {
             this.contests[bout.id] = bout.survivors
           }
@@ -191,14 +192,13 @@
         }
         for (const bout in this.contests) {
           const survivors = this.contests[bout]
-          if (survivors) {
-            payload.selections.push({
-              bout: bout,
-              survivor1: survivors?.[0] || null,
-              survivor2: survivors?.[1] || null,
-            })
-          }
+          payload.selections.push({
+            bout: bout,
+            survivor1: survivors?.[0] || null,
+            survivor2: survivors?.[1] || null,
+          })
         }
+
         const { data } = await main.createEntries(payload)
         this.snackbar = {
           ...data,
