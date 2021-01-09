@@ -159,6 +159,6 @@ class Selection(models.Model):
 	# finished = models.BooleanField(default=False, null=True, blank=True)
 
 	def __str__(self):
-		return "%s - %s" % (self.bout, self.fighter)
+		return "%s - %s (%s)" % (self.survivor1, self.survivor2, self.bout)
 
 

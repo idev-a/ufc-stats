@@ -209,6 +209,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             'died': []
         }
         for selection in selections:
+            if selection.survivor1_id == None and selection.survivor2_id == None:
+                continue
             username_id = f'{selection.entry.user.displayname}-{selection.entry.id}'
             bout = selection.bout
             method = bout.method
@@ -281,7 +283,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 score[username_id]['wins'] += 1
                 score[username_id]['losses'] += 1
 
-        return score.values()
+        entry_views = score.values()
+        entry_views = sorted(entry_views, key=lambda x: (x['survived'], x['wins']))
+        entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['losses']))
+        entry_views = sorted(entry_views, key=lambda x: (len(x['died'])))
+        for x, item in enumerate(entry_views):
+            item['rank'] = x+1
+
+        return entry_views
 
     @action(methods=['get'], detail=False)
     def get_latestcontest(self, request, **kwarg):

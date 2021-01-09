@@ -136,6 +136,24 @@
                   :search="entryViewSearch"
                   :item-class="entryItemClass"
                 > 
+                  <template v-slot:item.rank="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}</span>
+                  </template>
+                  <template v-slot:item.entry="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}</span>
+                  </template>
+                  <template v-slot:item.survived="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.survived}}</span>
+                  </template>
+                  <template v-slot:item.wins="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.wins}}</span>
+                  </template>
+                  <template v-slot:item.losses="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.losses}}</span>
+                  </template>
+                  <template v-slot:item.remainings="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.remainings}}</span>
+                  </template>
                   <template v-slot:item.fighters="{ item }">
                     <div class="d-flex flex-wrap">
                       <template v-for="fighter in item.fighters">
@@ -277,12 +295,11 @@
         entryViewSearch: '',
         entryViews: [],
         entryViewHeaders: [
-          // {
-          //   text: '',
-          //   value: 'sign',
-          //   align: 'center',
-          //   width: 10
-          // },
+          {
+            text: 'Rank',
+            value: 'rank',
+            align: 'center',
+          },
           {
             text: 'Entry',
             value: 'entry',
@@ -326,6 +343,9 @@
     },
 
     methods: {
+      highlight(item) {
+        return {'highlight--text': item.rank==1}
+      },
       async getLatestContest() {
         this.loading = true
         const { data } = await main.getLatestContest()
@@ -370,7 +390,7 @@
     position: absolute;
     top: 50%;
     left: 0;
-    border-bottom: 1px solid #E65100;
+    border-bottom: 1px solid #B71C1C;
     width: 100%;
   }
 
