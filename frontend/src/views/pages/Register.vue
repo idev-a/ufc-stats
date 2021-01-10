@@ -198,11 +198,6 @@
         this.$store.commit('signup/showRegisterDlg', false)
         this.$store.commit('auth/showLoginDlg')
       },
-      resetForm () {
-        this.form = Object.assign({}, this.defaultForm)
-        this.$refs.form.reset()
-        this.formHasErrors = false
-      },
       async submit () {
         this.$refs.form.validate(true)
         

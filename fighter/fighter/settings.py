@@ -177,12 +177,18 @@ CORS_ORIGIN_ALLOW_ALL = True
 AUTH_USER_MODEL = 'contest.CustomUser'
 SOCIAL_AUTH_USER_MODEL = 'contest.CustomUser'
 
+ACCOUNT_ADAPTER = 'contest.adapter.MyAccountAdapter'
+
 ACCOUNT_EMAIL_VERIFICATION = None
 EMAIL_VERIFICATION = None
 AUTH_PASSWORD_VALIDATORS = []
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'contest.serializers.UserSerializer',
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'contest.serializers.CustomRegisterSerializer',
 }
 
 TWITTER_API_KEY = 'Szk06qiHVrfrAEyP7XzrjJke7'

@@ -28,9 +28,9 @@ export default {
     launchRegister: state => state.launchRegister,
   },
   actions: {
-    createAccount({ commit }, { username, password1, password2, email }) {
+    createAccount({ commit }, payload) {
       commit(REGISTRATION_BEGIN);
-      return auth.createAccount(username, password1, password2, email)
+      return auth.createAccount(payload)
         .then(({data}) => commit(REGISTRATION_SUCCESS, data.key))
         .catch((err) => commit(REGISTRATION_FAILURE, err));
     },

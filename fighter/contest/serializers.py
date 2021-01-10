@@ -9,6 +9,22 @@ from contest.models import (
 )
 from rest_framework import serializers
 
+from allauth.account.adapter import get_adapter
+from allauth.account.utils import setup_user_email
+
+from rest_auth.registration.serializers import RegisterSerializer
+
+class CustomRegisterSerializer(RegisterSerializer):
+	displayname = serializers.CharField(
+		required=False,
+		max_length=100,
+	)
+
+	def get_cleaned_data(self):
+		data_dict = super().get_cleaned_data()
+		data_dict['displayname'] = self.validated_data.get('displayname', '')
+		return data_dict
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = CustomUser

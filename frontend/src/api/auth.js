@@ -13,8 +13,8 @@ export default {
   logout() {
     return session.post('/auth/logout/', {});
   },
-  createAccount(username, password1, password2, email) {
-    return session.post('/auth/registration/', { username, password1, password2, email });
+  createAccount(payload) {
+    return session.post('/auth/registration/', payload);
   },
   changeAccountPassword(password1, password2) {
     return session.post('/auth/password/change/', { password1, password2 });
