@@ -185,13 +185,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         return is_exist
 
-    def _count_entries(self, fighter, selections):
-        entries = set()
-        for selection in selections:
-            if selection.bout.fighter1.id == fighter.id or selection.bout.fighter2.id == fighter.id:
-                entries.add(selection.entry.id)
-
-        return len(entries)
+    def _count_entries(self, fighter_id, selections):
+        survivor1s = [selection.survivor1.id for selection in selections if selection.survivor1 and selection.survivor1.id == fighter_id]
+        survivor2s = [selection.survivor2.id for selection in selections if selection.survivor2 and selection.survivor2.id == fighter_id]
+        return len(survivor1s) + len(survivor2s)
 
     def get_entry_views(self, selections):
         score = {}
@@ -218,16 +215,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             winner_id = bout.winner and bout.winner.id # winner from bout
             score[username_id] = score.get(username_id, copy.deepcopy(default_score))
             score[username_id]['entry'] = username_id
-            fighter1 = { 
-                'id': bout.fighter1.id,
-                'name': bout.fighter1.name,
-                'entry_cnt': self._count_entries(bout.fighter1, selections)
-            }
-            fighter2 = { 
-                'id': bout.fighter2.id,
-                'name': bout.fighter2.name,
-                'entry_cnt': self._count_entries(bout.fighter2, selections)
-            }
+            score[username_id]['last_edited'] = selection.entry.last_edited
+
+            # Get winner and loser
             winner = {}
             if bout.winner:
                 winner = { 'id': bout.winner.id, 'name': bout.winner.name }
@@ -235,15 +225,40 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if bout.loser:
                 loser = { 'id': bout.loser.id, 'name': bout.loser.name }
 
-            if fighter1['id'] == loser['id']:
-                fighter1['lose'] = True
-            if fighter2['id'] == loser['id']:
-                fighter2['lose'] = True
-
-            if fighter1['id'] == winner['id']:
-                fighter1['win'] = True
-            if fighter2['id'] == winner['id']:
-                fighter2['win'] = True
+            survivor1 = None
+            if selection.survivor1:
+                _s1 = selection.survivor1
+                survivor1 = {
+                    'id': _s1.id,
+                    'name': _s1.name,
+                    'win': _s1.id == winner['id'],
+                    'lose': _s1.id == loser['id'],
+                    'entry_cnt': self._count_entries(_s1 and _s1.id, selections)    
+                }
+            survivor2 = None
+            if selection.survivor2:
+                _s2 = selection.survivor2
+                survivor2 = {
+                    'id': _s2.id,
+                    'name': _s2.name,
+                    'win': _s2.id == winner['id'],
+                    'lose': _s2.id == loser['id'],
+                    'entry_cnt': self._count_entries(_s2 and _s2.id, selections)    
+                }
+            fighter1 = { 
+                'id': bout.fighter1.id,
+                'name': bout.fighter1.name,
+                'win': bout.fighter1.id == winner['id'],
+                'lose': bout.fighter1.id == loser['id'],
+                'entry_cnt': self._count_entries(selection.survivor1 and selection.survivor1_id, selections)
+            }
+            fighter2 = { 
+                'id': bout.fighter2.id,
+                'name': bout.fighter2.name,
+                'win': bout.fighter2.id == winner['id'],
+                'lose': bout.fighter2.id == loser['id'],
+                'entry_cnt': self._count_entries(selection.survivor2 and selection.survivor2_id, selections)
+            }
 
             if 'DEC' not in bout.method:
                 if fighter1['id'] == loser['id']:
@@ -254,16 +269,13 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 score[username_id]['died'].append(loser)
 
             score[username_id]['method'] = method
-            # if not self._exist(fighter1, score[username_id]['fighters']):
-            score[username_id]['fighters'].append(fighter1)
-
-            # if not self._exist(fighter2, score[username_id]['fighters']):
-            score[username_id]['fighters'].append(fighter2)
-
-            # if not self._exist(winner, score[username_id]['winners']):
+            if survivor1:
+                score[username_id]['fighters'].append(survivor1)
+            if survivor2:
+                score[username_id]['fighters'].append(survivor2)
+            # score[username_id]['fighters'].append(fighter1)
+            # score[username_id]['fighters'].append(fighter2)
             score[username_id]['winners'].append(winner)
-
-            # if not self._exist(loser, score[username_id]['losers']):
             score[username_id]['losers'].append(loser)
 
             
@@ -287,6 +299,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         entry_views = sorted(entry_views, key=lambda x: (x['survived'], x['wins']))
         entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['losses']))
         entry_views = sorted(entry_views, key=lambda x: (len(x['died'])))
+        entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['last_edited']))
         for x, item in enumerate(entry_views):
             item['rank'] = x+1
 

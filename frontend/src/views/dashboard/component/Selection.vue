@@ -27,6 +27,7 @@
           :items="bouts"
           :item-height="45"
           height="300"
+          :key="key"
         >
           <template v-slot:default="{ item }">
             <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
@@ -99,6 +100,7 @@
         fighters: [],
         selectedItem: -1,
         contests: {},
+        key: 1,
         snackbar: {
           snack: false,
           message: '',
@@ -108,14 +110,14 @@
       }
     },
 
-    watch: {
-      contests: {
-        handler (val) {
-          // console.log(val)
-        },
-        deep: true
-      }
-    },
+    // watch: {
+    //   contests: {
+    //     handler (val) {
+    //       console.log(val)
+    //     },
+    //     deep: true
+    //   }
+    // },
 
     computed: {
       ...mapState('auth', ['authUser']),
@@ -124,6 +126,13 @@
         return this.$vuetify.breakpoint.height - 147
       },
       submitDisabled() {
+        let selected = false
+        for (const bout in this.contests) {
+          const survivors = this.contests[bout]
+          if (survivors.length) {
+            selected = true
+          }
+        }
         return this.loading || !this.event || this.bouts.length < 1
       }
     },
@@ -148,6 +157,7 @@
             this.contests[bout.id] = bout.survivors
           }
         })
+        this.key++
       },
       async getLatestBouts () {
         const { data } = await main.getLatestEvent()
@@ -186,17 +196,30 @@
         const payload = {
           entry: {
             event: event_id,
-            user: this.authUser.id,
+            user: this.authUser.pk || this.authUser.id,
           },
           selections: []
         }
+        let selected = false
         for (const bout in this.contests) {
           const survivors = this.contests[bout]
+          if (survivors.length) {
+            selected = true
+          }
           payload.selections.push({
             bout: bout,
             survivor1: survivors?.[0] || null,
             survivor2: survivors?.[1] || null,
           })
+        }
+
+        if (!selected) {
+          this.snackbar = {
+            snack: true,
+            message: 'Please select at least one entry to submit',
+            status: 'dark'
+          }
+          return
         }
 
         const { data } = await main.createEntries(payload)
@@ -231,7 +254,9 @@
       background-color: #008000 !important;
     }
 
-
+    .theme--light.v-btn.v-btn--disabled {
+      color: rgba(255, 255, 255, 0.26) !important;
+    }
   }
 
 </style>
