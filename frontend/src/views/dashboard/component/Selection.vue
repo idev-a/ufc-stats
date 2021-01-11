@@ -240,9 +240,7 @@
         this.squadSize = 0
         for (const bout in this.contests) {
           const survivors = this.contests[bout]
-          if (survivors.length) {
-            this.squadSize++
-          }
+          this.squadSize += survivors.length
         }
       }
     }

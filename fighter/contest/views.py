@@ -162,14 +162,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     method=_bout.method,
                     round=_bout.round,
                     time=_bout.time,
-                    entries_1=[],
-                    entries_2=[],
                 )
         
-            if selection.survivor1_id:
-                view['entries_1'].append(selection.entry.id)
-            if selection.survivor2_id:
-                view['entries_2'].append(selection.entry.id)
+            view['entries_1'] = self._count_entries(selection.bout.fighter1.id, selections)
+            view['entries_2'] = self._count_entries(selection.bout.fighter2.id, selections)
 
             bout_views[view_id] = view
 
@@ -188,7 +184,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def _count_entries(self, fighter_id, selections):
         survivor1s = [selection.survivor1.id for selection in selections if selection.survivor1 and selection.survivor1.id == fighter_id]
         survivor2s = [selection.survivor2.id for selection in selections if selection.survivor2 and selection.survivor2.id == fighter_id]
-        return len(survivor1s) + len(survivor2s)
+        return survivor1s + survivor2s
 
     def _calc_suv_win_loss(self, survivor1, survivor2, winner, loser):
         wins = 0
@@ -243,7 +239,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     'name': _s1.name,
                     'win': _s1.id == winner.get('id'),
                     'lose': _s1.id == loser.get('id'),
-                    'entry_cnt': self._count_entries(_s1 and _s1.id, selections)    
+                    'entry_cnt': len(self._count_entries(_s1 and _s1.id, selections))
                 }
             survivor2 = {}
             if selection.survivor2:
@@ -253,21 +249,21 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     'name': _s2.name,
                     'win': _s2.id == winner.get('id'),
                     'lose': _s2.id == loser.get('id'),
-                    'entry_cnt': self._count_entries(_s2 and _s2.id, selections)    
+                    'entry_cnt': len(self._count_entries(_s2 and _s2.id, selections))  
                 }
             fighter1 = { 
                 'id': bout.fighter1.id,
                 'name': bout.fighter1.name,
                 'win': bout.fighter1.id == winner.get('id'),
                 'lose': bout.fighter1.id == loser.get('id'),
-                'entry_cnt': self._count_entries(selection.survivor1 and selection.survivor1_id, selections)
+                'entry_cnt': len(self._count_entries(selection.survivor1 and selection.survivor1_id, selections))
             }
             fighter2 = { 
                 'id': bout.fighter2.id,
                 'name': bout.fighter2.name,
                 'win': bout.fighter2.id == winner.get('id'),
                 'lose': bout.fighter2.id == loser.get('id'),
-                'entry_cnt': self._count_entries(selection.survivor2 and selection.survivor2_id, selections)
+                'entry_cnt': len(self._count_entries(selection.survivor2 and selection.survivor2_id, selections))
             }
 
             if 'DEC' not in bout.method:
