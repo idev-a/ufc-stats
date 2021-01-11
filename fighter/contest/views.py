@@ -190,6 +190,16 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         survivor2s = [selection.survivor2.id for selection in selections if selection.survivor2 and selection.survivor2.id == fighter_id]
         return len(survivor1s) + len(survivor2s)
 
+    def _calc_suv_win_loss(self, survivor1, survivor2, winner, loser):
+        wins = 0
+        losses = 0
+        if survivor1.get('id') == winner.get('id') or survivor2.get('id') == winner.get('id'):
+            wins += 1
+        if survivor1.get('id') == loser.get('id') or survivor2.get('id') == loser.get('id'):
+            losses += 1
+
+        return wins, losses
+
     def get_entry_views(self, selections):
         score = {}
         default_score = {
@@ -225,45 +235,45 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if bout.loser:
                 loser = { 'id': bout.loser.id, 'name': bout.loser.name }
 
-            survivor1 = None
+            survivor1 = {}
             if selection.survivor1:
                 _s1 = selection.survivor1
                 survivor1 = {
                     'id': _s1.id,
                     'name': _s1.name,
-                    'win': _s1.id == winner['id'],
-                    'lose': _s1.id == loser['id'],
+                    'win': _s1.id == winner.get('id'),
+                    'lose': _s1.id == loser.get('id'),
                     'entry_cnt': self._count_entries(_s1 and _s1.id, selections)    
                 }
-            survivor2 = None
+            survivor2 = {}
             if selection.survivor2:
                 _s2 = selection.survivor2
                 survivor2 = {
                     'id': _s2.id,
                     'name': _s2.name,
-                    'win': _s2.id == winner['id'],
-                    'lose': _s2.id == loser['id'],
+                    'win': _s2.id == winner.get('id'),
+                    'lose': _s2.id == loser.get('id'),
                     'entry_cnt': self._count_entries(_s2 and _s2.id, selections)    
                 }
             fighter1 = { 
                 'id': bout.fighter1.id,
                 'name': bout.fighter1.name,
-                'win': bout.fighter1.id == winner['id'],
-                'lose': bout.fighter1.id == loser['id'],
+                'win': bout.fighter1.id == winner.get('id'),
+                'lose': bout.fighter1.id == loser.get('id'),
                 'entry_cnt': self._count_entries(selection.survivor1 and selection.survivor1_id, selections)
             }
             fighter2 = { 
                 'id': bout.fighter2.id,
                 'name': bout.fighter2.name,
-                'win': bout.fighter2.id == winner['id'],
-                'lose': bout.fighter2.id == loser['id'],
+                'win': bout.fighter2.id == winner.get('id'),
+                'lose': bout.fighter2.id == loser.get('id'),
                 'entry_cnt': self._count_entries(selection.survivor2 and selection.survivor2_id, selections)
             }
 
             if 'DEC' not in bout.method:
-                if fighter1['id'] == loser['id']:
+                if fighter1['id'] == loser.get('id'):
                     fighter1['died'] = True
-                if fighter2['id'] == loser['id']:
+                if fighter2['id'] == loser.get('id'):
                     fighter2['died'] = True
 
                 score[username_id]['died'].append(loser)
@@ -284,16 +294,25 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 score[username_id]['remainings'] += 1
 
             if 'DEC' in method:
-                score[username_id]['survived'] += 2
-                score[username_id]['wins'] += 1
-                score[username_id]['losses'] += 1
+                if survivor1:
+                    score[username_id]['survived'] += 1
+                if survivor2:
+                    score[username_id]['survived'] += 1
+                wins, losses = self._calc_suv_win_loss(survivor1, survivor2, winner, loser)
+                score[username_id]['wins'] += wins
+                score[username_id]['losses'] += losses
 
             if method.startswith('KO') or \
                 'TKO' in method or 'SUB' in method:
+                if survivor1 and survivor1.get('id') == winner.get('id'):
+                    score[username_id]['survived'] += 1
 
-                score[username_id]['survived'] += 1
-                score[username_id]['wins'] += 1
-                score[username_id]['losses'] += 1
+                if survivor2 and survivor2.get('id') == winner.get('id'):
+                    score[username_id]['survived'] += 1
+                
+                wins, losses = self._calc_suv_win_loss(survivor1, survivor2, winner, loser)
+                score[username_id]['wins'] += wins
+                score[username_id]['losses'] += losses
 
         entry_views = score.values()
         entry_views = sorted(entry_views, key=lambda x: (x['survived'], x['wins']))

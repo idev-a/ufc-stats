@@ -17,12 +17,12 @@
         <div v-if="event" class="text-center">
           <div>{{ this.event.name }}</div>
           <div class="subtitle-2">{{ this.event.date | beautifyDate }}</div>
+          <div class="overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
         </div>
       </v-card-title>
       <v-card-text
         class="pb-0"
       >
-
         <v-virtual-scroll
           :items="bouts"
           :item-height="45"
@@ -38,6 +38,7 @@
               multiple
               class="justify-space-between"
               tile
+              @change="changeContests"
             >
               <v-btn
                 :value="item.fighter1"
@@ -106,18 +107,19 @@
           message: '',
           status: 'success'
         },
-        toggle_multiple: [0, 1]
+        toggle_multiple: [0, 1],
+        squadSize: 0,
       }
     },
 
-    // watch: {
-    //   contests: {
-    //     handler (val) {
-    //       console.log(val)
-    //     },
-    //     deep: true
-    //   }
-    // },
+    watch: {
+      contests: {
+        handler (val) {
+          console.log(val)
+        },
+        deep: true
+      }
+    },
 
     computed: {
       ...mapState('auth', ['authUser']),
@@ -134,7 +136,7 @@
           }
         }
         return this.loading || !this.event || this.bouts.length < 1
-      }
+      },
     },
 
     filters: {
@@ -146,6 +148,7 @@
       await this.getFighters()
       await this.getLatestBouts()
       this.preselectFighters()
+      this.changeContests()
       this.loading = false
     },
 
@@ -231,6 +234,15 @@
         if (data.status == 'success') {
           const self = this
           setTimeout(function(){ self.$router.push('Contest'); }, 1200);
+        }
+      },
+      changeContests() {
+        this.squadSize = 0
+        for (const bout in this.contests) {
+          const survivors = this.contests[bout]
+          if (survivors.length) {
+            this.squadSize++
+          }
         }
       }
     }
