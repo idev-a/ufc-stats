@@ -200,6 +200,7 @@
         flat
       >
         <v-card-title
+          class="display-2"
           class="font-weight-medium"
         >
           Contest Users
