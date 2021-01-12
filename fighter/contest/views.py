@@ -182,8 +182,15 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         return is_exist
 
     def _count_entries(self, fighter_id, selections):
-        survivor1s = [selection.survivor1.id for selection in selections if selection.survivor1 and selection.survivor1.id == fighter_id]
-        survivor2s = [selection.survivor2.id for selection in selections if selection.survivor2 and selection.survivor2.id == fighter_id]
+        survivor1s = []
+        for selection in selections:
+            if selection.survivor1 and selection.survivor1.id == fighter_id:
+                survivor1s.append([selection.survivor1.name, f"{selection.entry.user.displayname}-{selection.entry.id}"] ) 
+             
+        survivor2s = []
+        for selection in selections:
+            if selection.survivor2 and selection.survivor2.id == fighter_id:
+                survivor2s.append([selection.survivor2.name, f"{selection.entry.user.displayname}-{selection.entry.id}"]) 
         return survivor1s + survivor2s
 
     def _calc_suv_win_loss(self, survivor1, survivor2, winner, loser):
@@ -251,26 +258,26 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     'lose': _s2.id == loser.get('id'),
                     'entry_cnt': len(self._count_entries(_s2 and _s2.id, selections))  
                 }
-            fighter1 = { 
-                'id': bout.fighter1.id,
-                'name': bout.fighter1.name,
-                'win': bout.fighter1.id == winner.get('id'),
-                'lose': bout.fighter1.id == loser.get('id'),
-                'entry_cnt': len(self._count_entries(selection.survivor1 and selection.survivor1_id, selections))
-            }
-            fighter2 = { 
-                'id': bout.fighter2.id,
-                'name': bout.fighter2.name,
-                'win': bout.fighter2.id == winner.get('id'),
-                'lose': bout.fighter2.id == loser.get('id'),
-                'entry_cnt': len(self._count_entries(selection.survivor2 and selection.survivor2_id, selections))
-            }
+            # fighter1 = { 
+            #     'id': bout.fighter1.id,
+            #     'name': bout.fighter1.name,
+            #     'win': bout.fighter1.id == winner.get('id'),
+            #     'lose': bout.fighter1.id == loser.get('id'),
+            #     'entry_cnt': len(self._count_entries(selection.survivor1 and selection.survivor1_id, selections))
+            # }
+            # fighter2 = { 
+            #     'id': bout.fighter2.id,
+            #     'name': bout.fighter2.name,
+            #     'win': bout.fighter2.id == winner.get('id'),
+            #     'lose': bout.fighter2.id == loser.get('id'),
+            #     'entry_cnt': len(self._count_entries(selection.survivor2 and selection.survivor2_id, selections))
+            # }
 
             if 'DEC' not in bout.method:
-                if fighter1['id'] == loser.get('id'):
-                    fighter1['died'] = True
-                if fighter2['id'] == loser.get('id'):
-                    fighter2['died'] = True
+                if survivor1 and survivor1.get('id') == loser.get('id'):
+                    survivor1['died'] = True
+                if survivor2 and survivor2.get('id') == loser.get('id'):
+                    survivor2['died'] = True
 
                 score[username_id]['died'].append(loser)
 

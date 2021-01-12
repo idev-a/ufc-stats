@@ -14,7 +14,7 @@
       >
         <div class="text-center">
           <div>{{ this.event.name }}</div>
-          <div class="subtitle-2">{{ this.event.date | beautifyDate }}</div>
+          <div class="subtitle-1">{{ this.event.date | beautifyDate }}</div>
         </div>
       </v-card-title>
       <v-card-text>
@@ -68,29 +68,29 @@
                   height="280px"
                   dense
                   fixed-header
-                  :disable-pagination="true"
+                  disable-pagination
                   hide-default-footer
                   :search="boutSearch"
                 > 
                   <template #item.fighter1="{item}">
-                    <v-chip 
-                      small
-                      :class="{'winner': item.fighter1 == item.winner, 'loser': item.fighter1 == item.loser}"
-                    >
-                      <b>{{item.fighter1}}</b>
-                    </v-chip>
+                    <win-chip 
+                      :isWinner="item.fighter1 == item.winner"
+                      :isLoser="item.fighter1 == item.loser"
+                      :fighter="item.fighter1"
+                      >
+                    </win-chip>
                   </template>
                   <template v-slot:item.entries_1="{ item }">
                     <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a>
                     <span v-else>{{item.entries_1.length}}</span>
                   </template>
                   <template #item.fighter2="{item}">
-                    <v-chip 
-                      small
-                      :class="{'winner': item.fighter2 == item.winner, 'loser': item.fighter2 == item.loser}"
-                    >
-                      <b>{{item.fighter2}}</b>
-                    </v-chip>
+                    <win-chip 
+                      :isWinner="item.fighter2 == item.winner"
+                      :isLoser="item.fighter2 == item.loser"
+                      :fighter="item.fighter2"
+                      >
+                    </win-chip>
                   </template>
                   <template v-slot:item.entries_2="{ item }">
                     <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
@@ -137,36 +137,45 @@
                   :item-class="entryItemClass"
                 > 
                   <template v-slot:item.rank="{ item }">
-                    <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}</span>
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}
+                    </span>
+                    <v-icon v-if="isDied(item)">mdi-skull-outline</v-icon>
                   </template>
                   <template v-slot:item.entry="{ item }">
-                    <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}</span>
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}
+                    </span>
                   </template>
                   <template v-slot:item.survived="{ item }">
-                    <span :class="highlight(item)" class="font-weight-bold">{{item.survived}}</span>
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.survived}}
+                    </span>
                   </template>
                   <template v-slot:item.wins="{ item }">
-                    <span :class="highlight(item)" class="font-weight-bold">{{item.wins}}</span>
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.wins}}
+                    </span>
                   </template>
                   <template v-slot:item.losses="{ item }">
-                    <span :class="highlight(item)" class="font-weight-bold">{{item.losses}}</span>
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.losses}}
+                    </span>
                   </template>
                   <template v-slot:item.remainings="{ item }">
-                    <span :class="highlight(item)" class="font-weight-bold">{{item.remainings}}</span>
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.remainings}}
+                    </span>
                   </template>
                   <template v-slot:item.fighters="{ item }">
                     <div class="d-flex flex-wrap">
                       <template v-for="fighter in item.fighters">
                         <v-tooltip bottom>
                           <template v-slot:activator="{ on, attrs }">
-                            <v-chip 
+                            <win-chip 
+                              :isWinner="fighter.win"
+                              :isLoser="fighter.lose"
+                              :isDied="fighter.died"
+                              :fighter="fighter.name"
                               v-bind="attrs"
                               v-on="on"
-                              small
-                              class="mr-1 mb-1" 
-                              :class="{'winner': fighter.win, 'loser': fighter.lose, 'died': fighter.died}" >
-                              <span>{{fighter.name}}</span>
-                            </v-chip>
+                              class="mr-1 mb-1"
+                              >
+                            </win-chip>
                           </template>
                           <span>{{ fighter.entry_cnt }}</span>
                         </v-tooltip>
@@ -191,9 +200,11 @@
         flat
       >
         <v-card-title
+          class="font-weight-medium"
         >
-          {{curBout}}
+          Contest Users
         </v-card-title>
+        <div class="text-center subtitle-1">{{curBout}}</div>
         <v-card-text>
           <div class="d-flex">
             <v-text-field
@@ -215,7 +226,13 @@
             fixed-header
             item-key="id"
             :search="entrySearch"
+            disable-pagination
+            hide-default-header
+            hide-default-footer
           > 
+            <template v-slot:item.users="{ item }">
+              <v-chip class="mr-1 mb-1 body-1" v-for="user in item.users">{{ user }}</v-chip>
+            </template>
           </v-data-table>
         </v-card-text>
       </v-card>
@@ -226,9 +243,12 @@
 <script>
   import main from '@/api/main'
   import { beautifyDate } from '@/util'
+  import WinChip from './WinChip'
 
   export default {
     name: 'Contest',
+
+    components: { WinChip },
 
     data () {
       return {
@@ -242,7 +262,6 @@
           {
             text: 'Fighter1',
             value: 'fighter1',
-            align: 'center'
           },
           {
             text: 'Entries',
@@ -252,7 +271,6 @@
           {
             text: 'Fighter2',
             value: 'fighter2',
-            align: 'center'
           },
           {
             text: 'Entries',
@@ -281,15 +299,16 @@
         entries: [],
         entrySearch: '',
         entryHeaders: [
+          // {
+          //   text: 'Event',
+          //   value: 'event',
+          //   align: 'center'
+          // },
           {
-            text: 'Event',
-            value: 'event',
-            align: 'center'
-          },
-          {
-            text: 'User',
-            value: 'user',
-            align: 'center'
+            text: 'Users',
+            value: 'users',
+            sortable: false,
+            class: 'survivor-header'
           },
         ],
         entryViewSearch: '',
@@ -328,7 +347,7 @@
           {
             text: 'Fighters',
             value: 'fighters',
-            align: 'center'
+            align: 'center',
           },
         ]
       }
@@ -357,56 +376,71 @@
       async gotoEntry (item, entries) {
         this.entryDlg = true
         this.curBout = `${item.fighter1} vs. ${item.fighter2}`
-        const {data} = await main.getEntries(entries)
-        this.entries = data.entries
+        const users = []
+        entries.map(entry => { users.push(entry[1])})
+        this.entries = [{users}]
       },
       entryItemClass (item) {
         return item.died.length ? 'strike-through' : ''
+      },
+      isDied (item) {
+        let died = false
+        item.fighters.map(fighter => {
+          if (fighter.died) {
+            died = true
+          }
+        })
+        return died
       }
     }
   }
 </script>
 
-<style>
-  .contest-item {
-    width: 110px;
-    height: 38px;
-    border: 1px solid;
-    border-radius: 10px;
-    line-height: 17px;
-    margin: 0 .5rem 0 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+<style lang="scss">
+  #contest {
+    .contest-item {
+      width: 110px;
+      height: 38px;
+      border: 1px solid;
+      border-radius: 10px;
+      line-height: 17px;
+      margin: 0 .5rem 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    table { border-collapse: collapse; empty-cells: show; }
+
+    td { position: relative; }
+
+    tr.strike-through td {
+      background-color: #B71C1C;
+      opacity: 0.9;
+      color: #EEEEEE;
+      
+      &:first-child {
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+      }
+      
+      &:last-child {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+      }
+    }
+    .v-application .survivor-header {
+      text-align: center !important;
+    }
+
+    .v-chip__content {
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .max-60 {
+      max-width: 60%;
+    }
   }
-
-  table { border-collapse: collapse; empty-cells: show; }
-
-  td { position: relative; }
-
-  tr.strike-through td:before {
-    content: " ";
-    position: absolute;
-    top: 50%;
-    left: 0;
-    border-bottom: 1px solid #B71C1C;
-    width: 100%;
-  }
-
-  tr.strike-through td:after {
-    content: "\00B7";
-    font-size: 1px;
-  }
-
-
-  .v-chip__content {
-    font-size: 12px;
-    font-weight: 400;
-  }
-
-  .max-60 {
-    max-width: 60%;
-  }
-
 </style>

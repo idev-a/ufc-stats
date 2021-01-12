@@ -59,7 +59,8 @@
           </template>
         </v-virtual-scroll>
         <div class="d-flex justify-center w-100">
-          <v-btn class="grey darken-4 mt-2 mb-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
+          <v-btn class="success mt-2 mb-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
+          <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize" small @click="clearSelection">Clear</v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -112,14 +113,14 @@
       }
     },
 
-    watch: {
-      contests: {
-        handler (val) {
-          console.log(val)
-        },
-        deep: true
-      }
-    },
+    // watch: {
+    //   contests: {
+    //     handler (val) {
+    //       console.log(val)
+    //     },
+    //     deep: true
+    //   }
+    // },
 
     computed: {
       ...mapState('auth', ['authUser']),
@@ -128,13 +129,6 @@
         return this.$vuetify.breakpoint.height - 147
       },
       submitDisabled() {
-        let selected = false
-        for (const bout in this.contests) {
-          const survivors = this.contests[bout]
-          if (survivors.length) {
-            selected = true
-          }
-        }
         return this.loading || !this.event || this.bouts.length < 1
       },
     },
@@ -235,6 +229,10 @@
           const self = this
           setTimeout(function(){ self.$router.push('Contest'); }, 1200);
         }
+      },
+      clearSelection () {
+        this.contests = {}
+        this.squadSize = 0
       },
       changeContests() {
         this.squadSize = 0
