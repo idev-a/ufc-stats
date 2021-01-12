@@ -318,8 +318,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 score[username_id]['losses'] += losses
 
         entry_views = score.values()
-        entry_views = sorted(entry_views, key=lambda x: (x['survived'], x['wins'], x['last_edited']))
         entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['losses'], len(x['died'])))
+        entry_views = sorted(entry_views, key=lambda x: (x['survived'], x['wins'], x['last_edited']))
         for x, item in enumerate(entry_views):
             item['rank'] = x+1
 
