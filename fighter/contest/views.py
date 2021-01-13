@@ -283,7 +283,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 if survivor2 and survivor2.get('id') == loser.get('id'):
                     survivor2['died'] = True
 
-                score[username_id]['died'].append(loser)
+                if survivor1.get('died', False) or survivor2.get('died', False):
+                    score[username_id]['died'].append(loser)
 
             score[username_id]['method'] = method
             if survivor1:
