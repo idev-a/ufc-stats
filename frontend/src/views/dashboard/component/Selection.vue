@@ -15,9 +15,6 @@
         zIndex: 5,
       }"
     >
-<!--       <template v-slot:button-pin="{item}">
-        <v-icon>mdi-lock</v-icon>
-      </template> -->
       <v-card
         :loading="loading"
         class="grey lighten-4 ma-0 pa-0"
@@ -126,15 +123,6 @@
         squadSize: 0,
       }
     },
-
-    // watch: {
-    //   contests: {
-    //     handler (val) {
-    //       console.log(val)
-    //     },
-    //     deep: true
-    //   }
-    // },
 
     computed: {
       ...mapState(['lastLeft']),

@@ -42,7 +42,8 @@ export default new Vuex.Store({
       state.barColor = payload
     },
     SET_LASTLEFT (state, payload) {
-      localStorage.setItem('lastLeft', Math.min(window.innerWidth-360, payload))
+      state.lastLeft = Math.min(window.innerWidth-360, payload)
+      localStorage.setItem('lastLeft', state.lastLeft)
     }
   },
   actions: {
