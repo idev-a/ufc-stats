@@ -17,11 +17,18 @@ import password from './password';
 import signup from './signup';
 import snackbar from './snackbar';
 
+const _lastLeft = () => {
+  let left =  localStorage.getItem('lastLeft') || 5
+  left = Math.min(left, window.innerWidth-360)
+  return left
+}
+
 export default new Vuex.Store({
   state: {
     barColor: 'rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)',
     barImage: 'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
     drawer: null,
+    lastLeft: _lastLeft()
   },
   // plugins: [vuexLocal.plugin],
   mutations: {
@@ -34,6 +41,9 @@ export default new Vuex.Store({
     SET_SCRIM (state, payload) {
       state.barColor = payload
     },
+    SET_LASTLEFT (state, payload) {
+      localStorage.setItem('lastLeft', Math.min(window.innerWidth-360, payload))
+    }
   },
   actions: {
   },

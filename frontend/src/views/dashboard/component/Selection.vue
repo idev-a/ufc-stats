@@ -5,65 +5,78 @@
     tag="section"
     class="pa-0"
   >
-    <!-- <v-btn @click="authenticate('twitter')">auth Twitter</v-btn> -->
-    <v-card
-      :class="{'fixed-card': $vuetify.breakpoint.smAndUp}"
-      :loading="loading"
-      class="grey lighten-4 mt-0 pa-0"
+    <dialog-drag 
+      id="movingDlg"
+      @drag-end="dragEnd"
+      :options="{
+        buttonClose: false,
+        left: lastLeft,
+        dragCursor: 'move',
+        zIndex: 5,
+      }"
     >
-      <v-card-title 
-        class="justify-center font-weight-medium mb-md-3"
+<!--       <template v-slot:button-pin="{item}">
+        <v-icon>mdi-lock</v-icon>
+      </template> -->
+      <v-card
+        :loading="loading"
+        class="grey lighten-4 ma-0 pa-0"
       >
-        <div v-if="event" class="text-center">
-          <div>{{ this.event.name }}</div>
-          <div class="subtitle-2">{{ this.event.date | beautifyDate }}</div>
-          <div class="overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
-        </div>
-      </v-card-title>
-      <v-card-text
-        class="pb-0"
-      >
-        <v-virtual-scroll
-          :items="bouts"
-          :item-height="45"
-          height="300"
-          :key="key"
+        <v-card-title 
+          v-if="event" 
+          class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
         >
-          <template v-slot:default="{ item }">
-            <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
-            <v-btn-toggle
-              v-model="contests[item.id]"
-              :key="item.id"
-              dense
-              multiple
-              class="justify-space-between"
-              tile
-              @change="changeContests"
-            >
-              <v-btn
-                :value="item.fighter1"
-                small
-                :width="112"
+          <div class="">
+            <div class="grab">{{ this.event.name }}</div>
+            <div class="grab subtitle-2">{{ this.event.date | beautifyDate }}</div>
+            <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
+          </div>
+        </v-card-title>
+        <v-card-text
+          class="pb-0"
+        >
+          <v-virtual-scroll
+            :items="bouts"
+            :item-height="45"
+            height="300"
+            :key="key"
+          >
+            <template v-slot:default="{ item }">
+              <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
+              <v-btn-toggle
+                v-model="contests[item.id]"
+                :key="item.id"
+                dense
+                multiple
+                class="justify-space-between"
+                tile
+                @change="changeContests"
               >
-                {{_fighter(item.fighter1).name}}
-              </v-btn>
+                <v-btn
+                  :value="item.fighter1"
+                  small
+                  :width="112"
+                >
+                  {{_fighter(item.fighter1).name}}
+                </v-btn>
 
-              <v-btn
-                :value="item.fighter2"
-                small
-                :width="112"
-              >
-                {{_fighter(item.fighter2).name}}
-              </v-btn>
-            </v-btn-toggle>
-          </template>
-        </v-virtual-scroll>
-        <div class="d-flex justify-center w-100">
-          <v-btn class="success mt-2 mb-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
-          <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize" small @click="clearSelection">Clear</v-btn>
-        </div>
-      </v-card-text>
-    </v-card>
+                <v-btn
+                  :value="item.fighter2"
+                  small
+                  :width="112"
+                >
+                  {{_fighter(item.fighter2).name}}
+                </v-btn>
+              </v-btn-toggle>
+            </template>
+          </v-virtual-scroll>
+          <div class="d-flex justify-center w-100">
+            <v-btn class="success mt-2 mb-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
+            <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize" small @click="clearSelection">Clear</v-btn>
+          </div>
+        </v-card-text>
+      </v-card>
+    </dialog-drag>
 
     <v-snackbar v-model="snackbar.snack" :timeout="3000" :color="snackbar.status">
       {{ snackbar.message }}
@@ -84,18 +97,19 @@
 <script>
   import main from '@/api/main'
   import { beautifyDate } from '@/util'
-  import ToggleSwitch from './ToggleSwitch.vue'
   import { mapState, mapGetters } from 'vuex'
+  import DialogDrag from 'vue-dialog-drag'
 
   export default {
     name: 'Selection',
 
     components: {
-      ToggleSwitch
+      DialogDrag
     },
 
     data () {
       return {
+        dlg: true,
         loading: false,
         bouts: [],
         event: null,
@@ -123,6 +137,7 @@
     // },
 
     computed: {
+      ...mapState(['lastLeft']),
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       bgHeight() {
@@ -131,6 +146,9 @@
       submitDisabled() {
         return this.loading || !this.event || this.bouts.length < 1
       },
+      leftMargin () {
+        return this.$vuetify.breakpoint.mobile ? 5 : 50
+      }
     },
 
     filters: {
@@ -240,10 +258,16 @@
           const survivors = this.contests[bout]
           this.squadSize += survivors.length
         }
+      },
+      dragEnd (val) {
+        this.$store.commit('SET_LASTLEFT', val.left)
       }
     }
   }
 </script>
+
+<style src='vue-dialog-drag/dist/vue-dialog-drag.css'></style>
+<style src="vue-dialog-drag/dist/dialog-styles.css"></style>
 
 <style lang="scss">
   #contest {
@@ -265,6 +289,22 @@
     .theme--light.v-btn.v-btn--disabled {
       color: rgba(255, 255, 255, 0.26) !important;
     }
+
   }
 
+  .dialog-drag {
+    border: none;
+  }
+
+  .dialog-drag .dialog-header {
+    background-color: #bbbbbb;
+  }
+
+  .dialog-drag .dialog-body {
+    padding: 0;
+  }
+
+  .dialog-drag.fixed {
+    border-style: none;
+  }
 </style>

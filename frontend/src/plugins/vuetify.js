@@ -11,7 +11,7 @@ const theme = {
   accent: '#9C27b0',
   info: '#00CAE3',
   winner: '#4caf50',
-  loser: '#EF5350',
+  loser: '#A5D6A7',
   died: '#B71C1C',
   highlight: '#E65100',
   strike: '#B71C1C'

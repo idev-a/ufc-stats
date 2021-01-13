@@ -152,12 +152,16 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 status=selection.bout.status
             )
             if not view:
+                died = None
+                if 'DEC' not in _bout.method:
+                    died = _bout.loser and _bout.loser.name
                 view = dict(
                     id=_bout.id,
                     fighter1=_bout.fighter1.name,
                     fighter2=_bout.fighter2.name,
                     winner=_bout.winner and _bout.winner.name,
                     loser=_bout.loser and _bout.loser.name,
+                    died=died,
                     status=_bout.status,
                     method=_bout.method,
                     round=_bout.round,

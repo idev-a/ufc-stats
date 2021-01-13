@@ -76,6 +76,7 @@
                     <win-chip 
                       :isWinner="item.fighter1 == item.winner"
                       :isLoser="item.fighter1 == item.loser"
+                      :isDied="item.died && item.died == item.fighter1"
                       :fighter="item.fighter1"
                       >
                     </win-chip>
@@ -88,6 +89,7 @@
                     <win-chip 
                       :isWinner="item.fighter2 == item.winner"
                       :isLoser="item.fighter2 == item.loser"
+                      :isDied="item.died && item.died == item.fighter2"
                       :fighter="item.fighter2"
                       >
                     </win-chip>
@@ -139,7 +141,18 @@
                   <template v-slot:item.rank="{ item }">
                     <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}
                     </span>
-                    <v-icon v-if="isDied(item)">mdi-skull-outline</v-icon>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon v-bind="attrs" v-on="on" v-if="isMine(item)">mdi-account-tie</v-icon>
+                      </template>
+                      <span>My Entry</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon v-bind="attrs" v-on="on" v-if="isDied(item)">mdi-skull-outline</v-icon>
+                        </template>
+                      <span>Dead</span>
+                    </v-tooltip>
                   </template>
                   <template v-slot:item.entry="{ item }">
                     <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}
@@ -200,8 +213,7 @@
         flat
       >
         <v-card-title
-          class="display-2"
-          class="font-weight-medium"
+          class="display-2 font-weight-medium"
         >
           Contest Users
         </v-card-title>
@@ -245,6 +257,7 @@
   import main from '@/api/main'
   import { beautifyDate } from '@/util'
   import WinChip from './WinChip'
+  import { mapState } from 'vuex'
 
   export default {
     name: 'Contest',
@@ -300,11 +313,6 @@
         entries: [],
         entrySearch: '',
         entryHeaders: [
-          // {
-          //   text: 'Event',
-          //   value: 'event',
-          //   align: 'center'
-          // },
           {
             text: 'Users',
             value: 'users',
@@ -358,6 +366,10 @@
       beautifyDate,
     },
 
+    computed: {
+      ...mapState('auth', ['authUser'])
+    },
+
     mounted() {
       this.getLatestContest()
     },
@@ -392,6 +404,9 @@
           }
         })
         return died
+      },
+      isMine (item) {
+        return item.entry.split('-')[0] == this.authUser.displayname
       }
     }
   }

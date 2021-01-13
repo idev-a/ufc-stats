@@ -12,7 +12,10 @@
       <v-card-text 
         v-if="authUser"
       >
-        <v-form>
+        <v-form
+          ref="form"
+          v-model="valid"
+        >
           <v-container class="py-0">
             <v-row>
               <v-col
@@ -35,6 +38,8 @@
                   class="purple-input"
                   label="Display Name"
                   v-model="authUser.displayname"
+                  required
+                  :rules="[rules.required]"
                 />
               </v-col>
 
@@ -80,6 +85,7 @@
                   color="success"
                   class="mr-0"
                   @click.stop="updateProfile"
+                  :disabled="!valid || loading"
                 >
                   Update
                 </v-btn>
@@ -101,6 +107,12 @@
 
     data: () => ({
       loading: false,
+      valid: true,
+      rules: {
+        required: v => {
+          return !!v || 'This field is required.'
+        },
+      }
     }),
 
     props: ['value'],

@@ -94,7 +94,8 @@ export const beautifyDateZ = (date) => {
 }
 
 export const removeQuotes = (val) => {
-  return val.replace(/\"/g, "")
+  // return val.replace(/\"/g, "")
+  return val.substr(1, val.length-2)
 }
 
 export const readNewLine = (val) => {

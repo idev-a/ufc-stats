@@ -78,6 +78,7 @@
       min-width="200"
       offset-y
       origin="top right"
+      open-on-hover
       transition="scale-transition"
     >
       <template v-slot:activator="{ attrs, on }">
@@ -87,7 +88,8 @@
           v-bind="attrs"
           v-on="on"
         >
-          <v-icon color="white">mdi-account</v-icon>
+          <v-icon :left="isAuthenticated" color="white">mdi-account</v-icon>
+          <span class="white--text" v-if="isAuthenticated">{{authUser.displayname}}</span>
         </v-btn>
       </template>
 
@@ -188,6 +190,7 @@
 
     computed: {
       ...mapState(['drawer']),
+      ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
     },
 
