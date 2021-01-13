@@ -6,7 +6,7 @@
     class="pa-0"
   >
     <dialog-drag 
-      id="movingDlg"
+      id="movingSelectionDlg"
       @drag-end="dragEnd"
       :options="{
         buttonClose: false,
@@ -23,7 +23,7 @@
           v-if="event" 
           class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
         >
-          <div class="">
+          <div>
             <div class="grab">{{ this.event.name }}</div>
             <div class="grab subtitle-2">{{ this.event.date | beautifyDate }}</div>
             <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
@@ -254,9 +254,6 @@
   }
 </script>
 
-<style src='vue-dialog-drag/dist/vue-dialog-drag.css'></style>
-<style src="vue-dialog-drag/dist/dialog-styles.css"></style>
-
 <style lang="scss">
   #contest {
     .v-btn-toggle {
@@ -277,22 +274,5 @@
     .theme--light.v-btn.v-btn--disabled {
       color: rgba(255, 255, 255, 0.26) !important;
     }
-
-  }
-
-  .dialog-drag {
-    border: none;
-  }
-
-  .dialog-drag .dialog-header {
-    background-color: #bbbbbb;
-  }
-
-  .dialog-drag .dialog-body {
-    padding: 0;
-  }
-
-  .dialog-drag.fixed {
-    border-style: none;
   }
 </style>

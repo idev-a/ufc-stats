@@ -53,6 +53,9 @@
   }
 </script>
 
+<style src='vue-dialog-drag/dist/vue-dialog-drag.css'></style>
+<style src="vue-dialog-drag/dist/dialog-styles.css"></style>
+
 <style type="text/css">
   tbody tr:nth-of-type(odd) {
     background-color: rgba(0, 0, 0, .05);
@@ -96,16 +99,32 @@
   }
 
   .contest-bg {
-    background: url( '../../assets/contest.jpeg') no-repeat center center;
+    background-image: url( '../../assets/contest.jpeg');
   }
 
   .selection-bg {
-    background: url( '../../assets/selection.jpeg') no-repeat center center;
+    background-image: url( '../../assets/selection.jpeg');
   }
 
   .fixed-card {
     padding: .5rem 0;
     position: fixed;
     right: 10px;
+  }
+
+  .dialog-drag {
+    border: none;
+  }
+
+  .dialog-drag .dialog-header {
+    background-color: #bbbbbb;
+  }
+
+  .dialog-drag .dialog-body {
+    padding: 0;
+  }
+
+  .dialog-drag.fixed {
+    border-style: none;
   }
 </style>
