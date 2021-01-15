@@ -4,7 +4,7 @@ from .consumers import LiveScoreConsumer
 
 websockets = URLRouter([
     re_path(
-        r"^ws/ufc-event/", LiveScoreConsumer.as_asgi(),
+        r"^ws/ufc-event/$", LiveScoreConsumer.as_asgi(),
         name="live-score",
     ),
 ])
