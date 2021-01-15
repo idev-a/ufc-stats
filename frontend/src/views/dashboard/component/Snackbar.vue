@@ -1,15 +1,26 @@
 <template>
-  <v-snackbar v-model="snackDlg" :timeout="5000" :color="status">
+  <v-snackbar v-model="snackDlg" :timeout="timeout" :color="status">
     {{ message }}
     <template v-slot:action="{ attrs }">
-     <!--  <v-btn
+      <v-btn
+        v-if="refresh"
         dark
         text
+        small
+        v-bind="attrs"
+        @click="refreshPage"
+      >
+        Refresh
+      </v-btn>
+      <v-btn
+        dark
+        text
+        small
         v-bind="attrs"
         @click="snackDlg = false"
       >
         Close
-      </v-btn> -->
+      </v-btn>
     </template>
   </v-snackbar>
 </template>
@@ -25,11 +36,24 @@
           this.$store.commit('snackbar/showSnack', value)
         },
       },
+      timeout () {
+        return this.refresh ? -1 : 5000
+      },
       message () {
         return this.$store.getters['snackbar/message']
       },
       status () {
         return this.$store.getters['snackbar/status']
+      },
+      refresh () {
+        return this.$store.getters['snackbar/refresh']
+      }
+    },
+
+    methods: {
+      refreshPage () {
+        this.snackDlg = false
+        this.$emit('update')
       }
     }
   }

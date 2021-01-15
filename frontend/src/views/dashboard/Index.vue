@@ -1,11 +1,11 @@
 <template>
   <v-app>
-    <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage}"></span>
-    <dashboard-core-app-bar :key="key" v-model="expandOnHover" />
+    <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage, 'contest-over-bg': contestOverPage}"></span>
+    <dashboard-core-app-bar :key="`key${key}`" v-model="expandOnHover" />
 
-    <dashboard-core-view />
+    <dashboard-core-view :key="`newKey${newKey}`"/>
 
-    <snackbar />
+    <snackbar @update="reloadPage"/>
     <login-view  />
     <register-view />
     <v-overlay :value="overlay" :opacity=".7" absolute></v-overlay>
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapState } from 'vuex'
   
   export default {
     name: 'DashboardIndex',
@@ -30,14 +30,19 @@
     data: () => ({
       expandOnHover: false,
       key: 0,
+      newKey: 0,
     }),
 
     computed: {
+      ...mapState(['event']),
       overlay () {
         return this.$store.getters['auth/launchLogin'] || this.$store.getters['signup/launchRegister']
       },
       contestPage () {
-        return this.$route.name == 'Contest'
+        return this.$route.name == 'Contest' && this.event.action != 'completed'
+      },
+      contestOverPage () {
+        return this.$route.name == 'Contest' && this.event.action == 'completed'
       },
       selectionPage () {
         return this.$route.name == 'Dashboard'
@@ -50,6 +55,13 @@
         this.key++
       })
     },
+
+    methods: {
+      reloadPage () {
+        this.key++
+        this.newKey++
+      }
+    }
   }
 </script>
 
@@ -104,6 +116,10 @@
 
   .selection-bg {
     background-image: url( '../../assets/selection.jpeg');
+  }
+
+  .contest-over-bg {
+    background-image: url( '../../assets/contest_over.jpeg');
   }
 
   .fixed-card {

@@ -5,7 +5,7 @@
     tag="section"
     class="pa-0"
   >
-    <dialog-drag 
+    <dialog-drag
       id="movingSelectionDlg"
       @drag-end="dragEnd"
       :options="{
@@ -13,6 +13,7 @@
         left: lastLeft,
         dragCursor: 'move',
         zIndex: 5,
+        width: _width
       }"
     >
       <v-card
@@ -25,7 +26,11 @@
         >
           <div>
             <div class="grab">{{ this.event.name }}</div>
-            <div class="grab subtitle-2">{{ this.event.date | beautifyDate }}</div>
+            <div class="grab subtitle-2">
+              <span>{{ this.event.date | beautifyDate }}</span>
+              <span v-if="eventStarted" class="red--text lighten-1 h6">(Started)</span>
+              <flip-countdown v-if="countable" :deadline="deadline2"></flip-countdown>
+            </div>
             <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
           </div>
         </v-card-title>
@@ -51,16 +56,18 @@
               >
                 <v-btn
                   :value="item.fighter1"
+                  :disabled="eventStarted"
                   small
-                  :width="112"
+                  :width="152"
                 >
                   {{_fighter(item.fighter1).name}}
                 </v-btn>
 
                 <v-btn
                   :value="item.fighter2"
+                  :disabled="eventStarted"
                   small
-                  :width="112"
+                  :width="152"
                 >
                   {{_fighter(item.fighter2).name}}
                 </v-btn>
@@ -68,8 +75,8 @@
             </template>
           </v-virtual-scroll>
           <div class="d-flex justify-center w-100">
-            <v-btn class="success mt-2 mb-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
-            <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize" small @click="clearSelection">Clear</v-btn>
+            <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
+            <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || event.started" small @click="clearSelection">Clear</v-btn>
           </div>
         </v-card-text>
       </v-card>
@@ -96,20 +103,35 @@
   import { beautifyDate } from '@/util'
   import { mapState, mapGetters } from 'vuex'
   import DialogDrag from 'vue-dialog-drag'
+  import FlipCountdown from "./Countdown";
+
+  const fmt = "YYYY-MM-DD HH:mm:ss";
 
   export default {
     name: 'Selection',
 
     components: {
-      DialogDrag
+      DialogDrag,
+      FlipCountdown
+    },
+
+    watch: {
+      event: {
+        handler(val) {
+          if (val) {
+            this.startCountDown(val)
+          }
+        },
+        deep: true
+      }
     },
 
     data () {
       return {
+        deadline2: '',
         dlg: true,
         loading: false,
         bouts: [],
-        event: null,
         fighters: [],
         selectedItem: -1,
         contests: {},
@@ -121,21 +143,31 @@
         },
         toggle_multiple: [0, 1],
         squadSize: 0,
+        cntdownInstance: null
       }
     },
 
     computed: {
-      ...mapState(['lastLeft']),
+      ...mapState(['lastLeft', 'socket', 'event']),
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       bgHeight() {
         return this.$vuetify.breakpoint.height - 147
       },
       submitDisabled() {
-        return this.loading || !this.event || this.bouts.length < 1
+        return this.loading || !this.event || this.bouts.length < 1 || this.event.started
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
+      },
+      _width () {
+        return this.$vuetify.breakpoint.mobile ? 340 : 370
+      },
+      eventStarted () {
+        return this.event && this.event.action == 'started'
+      },
+      countable () {
+        return this.deadline2 && !this.eventStarted
       }
     },
 
@@ -153,6 +185,9 @@
     },
 
     methods: {
+      startCountDown(val) {
+        this.deadline2 = this.$moment(`${val.date} 09:00:00`).format(fmt)
+      },
       preselectFighters() {
         this.bouts.map(bout => {
           this.contests[bout.id] = []
@@ -165,7 +200,7 @@
       async getLatestBouts () {
         const { data } = await main.getLatestEvent()
         this.bouts = data.bouts
-        this.event = data.event
+        this.$store.commit('SET_EVENT', data.event)
       },
       async getFighters () {
         const { data } = await main.getFighters()

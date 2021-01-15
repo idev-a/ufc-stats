@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.twitter',
     'django.contrib.sites',
     'rest_auth.registration',
+    'channels',
     'contest.apps.ContestConfig',
 ]
 
@@ -171,9 +172,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # cors
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 # CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOWED_ORIGINS = [
+    'http://18.189.157.205',
+    'http://localhost:8085',
+    'http://localhost:8000',
+]
+
+# Auth settings
 AUTH_USER_MODEL = 'contest.CustomUser'
 SOCIAL_AUTH_USER_MODEL = 'contest.CustomUser'
 
@@ -199,3 +207,15 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
+# Channels settings
+ASGI_APPLICATION = "fighter.routing.application"
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('localhost', 6379)],
+            'capacity': 300
+        },
+    },
+}
+ASGI_THREADS = 1000

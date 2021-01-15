@@ -1,10 +1,10 @@
 from datetime import datetime
 
 def _valid(val):
-		if val:
-			return val.strip()
-		else:
-			return ''
+	if val:
+		return val.strip()
+	else:
+		return ''
 
 def strip_list1(arr):
 	new_list = []

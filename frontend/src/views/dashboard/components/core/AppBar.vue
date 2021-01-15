@@ -22,6 +22,7 @@
           v-on="on"
           min-width="0"
           text
+          style="padding: 10px 10px !important; margin: 0 1px;"
           @click.stop="showInstruction"
         >
           <v-icon color="white">mdi-information-outline</v-icon>
@@ -30,11 +31,70 @@
       <span>Instructions</span>
     </v-tooltip>
 
+    <!-- Notifications -->
+    <v-menu
+      bottom
+      left
+      offset-y
+      origin="top right"
+      transition="scale-transition"
+    >
+      <template v-slot:activator="{ attrs, on }">
+        <v-btn
+          min-width="0"
+          text
+          v-bind="attrs"
+          v-on="on"
+          style="padding: 10px 10px !important; margin: 0 1px;"
+        >
+          <v-badge
+            color="red lighten-1"
+            overlap
+            left
+            small
+          >
+            <template v-slot:badge>
+              <span>{{ notificationLengh }}</span>
+            </template>
+
+            <v-icon color="white">mdi-bell</v-icon>
+          </v-badge>
+        </v-btn>
+      </template>
+      <v-list
+        :tile="false"
+        nav
+        two-line
+        dense
+        min-height="50"
+        min-width="350"
+        light
+        style="max-height: 300px"
+        class="overflow-y-auto"
+      >
+        <v-list-item-group >
+          <template v-for="(item, index) in notifications">
+            <v-list-item :key="index" dense>
+              <v-list-item-content>
+                <!-- <v-list-item-title v-text="item.title"></v-list-item-title> -->
+                <v-list-item-subtitle class="text--primary" v-text="item.msg"></v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-icon class="mb-2">mdi-clock</v-icon>
+                <v-list-item-action-text v-text="item.time"></v-list-item-action-text>
+              </v-list-item-action>
+            </v-list-item>
+          </template>
+        </v-list-item-group>
+      </v-list>
+    </v-menu>
+
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
           min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
           text
           to="/"
         >
@@ -50,6 +110,7 @@
           v-if="isAuthenticated"
           v-on="on"
           min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
           text
           to="/contest"
         >
@@ -64,6 +125,7 @@
           v-if="isAuthenticated && false"
           v-on="on"
           min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
           text
           to="/score"
         >
@@ -72,6 +134,7 @@
       </template>
       <span>Live Score By User</span>
     </v-tooltip>
+
     <v-menu
       bottom
       left
@@ -84,6 +147,7 @@
       <template v-slot:activator="{ attrs, on }">
         <v-btn
           min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
           text
           v-bind="attrs"
           v-on="on"
@@ -189,9 +253,13 @@
     }),
 
     computed: {
-      ...mapState(['drawer']),
+      ...mapState(['drawer', 'notifications']),
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
+
+      notificationLengh () {
+        return this.notifications.length < 100 ? this.notifications.length : '99+'
+      }
     },
 
     mounted() {

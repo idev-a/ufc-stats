@@ -1,8 +1,6 @@
 from django.conf import settings
 from allauth.account.adapter import DefaultAccountAdapter
 
-import pdb
-
 class MyAccountAdapter(DefaultAccountAdapter):
 
 	def save_user(self, request, user, form, commit=False):

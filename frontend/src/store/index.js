@@ -3,19 +3,21 @@ import Vuex from 'vuex'
 // import createPersistedState from 'vuex-persistedstate';
 import VuexPersistence from 'vuex-persist';
 import localForage from 'localforage';
+import moment from 'moment'
 
 Vue.use(Vuex)
 
 const vuexLocal = new VuexPersistence({
   key: 'issuer-vuex',
   storage: window.localStorage,
-  modules: ['auth', 'password', 'signup'],
+  modules: ['auth', 'password', 'signup', 'snackbar'],
 })
 
 import auth from './auth'
 import password from './password';
 import signup from './signup';
 import snackbar from './snackbar';
+// import socket from './socket';
 
 const _lastLeft = () => {
   let left =  localStorage.getItem('lastLeft') || 5
@@ -28,7 +30,11 @@ export default new Vuex.Store({
     barColor: 'rgba(0, 0, 0, .8), rgba(0, 0, 0, .8)',
     barImage: 'https://demos.creative-tim.com/material-dashboard-pro/assets/img/sidebar-1.jpg',
     drawer: null,
-    lastLeft: _lastLeft()
+    lastLeft: _lastLeft(),
+    socket: {},
+    event: {},
+    notifications: [],
+    countdown: null
   },
   // plugins: [vuexLocal.plugin],
   mutations: {
@@ -44,6 +50,52 @@ export default new Vuex.Store({
     SET_LASTLEFT (state, payload) {
       state.lastLeft = Math.min(window.innerWidth-360, payload)
       localStorage.setItem('lastLeft', state.lastLeft)
+    },
+    SOCKET_ONOPEN (state, event)  {
+      Vue.prototype.$socket = event.currentTarget
+      state.socket.isConnected = true
+    },
+    SOCKET_ONCLOSE (state, event)  {
+      state.socket.isConnected = false
+    },
+    SOCKET_ONERROR (state, event)  {
+      console.error(state, event)
+    },
+    // default handler called for all methods
+    SOCKET_ONMESSAGE (state, message)  {
+      state.socket.message = message
+      if (message.data) {
+        if (message.data.event) {
+          state.event = {
+            ...state.event,
+            ...message.data.event
+          }
+        }
+        if (message.data.refresh) {
+          snackbar.state.refresh = true
+        }
+        snackbar.state.snack = true
+        snackbar.state.status = 'red lighten-1'
+        snackbar.state.message = message.data.message
+
+        state.notifications.push({
+          msg: message.data.message,
+          time: moment().format('mm:ss')
+        })
+      }
+    },
+    // mutations for reconnect methods
+    SOCKET_RECONNECT(state, count) {
+      console.info(state, count)
+    },
+    SOCKET_RECONNECT_ERROR(state) {
+      state.socket.reconnectError = true;
+    },
+    SET_EVENT (state, payload) {
+      state.event = payload
+    },
+    UPDATE_COUNTDOWN(state, payload) {
+      state.countdown = payload
     }
   },
   actions: {
@@ -52,6 +104,6 @@ export default new Vuex.Store({
     auth,
     password,
     signup,
-    snackbar
+    snackbar,
   },
 })

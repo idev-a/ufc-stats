@@ -25,14 +25,21 @@ class CustomUser(AbstractUser):
 class Event(models.Model):
 	STATUS_TYPE = [
 		('upcoming', 'Upcoming'),
+		('old', 'Old'),
+	]
+
+	ACTION_TYPE = [
+		('started', 'Started'),
 		('completed', 'Completed'),
 	]
+
 
 	name = models.CharField(max_length=100)
 	location = models.CharField(max_length=200, blank=True, default='')
 	date = models.DateField()
 	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='upcoming')
-	detail_link = models.CharField(max_length=500, blank=True, default='')
+	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
+	detail_link = models.URLField(max_length=500, blank=True, default='')
 
 	class Meta:
 		ordering = ['date']
@@ -93,10 +100,10 @@ class Bout(models.Model):
 	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='pending')
 	weight_class = models.CharField(max_length=50, blank=True, default='')
 	method = models.CharField(max_length=100, blank=True, default='')
-	round = models.PositiveIntegerField(blank=True, default=1, validators=[MinValueValidator(1), MaxValueValidator(100)])
+	round = models.PositiveIntegerField(blank=True, null=True, default=1)
 	time = models.CharField(max_length=20, blank=True, default='00:00')
 	go_the_distance = models.BooleanField(null=True, blank=True)
-	detail_link = models.CharField(max_length=500, blank=True, default='')
+	detail_link = models.URLField(max_length=500, blank=True, default='')
 
 	def __str__(self):
 		return "%s vs. %s" % (self.fighter1, self.fighter2)

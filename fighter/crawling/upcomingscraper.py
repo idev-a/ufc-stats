@@ -1,13 +1,15 @@
 import os
 import sys
+import django
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "."))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'fighter.settings'
-import django
 django.setup()
 
 from scrapy.crawler import CrawlerProcess
 import scrapy
 import pdb
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 from contest.models import (
 	Event,
@@ -35,7 +37,7 @@ class ScraperSpider(scrapy.Spider):
 		# scan db to get the scraped events to get the stats
 		events = Event.objects.all()
 		for event in events:
-			yield scrapy.Request(event.detail_link, dont_filter=True, meta={'event_id': event.id}, callback=self.parse_event_detail)
+			yield scrapy.Request(event.detail_link, dont_filter=True, meta={'event_id': event.id}, callback=self.parse_bout_list)
 
 	def parse_event(self, response):
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
@@ -58,13 +60,15 @@ class ScraperSpider(scrapy.Spider):
 
 				event_id = self.save_event(item)
 
-				yield scrapy.Request(detail_link, dont_filter=True, meta={'event_id': event_id}, callback=self.parse_event_detail)
+				yield scrapy.Request(detail_link, dont_filter=True, meta={'event_id': event_id}, callback=self.parse_bout_list)
 
-	def parse_event_detail(self, response):
+	def parse_bout_list(self, response):
 		event_id = response.meta['event_id']
 		event = Event.objects.get(pk=event_id)
 		trs = response.css('table.b-fight-details__table tr.b-fight-details__table-row')
 		if trs:
+			# clear bout table just in case bout was cancelled due to fighters before d-day
+			self.clear_bouts(event_id)
 			for tr in trs[1:]:
 				fight_detail = strip_list1(tr.xpath('.//td[1]//text()').getall())
 				detail_link = tr.xpath('@data-link').get()
@@ -89,9 +93,9 @@ class ScraperSpider(scrapy.Spider):
 				)
 				bout = self.save_bout(item)
 
-				# if fight_detail:
-				# 	event.status='completed'
-				# 	event.save()
+				if fight_detail:
+					event.started = True
+					event.save()
 
 				try:
 					yield scrapy.Request(detail_link, dont_filter=True, meta={'bout_id': bout.id}, callback=self.parse_bout_detail)
@@ -140,6 +144,9 @@ class ScraperSpider(scrapy.Spider):
 			fighter.save()
 		except:
 			pass
+
+	def clear_bouts(self, event_id):
+		Bout.objects.all().filter(event_id=event_id).delete()
 
 	def save_bout(self, item):
 		bout = None

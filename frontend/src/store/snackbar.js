@@ -8,12 +8,14 @@ export default {
   state: {
     snack: false,
     message: '',
-    status: 'success'
+    status: 'success',
+    refresh: false
   },
   getters: {
     snack: state => state.snack,
     message: state => state.message,
-    status: state => state.status
+    status: state => state.status,
+    refresh: state => state.refresh,
   },
   actions: {
     setSnack({commit}, payload) {

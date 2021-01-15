@@ -4,6 +4,10 @@ from rest_framework.decorators import action
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
+
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 import copy
 from requests_oauthlib import OAuth1
 from urllib.parse import urlencode
@@ -335,7 +339,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def get_latestcontest(self, request, **kwarg):
         latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
-        selections = Selection.objects.all()
+        selections = Selection.objects.all().filter(entry__event_id=latest_event.id)
         bout_views = self.get_fight_views(selections)
         entry_views = self.get_entry_views(selections)
 

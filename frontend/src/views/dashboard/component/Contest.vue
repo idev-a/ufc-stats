@@ -24,7 +24,10 @@
         >
           <div class="text-center">
             <div>{{ this.event.name }}</div>
-            <div class="subtitle-1">{{ this.event.date | beautifyDate }}</div>
+            <div class="subtitle-1">
+              {{ this.event.date | beautifyDate }}
+              <span v-if="eventStarted" class="red--text h6">(Started)</span>
+            </div>
           </div>
         </v-card-title>
         <v-card-text>
@@ -83,30 +86,49 @@
                     :search="boutSearch"
                   > 
                     <template #item.fighter1="{item}">
-                      <win-chip 
-                        :isWinner="item.fighter1 == item.winner"
-                        :isLoser="item.fighter1 == item.loser"
-                        :isDied="item.died && item.died == item.fighter1"
-                        :fighter="item.fighter1"
-                        >
-                      </win-chip>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <win-chip 
+                            :isWinner="item.fighter1 == item.winner"
+                            :isLoser="item.fighter1 == item.loser"
+                            :isDied="item.died && item.died == item.fighter1"
+                            :fighter="item.fighter1"
+                            v-bind="attrs"
+                            v-on="on"
+                            >
+                          </win-chip>
+                          </template>
+                        <span>{{ fighterTooltip(item.fighter1, item) }}</span>
+                      </v-tooltip>
                     </template>
                     <template v-slot:item.entries_1="{ item }">
                       <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a>
                       <span v-else>{{item.entries_1.length}}</span>
                     </template>
                     <template #item.fighter2="{item}">
-                      <win-chip 
-                        :isWinner="item.fighter2 == item.winner"
-                        :isLoser="item.fighter2 == item.loser"
-                        :isDied="item.died && item.died == item.fighter2"
-                        :fighter="item.fighter2"
-                        >
-                      </win-chip>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                          <win-chip 
+                            :isWinner="item.fighter2 == item.winner"
+                            :isLoser="item.fighter2 == item.loser"
+                            :isDied="item.died && item.died == item.fighter2"
+                            :fighter="item.fighter2"
+                            v-bind="attrs"
+                            v-on="on"
+                            >
+                          </win-chip>
+                        </template>
+                        <span>{{ fighterTooltip(item.fighter2, item) }}</span>
+                      </v-tooltip>
                     </template>
                     <template v-slot:item.entries_2="{ item }">
                       <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
                       <span v-else>{{ item.entries_2.length }}</span>
+                    </template>
+
+                    <template v-slot:item.round="{ item }">
+                      <span>{{item.round == 0 ? '' : item.round}}
+                      </span>
                     </template>
                   </v-data-table>
                 </v-card-text>
@@ -380,7 +402,11 @@
 
     computed: {
       ...mapState(['lastLeft']),
-      ...mapState('auth', ['authUser'])
+      ...mapState('auth', ['authUser']),
+
+      eventStarted () {
+        return this.event && this.event.action == 'started'
+      },
     },
 
     mounted() {
@@ -420,6 +446,19 @@
       },
       isMine (item) {
         return item.entry.split('-')[0] == this.authUser.displayname
+      },
+      fighterTooltip (fighter, item) {
+        let text = 'Not started yet'
+        if (fighter == item.winner) {
+          text = 'Winner'
+        }
+        if (fighter == item.loser) {
+          text = 'Loser'
+        }
+        if (item.died && item.died == fighter) {
+          text = 'Not survived'
+        }
+        return text
       },
       dragEnd (val) {
         this.$store.commit('SET_LASTLEFT', val.left)
