@@ -179,6 +179,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://18.189.157.205',
     'http://localhost:8085',
     'http://localhost:8000',
+    'http://beta.fightquake.com'
 ]
 
 # Auth settings
