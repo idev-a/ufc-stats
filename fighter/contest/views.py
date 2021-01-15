@@ -302,9 +302,11 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
             
             # remainings
-            if selection.survivor1_id != None or selection.survivor2_id != None:
-                if bout.status != 'completed':
-                    score[username_id]['remainings'] += 2
+            if bout.status != 'completed':
+                if selection.survivor1_id != None:
+                    score[username_id]['remainings'] += 1
+                if selection.survivor2_id != None:
+                    score[username_id]['remainings'] += 1
 
             if 'DEC' in method:
                 if survivor1:
