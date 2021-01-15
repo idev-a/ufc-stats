@@ -30,7 +30,7 @@ import VueNativeSock from 'vue-native-websocket'
 
 Vue.use(
   VueNativeSock,
-  'ws://localhost:8000/ws/ufc-event/', 
+  process.env.VUE_APP_SOCKET_URL, 
   { 
     store,
     format: 'json',
