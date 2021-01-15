@@ -88,7 +88,8 @@ class Test:
 					'event': {
 						'action': 'started',
 					},
-					'message': 'Event already started.'
+					'message': 'Event already started.',
+					'refresh': True
 				}
 				self.notify_user(notify_data)
 

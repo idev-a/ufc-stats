@@ -164,7 +164,6 @@ class Scraper:
 				except:
 					pass
 
-				time.sleep(5)
 			# Compare new bouts with old ones to check if there is any bouts cancelled
 			# delete cancelled bouts due to fighters before d-day
 			self.delete_cancelled_bouts(event_id, new_bouts)

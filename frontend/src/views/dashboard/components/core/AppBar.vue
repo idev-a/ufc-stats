@@ -153,7 +153,7 @@
           v-on="on"
         >
           <v-icon :left="isAuthenticated" color="white">mdi-account</v-icon>
-          <span class="white--text" v-if="isAuthenticated">{{authUser.displayname}}</span>
+          <span class="white--text" v-if="isAuthenticated && authUser">{{authUser.displayname}}</span>
         </v-btn>
       </template>
 

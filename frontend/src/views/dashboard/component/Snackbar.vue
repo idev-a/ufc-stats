@@ -50,6 +50,13 @@
       }
     },
 
+    watch: {
+      refresh() {
+        const self = this
+        setTimeout(() => self.refreshPage(), 3000)
+      }
+    },
+
     methods: {
       refreshPage () {
         this.snackDlg = false

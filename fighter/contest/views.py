@@ -227,8 +227,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             'died': []
         }
         for selection in selections:
-            if selection.survivor1_id == None and selection.survivor2_id == None:
-                continue
+            # if selection.survivor1_id == None and selection.survivor2_id == None:
+            #     continue
             username_id = f'{selection.entry.user.displayname}-{selection.entry.id}'
             bout = selection.bout
             method = bout.method
@@ -303,7 +303,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             
             # remainings
             if bout.status != 'completed':
-                score[username_id]['remainings'] += 1
+                score[username_id]['remainings'] += 2
 
             if 'DEC' in method:
                 if survivor1:
@@ -331,8 +331,6 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['losses']))
         entry_views = sorted(entry_views, key=lambda x: (len(x['died'])))
         # entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['last_edited']))
-        for x, item in enumerate(entry_views):
-            item['rank'] = x+1
 
         return entry_views
 
