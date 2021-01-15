@@ -60,20 +60,23 @@ class Scraper:
 		)
 
 	def start_requests(self):
-		print('[scraper] started')
+		while True:
+			print('[scraper] started')
 
-		# upcoming events
-		res = self.session.get(self.upcoming_url)
-		self.parse_event(Selector(text=res.content))
+			# upcoming events
+			# res = self.session.get(self.upcoming_url)
+			# self.parse_event(Selector(text=res.content))
 
-		# scan db to get the scraped events to get the stats
-		events = Event.objects.all().filter(status='upcoming')
-		if events:
-			event = events.latest('-date')
-			res = self.session.get(event.detail_link)
-			meta = {'event_id': event.id}
+			# scan db to get the scraped events to get the stats
+			events = Event.objects.all().filter(status='upcoming')
+			if events:
+				event = events.latest('-date')
+				res = self.session.get(event.detail_link)
+				meta = {'event_id': event.id}
 
-			# self.parse_bout_list(Selector(text=res.content), meta)
+				self.parse_bout_list(Selector(text=res.content), meta)
+
+			time.sleep(60)
 
 	def parse_event(self, response):
 		print('[scraper] Parse Event ---')
@@ -168,6 +171,8 @@ class Scraper:
 			# delete cancelled bouts due to fighters before d-day
 			self.delete_cancelled_bouts(event_id, new_bouts)
 
+			time.sleep(1)
+
 	def parse_bout_detail(self, response, meta):
 		print('[scraper] parse_bout_detail ---', meta)
 		bout_id = meta['bout_id']
@@ -195,6 +200,8 @@ class Scraper:
 				bout.save()
 
 			self.update_fighter_in_bout(bout, name, title.replace('"', ''))
+
+			time.sleep(1)
 
 	def get_fighter(self, name):
 		return Fighter.objects.get(name=name)
@@ -281,3 +288,4 @@ class Scraper:
 if __name__ == '__main__':
 	scraper = Scraper()
 	scraper.start_requests()
+
