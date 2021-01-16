@@ -51,9 +51,11 @@
     },
 
     watch: {
-      refresh() {
-        const self = this
-        setTimeout(() => self.refreshPage(), 3000)
+      refresh(val) {
+        if (val) {
+          const self = this
+          setTimeout(() => self.refreshPage(), 3000)
+        }
       }
     },
 
