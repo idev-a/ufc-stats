@@ -176,7 +176,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    'http://18.189.157.205',
+    'http://3.140.186.130',
     'http://localhost:8085',
     'http://localhost:8000',
     'http://beta.fightquake.com'
