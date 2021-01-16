@@ -84,7 +84,7 @@ class Scraper:
 
 				self.parse_bout_list(Selector(text=res.content), meta)
 
-			time.sleep(60)
+			time.sleep(6)
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
@@ -251,7 +251,7 @@ class Scraper:
 		is_notified = False
 		try:
 			bout = Bout.objects.get(detail_link=item['detail_link'])
-			is_notified = bout.status == 'completed'
+			is_notified = bout.status != 'pending'
 		except:
 			pass
 
