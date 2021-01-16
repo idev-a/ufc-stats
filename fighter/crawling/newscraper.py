@@ -145,7 +145,8 @@ class Scraper:
 				if fight_detail:
 					bout.status = 'completed'
 					bout.save()
-					
+
+					notify_data = None
 					cnt_completed += 1
 					if cnt_completed != len(trs[1:]) and event.action != 'started':
 						notify_data = {
@@ -170,7 +171,8 @@ class Scraper:
 							'message': f'The fight between {bout.fighter1.name} vs. {bout.fighter2.name} was completed.'
 						}
 					event.save()
-					self.notify_user(notify_data)
+					if notify_data:
+						self.notify_user(notify_data)
 				try:
 					res = self.session.get(detail_link)
 					meta = {'bout_id': bout.id}
