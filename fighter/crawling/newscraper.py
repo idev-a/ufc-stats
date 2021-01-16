@@ -28,6 +28,7 @@ from contest.serializers import (
 	FighterSerializer
 )
 from contest.util import _valid, convert_date, strip_list1
+from contest.logger import logger
 import pdb
 
 class Scraper:
@@ -38,7 +39,7 @@ class Scraper:
 		self.session = requests.Session()
 
 	def notify_user(self, data): 
-		print('[scraper] notify_user', data)
+		logger.info(f'[scraper] notify_user {json.dumps(data)}')
 		'''
 			{
 				'event': {
@@ -61,7 +62,7 @@ class Scraper:
 
 	def start_requests(self):
 		while True:
-			print('[scraper] started')
+			logger.info('[scraper] started')
 
 			# upcoming events
 			# res = self.session.get(self.upcoming_url)
@@ -79,7 +80,7 @@ class Scraper:
 			time.sleep(60)
 
 	def parse_event(self, response):
-		print('[scraper] Parse Event ---')
+		logger.info('[scraper] Parse Event ---')
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
 		if len(trs) > 2:
 			for tr in trs[2:]:
@@ -102,7 +103,7 @@ class Scraper:
 				self.parse_bout_list(Selector(text=res.content), meta)
 
 	def parse_bout_list(self, response, meta):
-		print('[scraper] parse_bout_list ---', meta)
+		logger.info(f'[scraper] parse_bout_list --- {json.dumps(meta)}')
 		event_id = meta['event_id']
 		event = Event.objects.get(pk=event_id)
 		trs = response.css('table.b-fight-details__table tr.b-fight-details__table-row')
@@ -167,14 +168,15 @@ class Scraper:
 				except:
 					pass
 
+				time.sleep(1)
+
 			# Compare new bouts with old ones to check if there is any bouts cancelled
 			# delete cancelled bouts due to fighters before d-day
 			self.delete_cancelled_bouts(event_id, new_bouts)
 
-			time.sleep(1)
 
 	def parse_bout_detail(self, response, meta):
-		print('[scraper] parse_bout_detail ---', meta)
+		logger.info(f'[scraper] parse_bout_detail --- {json.dumps(meta)}')
 		bout_id = meta['bout_id']
 		bout = Bout.objects.get(pk=bout_id)
 
@@ -222,7 +224,7 @@ class Scraper:
 	def delete_cancelled_bouts(self, event_id, new_bouts):
 		queryset = Bout.objects.all().filter(event_id=event_id).exclude(pk__in=new_bouts)
 		if queryset:
-			print('[scraper] delete cancelled bouts', queryset)
+			logger.info(f'[scraper] delete cancelled bouts {queryset.count()}')
 			queryset.delete()
 
 			message = f'{queryset.count()} bout was cancelled.'
@@ -251,12 +253,12 @@ class Scraper:
 		if bout_serializer.is_valid():
 			bout = bout_serializer.save()
 		else:
-			print('[save_bout] error', bout_serializer.errors)
+			logger.warning(f'[save_bout] error') 
 
 		return bout
 
 	def save_fighter(self, item):
-		print('[scraper] save_fighter ---', item)
+		logger.info(f'[scraper] save_fighter --- {json.dumps(item)}')
 		fighter = None
 		try:
 			fighter = Fighter.objects.get(name=item['name'])
@@ -270,7 +272,7 @@ class Scraper:
 		return fighter
 
 	def save_event(self, item):
-		print('[scraper] save_event ---', item)
+		logger.info(f'[scraper] save_event --- {json.dumps(item)}')
 		event = None
 		try:
 			event = Event.objects.get(name=item['name'], date=item['date'])
