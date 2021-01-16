@@ -15,6 +15,7 @@ import requests
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import time
+import logging as logger
 
 from contest.models import (
 	Event,
@@ -28,8 +29,14 @@ from contest.serializers import (
 	FighterSerializer
 )
 from contest.util import _valid, convert_date, strip_list1
-from contest.logger import logger
+
 import pdb
+
+logger.basicConfig(
+	filename='contest.log',
+	level=logger.INFO,
+	format="%(asctime)s:%(levelname)s:%(message)s [in %(pathname)s:%(lineno)d]"
+)  
 
 class Scraper:
 	upcoming_url = 'http://ufcstats.com/statistics/events/upcoming'
