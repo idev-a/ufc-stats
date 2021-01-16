@@ -335,6 +335,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         entry_views = sorted(entry_views, key=lambda x: (len(x['died'])))
         # entry_views = sorted(entry_views, reverse=True, key=lambda x: (x['last_edited']))
 
+        for x, entry in enumerate(entry_views):
+            entry['rank'] = x+1
+
         return entry_views
 
     @action(methods=['get'], detail=False)
