@@ -139,7 +139,7 @@ class Scraper:
 					status='pending',
 					event=event.id
 				)
-				bout = self.save_bout(item)
+				bout, is_notified = self.save_bout(item)
 				new_bouts.append(bout.id)
 
 				if fight_detail:
@@ -160,7 +160,7 @@ class Scraper:
 							'message': 'All fights were completed.'
 						}
 						event.action == 'completed'
-					else:
+					elif not is_notified:
 						notify_data = {
 							'bout': True,
 							'refresh': True,
@@ -248,8 +248,10 @@ class Scraper:
 	def save_bout(self, item):
 		bout = None
 		bout_serializer = None
+		is_notified = False
 		try:
 			bout = Bout.objects.get(detail_link=item['detail_link'])
+			is_notified = bout.status == 'completed'
 		except:
 			pass
 
@@ -262,7 +264,7 @@ class Scraper:
 		else:
 			logger.warning(f'[save_bout] error') 
 
-		return bout
+		return bout, is_notified
 
 	def save_fighter(self, item):
 		logger.info(f'[scraper] save_fighter --- {json.dumps(item)}')
