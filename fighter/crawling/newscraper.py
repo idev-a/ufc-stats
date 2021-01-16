@@ -143,6 +143,9 @@ class Scraper:
 				new_bouts.append(bout.id)
 
 				if fight_detail:
+					bout.status = 'completed'
+					bout.save()
+					
 					cnt_completed += 1
 					if cnt_completed != len(trs[1:]) and event.action != 'started':
 						notify_data = {
@@ -189,11 +192,6 @@ class Scraper:
 
 		persons = response.css('div.b-fight-details__person')
 		for person in persons:
-			not_yet_finished = person.css('i.b-fight-details__person-status_style_none')
-			if not not_yet_finished:
-				bout.status='completed'
-				bout.save()
-
 			marks = _valid(person.css('i::text').get())
 			name = _valid(person.css('div.b-fight-details__person-text h3 a::text').get())
 			title = _valid(person.css('div.b-fight-details__person-text p.b-fight-details__person-title::text').get())
