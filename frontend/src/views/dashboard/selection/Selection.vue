@@ -1,108 +1,76 @@
 <template>
-  <v-container
-    id="contest"
-    fluid
-    tag="section"
-    class="pa-0"
-  >
-    <dialog-drag
-      id="movingSelectionDlg"
-      @drag-end="dragEnd"
-      :options="{
-        buttonClose: false,
-        left: lastLeft,
-        dragCursor: 'move',
-        zIndex: 5,
-        width: _width
-      }"
+  <div>
+    <v-card
+      :loading="loading"
+      class="grey lighten-4 ma-0 pa-0"
     >
-      <v-card
-        :loading="loading"
-        class="grey lighten-4 ma-0 pa-0"
+      <v-card-title 
+        v-if="event" 
+        class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
       >
-        <v-card-title 
-          v-if="event" 
-          class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
-        >
-          <div>
-            <div class="grab">{{ this.event.name }}</div>
-            <div class="grab subtitle-2">
-              <span>{{ this.event.date | beautifyDate }}</span>
-              <span v-if="eventStarted" class="red--text lighten-1 h6">(Started)</span>
-              <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
-            </div>
-            <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
+        <div>
+          <div class="grab">{{ this.event.name }}</div>
+          <div class="grab subtitle-2">
+            <span>{{ this.event.date | beautifyDate }}</span>
+            <span v-if="eventStarted" class="red--text lighten-1 h6">(Started)</span>
+            <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
-        </v-card-title>
-        <v-card-text
-          class="pb-0"
+          <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
+        </div>
+      </v-card-title>
+      <v-card-text
+        class="pb-0"
+      >
+        <v-virtual-scroll
+          :items="bouts"
+          :item-height="45"
+          height="300"
+          :key="key"
         >
-          <v-virtual-scroll
-            :items="bouts"
-            :item-height="45"
-            height="300"
-            :key="key"
-          >
-            <template v-slot:default="{ item }">
-              <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
-              <v-btn-toggle
-                v-model="contests[item.id]"
-                :key="item.id"
-                dense
-                multiple
-                class="justify-space-between"
-                tile
-                @change="changeContests"
+          <template v-slot:default="{ item }">
+            <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
+            <v-btn-toggle
+              v-model="contests[item.id]"
+              :key="item.id"
+              dense
+              multiple
+              class="justify-space-between"
+              tile
+              @change="changeContests"
+            >
+              <v-btn
+                :value="item.fighter1"
+                :disabled="eventStarted"
+                small
+                :width="152"
               >
-                <v-btn
-                  :value="item.fighter1"
-                  :disabled="eventStarted"
-                  small
-                  :width="152"
-                >
-                  {{_fighter(item.fighter1).name}}
-                </v-btn>
+                {{_fighter(item.fighter1).name}}
+              </v-btn>
 
-                <v-btn
-                  :value="item.fighter2"
-                  :disabled="eventStarted"
-                  small
-                  :width="152"
-                >
-                  {{_fighter(item.fighter2).name}}
-                </v-btn>
-              </v-btn-toggle>
-            </template>
-          </v-virtual-scroll>
-          <div class="d-flex justify-center w-100">
-            <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
-            <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || event.started" small @click="clearSelection">Clear</v-btn>
-          </div>
-        </v-card-text>
-      </v-card>
-    </dialog-drag>
-
-    <v-snackbar v-model="snackbar.snack" :timeout="3000" :color="snackbar.status">
-      {{ snackbar.message }}
-      <template v-slot:action="{ attrs }">
-        <v-btn
-          dark
-          text
-          v-bind="attrs"
-          @click="snackbar.snack = false"
-        >
-          Close
-        </v-btn>
-      </template>
-    </v-snackbar>
-  </v-container>
+              <v-btn
+                :value="item.fighter2"
+                :disabled="eventStarted"
+                small
+                :width="152"
+              >
+                {{_fighter(item.fighter2).name}}
+              </v-btn>
+            </v-btn-toggle>
+          </template>
+        </v-virtual-scroll>
+        <div class="d-flex justify-center w-100">
+          <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
+          <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || event.started" small @click="clearSelection">Clear</v-btn>
+        </div>
+      </v-card-text>
+    </v-card>
+  </div>
 </template>
 
 <script>
   import main from '@/api/main'
   import { beautifyDate } from '@/util'
   import { mapState, mapGetters } from 'vuex'
-  import DialogDrag from 'vue-dialog-drag'
   import FlipCountdown from "./Countdown";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
@@ -111,7 +79,6 @@
     name: 'Selection',
 
     components: {
-      DialogDrag,
       FlipCountdown
     },
 
@@ -149,20 +116,14 @@
     },
 
     computed: {
-      ...mapState(['lastLeft', 'socket', 'event']),
+      ...mapState(['socket', 'event']),
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
-      bgHeight() {
-        return this.$vuetify.breakpoint.height - 147
-      },
       submitDisabled() {
         return this.loading || !this.event || this.bouts.length < 1 || this.event.started
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
-      },
-      _width () {
-        return this.$vuetify.breakpoint.mobile ? 340 : 370
       },
       eventStarted () {
         return this.event && this.event.action == 'started' || this.countdownEnd
@@ -258,6 +219,7 @@
             message: 'Please select at least one entry to submit',
             status: 'dark'
           }
+          this.$store.commit('snackbar/setSnack', this.snackbar)
           return
         }
 
@@ -266,6 +228,7 @@
           ...data,
           snack: true
         }
+        this.$store.commit('snackbar/setSnack', this.snackbar)
 
         if (data.status == 'success') {
           const self = this
@@ -282,9 +245,6 @@
           const survivors = this.contests[bout]
           this.squadSize += survivors.length
         }
-      },
-      dragEnd (val) {
-        this.$store.commit('SET_LASTLEFT', val.left)
       },
       disableSelection () {
         this.countdownEnd = true

@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-card
-      max-width="100%"
       class="ma-0 pa-0"
       :class="{'max-60': !$vuetify.breakpoint.mobile}"
     >

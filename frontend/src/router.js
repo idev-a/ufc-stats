@@ -89,12 +89,12 @@ let router = new Router({
         {
           name: 'Dashboard',
           path: '',
-          component: () => import('@/views/dashboard/selection/Selection'),
+          component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
           name: 'Selection',
           path: 'selection',
-          component: () => import('@/views/dashboard/selection/Selection'),
+          component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
           name: 'Contest',
