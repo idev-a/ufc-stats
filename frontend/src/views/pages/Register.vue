@@ -29,7 +29,6 @@
             <v-form
               ref="form"
               v-model="valid"
-              lazy-validation
             >
               <v-text-field
                 ref="email"
@@ -45,6 +44,19 @@
                 required
               />
 
+              <v-text-field
+                ref="displayname"
+                v-model="form.displayname"
+                :rules="[rules.required]"
+                :loading="authenticating"
+                hide-details="auto"
+                class="mb-5"
+                color="secondary"
+                label="Display Name"
+                prepend-icon="mdi-account-outline"
+                @keyup.enter="submit"
+                required
+              />
               <v-text-field 
                 v-model="form.password1" 
                 :loading="registrationLoading"
@@ -200,9 +212,12 @@
       },
       async submit () {
         this.$refs.form.validate(true)
+        if (!this.valid) {
+          return
+        }
         
         if (this.valid) {
-          this.form.username = this.form.displayname = this.form.email
+          this.form.username = this.form.email
           this.$store.dispatch('signup/createAccount', this.form)          
         }
       },

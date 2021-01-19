@@ -37,7 +37,7 @@
                 hide-details="auto"
                 class="mb-5"
                 color="secondary"
-                label="Email address."
+                label="Email address"
                 prepend-icon="mdi-email"
                 @keyup.enter="submit"
                 required
@@ -52,7 +52,7 @@
                 hide-details="auto"
                 class="mb-7"
                 color="secondary"
-                label="Password."
+                label="Password"
                 prepend-icon="mdi-key"
                 @keyup.enter="submit"
                 required
@@ -105,40 +105,28 @@
     data () {
       const defaultForm = Object.freeze({
         email: '',
-        password: ''
+        password: '',
+        displayname: ''
       })
 
       return {
         valid: true,
         loading: false,
-        formHasErrors: false,
-        errorMessages: {
-          email: {
-            required: false,
-            invalid: false,
-            business: false
-          },
-        },
         snackbar: {
           snack: false,
           message: '',
           status: 'success',
         },
-        multiLine: true,
         defaultForm,
         form: Object.assign({}, defaultForm),
-        code: '',
-        keepMeLogin: false,
         rules: {
           required: value => {
-            this.errorMessages.email.required = !!value
-            return this.errorMessages.email.required || 'This field is required.'
+            return !!value || 'This field is required.'
           },
           counter: value => value.length >= 6 || 'Min 6 characters',
           email: value => {
             const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            this.errorMessages.email.invalid = pattern.test(value)
-            return this.errorMessages.email.invalid || 'Invalid e-mail.'
+            return pattern.test(value)|| 'Invalid e-mail.'
           },
         },
         socials: [
@@ -190,20 +178,11 @@
         // this.$router.push({ name: "Dashboard" });
         this.$store.commit('signup/showRegisterDlg', false)
       },
-      resetForm () {
-        this.form = Object.assign({}, this.defaultForm)
-        this.$refs.form.reset()
-        this.formHasErrors = false
-      },
       submit () {
         this.$refs.form.validate()
 
         if (this.valid) {
-          const data = {
-            username: this.form.email,
-            password: this.form.password
-          }
-          this.$store.dispatch('auth/login', data)
+          this.$store.dispatch('auth/login', this.form)
         }
       },
       twitterLogin() {
