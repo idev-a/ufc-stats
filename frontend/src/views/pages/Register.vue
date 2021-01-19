@@ -53,10 +53,11 @@
                 class="mb-5"
                 color="secondary"
                 label="Display Name"
-                prepend-icon="mdi-account-outline"
+                prepend-icon="mdi-account"
                 @keyup.enter="submit"
                 required
               />
+              
               <v-text-field 
                 v-model="form.password1" 
                 :loading="registrationLoading"

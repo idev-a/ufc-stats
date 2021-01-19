@@ -90,7 +90,7 @@ class Scraper:
 				name = _valid(tr.css('a::text').get())
 				detail_link = _valid(tr.css('a').xpath('@href').get())
 				location = _valid(tr.xpath('.//td[2]/text()').get())
-				date = _valid(tr.css('span.b-statistics__date::text').get())
+				date = _valid(tr.css('span.b-statistics__date::text').get()) + ' 09:00:00'
 				item = dict(
 					name=name,
 					date=convert_date(date),

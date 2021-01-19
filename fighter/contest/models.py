@@ -36,7 +36,7 @@ class Event(models.Model):
 
 	name = models.CharField(max_length=100)
 	location = models.CharField(max_length=200, blank=True, default='')
-	date = models.DateField()
+	date = models.DateTimeField()
 	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='upcoming')
 	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')

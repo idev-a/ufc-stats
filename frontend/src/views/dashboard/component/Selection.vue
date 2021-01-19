@@ -187,7 +187,7 @@
 
     methods: {
       startCountDown(val) {
-        this.deadline2 = this.$moment(`${val.date} 09:00:00`).format(fmt)
+        this.deadline2 = this.$moment(`${val.date}`).format(fmt)
       },
       preselectFighters() {
         this.bouts.map(bout => {

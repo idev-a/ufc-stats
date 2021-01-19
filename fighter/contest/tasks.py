@@ -10,7 +10,8 @@ def countdown():
 	if events:
 		_event = events.latest('-date')
 		FMT = '%Y-%m-%d %H:%M:%S'
-		_t = int(datetime.strptime(f'{_event.date} 17:00:00', FMT).timestamp() - datetime.now().timestamp())
+		print(_event.date)
+		_t = int(_event.date.timestamp() - datetime.now().timestamp())
 		print(datetime.now(), _event.date, _t)
 		while _t:
 			print(f'[Countdown] {_t}')
