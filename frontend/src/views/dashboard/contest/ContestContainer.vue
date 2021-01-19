@@ -3,9 +3,10 @@
     id="contest"
     fluid
     tag="section"
-    class="d-flex justify-center"
+    class="d-flex justify-center pa-1"
   >
     <div
+      style="width: 100%"
       v-if="$vuetify.breakpoint.mobile"
     >
       <contest />

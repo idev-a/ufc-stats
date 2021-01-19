@@ -3,9 +3,9 @@
     id="contest"
     fluid
     tag="section"
-    class="pa-0"
+    class="pa-1"
   >
-    <div v-if="$vuetify.breakpoint.mobile">
+    <div class="w-100" v-if="$vuetify.breakpoint.mobile">
       <selection />
     </div>
     <dialog-drag

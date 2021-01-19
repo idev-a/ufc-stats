@@ -1,7 +1,8 @@
 <template>
   <div>
     <v-card
-      class="ma-0 pa-0"
+      max-width="100%"
+      class="ma-0 pa-0 pb-3"
       :class="{'max-60': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
@@ -35,6 +36,7 @@
         </v-tabs>
         <v-tabs-items
           v-model="tab"
+          :touchless="$vuetify.breakpoint.mobile"
         >
           <!-- fight/bout view -->
           <v-tab-item>
@@ -59,14 +61,14 @@
                 :items="boutViews"
                 :loading="loading"
                 :headers="boutHeaders"
-                fixed-header
                 item-key="id"
-                :height="`${$vuetify.breakpoint.mobile ? 'calc(100vh - 200px)': '280px'}`"
+                height="280px"
                 dense
                 fixed-header
                 disable-pagination
                 hide-default-footer
                 :search="boutSearch"
+                mobile-breakpoint="0"
               > 
                 <template #item.fighter1="{item}">
                   <v-tooltip bottom>
@@ -145,11 +147,12 @@
                 :disable-pagination="true"
                 item-key="id"
                 dense
-                :height="`${$vuetify.breakpoint.mobile ? 'calc(100vh - 200px)': '280px'}`"
+                height="280px"
                 hide-default-footer
                 show-expand
                 :expanded.sync="expanded"
                 :item-class="entryItemClass"
+                mobile-breakpoint="0"
               > 
                 <template v-slot:item.rank="{ item }">
                   <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}
@@ -512,6 +515,11 @@
 
 <style lang="scss">
   #contest {
+
+.v-data-table { 
+  overflow-x: auto !important;
+}
+
     table { border-collapse: collapse; empty-cells: show; }
 
     td { position: relative; }
