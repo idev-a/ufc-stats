@@ -206,8 +206,8 @@
 
   // Utilities
   import { mapState, mapMutations, mapGetters } from 'vuex'
-  import Instruction from '../../component/Instruction'
-  import UserProfile from '../../component/UserProfile'
+  import UserProfile from '../../pages/UserProfile'
+  import Instruction from '../../instruction/Instruction'
 
   export default {
     name: 'DashboardCoreAppBar',

@@ -89,17 +89,17 @@ let router = new Router({
         {
           name: 'Dashboard',
           path: '',
-          component: () => import('@/views/dashboard/component/Selection'),
+          component: () => import('@/views/dashboard/selection/Selection'),
         },
         {
           name: 'Selection',
           path: 'selection',
-          component: () => import('@/views/dashboard/component/Selection'),
+          component: () => import('@/views/dashboard/selection/Selection'),
         },
         {
           name: 'Contest',
           path: 'contest',
-          component: () => import('@/views/dashboard/component/Contest'),
+          component: () => import('@/views/dashboard/contest/ContestContainer'),
           beforeEnter: requireAuthenticated
         },
         {
@@ -116,7 +116,7 @@ let router = new Router({
       children: [
         {
           path: '',
-          component: () => import('@/views/dashboard/component/Callback'),
+          component: () => import('@/views/dashboard/pages/Callback'),
         }
       ]
     },
