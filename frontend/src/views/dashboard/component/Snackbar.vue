@@ -53,15 +53,14 @@
     watch: {
       refresh(val) {
         if (val) {
-          const self = this
-          setTimeout(() => self.refreshPage(), 3000)
+          this.refreshPage()
         }
       }
     },
 
     methods: {
       refreshPage () {
-        this.snackDlg = false
+        this.$store.commit('snackbar/resetState')
         this.$emit('update')
       }
     }

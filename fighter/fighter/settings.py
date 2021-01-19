@@ -81,6 +81,8 @@ INSTALLED_APPS = [
     'rest_auth.registration',
     'channels',
     'contest.apps.ContestConfig',
+    'django_celery_results',
+    'django_celery_beat'
 ]
 
 SITE_ID = 1
@@ -220,3 +222,24 @@ CHANNEL_LAYERS = {
     },
 }
 ASGI_THREADS = 1000
+
+# Celery Configuration Options
+CELERY_TIMEZONE = "Australia/Tasmania"
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_CACHE_BACKEND = 'default'
+CELERY_RESULT_BACKEND = config('CELERY_BROKER_URL')
+CELERY_BROKER_URL = config('CELERY_BROKER_URL')
+# CELERY_BROKER_URL = 'amqp://guest:**@127.0.0.1:5672//'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}

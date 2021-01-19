@@ -29,7 +29,7 @@
             <div class="grab subtitle-2">
               <span>{{ this.event.date | beautifyDate }}</span>
               <span v-if="eventStarted" class="red--text lighten-1 h6">(Started)</span>
-              <flip-countdown v-if="countable" :deadline="deadline2"></flip-countdown>
+              <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
             </div>
             <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
           </div>
@@ -131,6 +131,7 @@
         deadline2: '',
         dlg: true,
         loading: false,
+        countdownEnd: false,
         bouts: [],
         fighters: [],
         selectedItem: -1,
@@ -164,7 +165,7 @@
         return this.$vuetify.breakpoint.mobile ? 340 : 370
       },
       eventStarted () {
-        return this.event && this.event.action == 'started'
+        return this.event && this.event.action == 'started' || this.countdownEnd
       },
       countable () {
         return this.deadline2 && !this.eventStarted
@@ -284,6 +285,9 @@
       },
       dragEnd (val) {
         this.$store.commit('SET_LASTLEFT', val.left)
+      },
+      disableSelection () {
+        this.countdownEnd = true
       }
     }
   }

@@ -1,5 +1,10 @@
 const getDefaultState = () => {
-  return {};
+  return {
+    snack: false,
+    message: '',
+    status: 'success',
+    refresh: false
+  };
 };
 
 export default {

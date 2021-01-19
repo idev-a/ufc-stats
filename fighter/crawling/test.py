@@ -97,5 +97,11 @@ class Test:
 if __name__ == '__main__':
 	test = Test()
 	while True:
-		test.run()
-		time.sleep(30)
+		notify_data = {
+			'bout': True,
+			'refresh': True,
+			'message': 'test'
+		}
+		test.notify_user(notify_data)
+
+		time.sleep(3)

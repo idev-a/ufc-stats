@@ -102,7 +102,7 @@
                       </v-tooltip>
                     </template>
                     <template v-slot:item.entries_1="{ item }">
-                      <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1)">{{ item.entries_1.length }}</a>
+                      <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1, item.fighter1)">{{ item.entries_1.length }}</a>
                       <span v-else>{{item.entries_1.length}}</span>
                     </template>
                     <template #item.fighter2="{item}">
@@ -122,7 +122,7 @@
                       </v-tooltip>
                     </template>
                     <template v-slot:item.entries_2="{ item }">
-                      <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2)">{{ item.entries_2.length }}</a>
+                      <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2, item.fighter2)">{{ item.entries_2.length }}</a>
                       <span v-else>{{ item.entries_2.length }}</span>
                     </template>
 
@@ -160,14 +160,15 @@
                     :items="entryViews"
                     :loading="loading"
                     :headers="entryViewHeaders"
+                    :search="entryViewSearch"
                     fixed-header
                     :disable-pagination="true"
                     item-key="id"
                     dense
                     height="280px"
-                    fixed-header
                     hide-default-footer
-                    :search="entryViewSearch"
+                    show-expand
+                    :expanded.sync="expanded"
                     :item-class="entryItemClass"
                   > 
                     <template v-slot:item.rank="{ item }">
@@ -198,8 +199,12 @@
                       <span :class="highlight(item)" class="font-weight-bold">{{item.wins}}
                       </span>
                     </template>
-                    <template v-slot:item.losses="{ item }">
+                    <!-- <template v-slot:item.losses="{ item }">
                       <span :class="highlight(item)" class="font-weight-bold">{{item.losses}}
+                      </span>
+                    </template> -->
+                    <template v-slot:item.died="{ item }">
+                      <span :class="highlight(item)" class="font-weight-bold">{{item.died.length}}
                       </span>
                     </template>
                     <template v-slot:item.remainings="{ item }">
@@ -207,25 +212,60 @@
                       </span>
                     </template>
                     <template v-slot:item.fighters="{ item }">
-                      <div class="d-flex flex-wrap">
-                        <template v-for="fighter in item.fighters">
-                          <v-tooltip bottom>
-                            <template v-slot:activator="{ on, attrs }">
-                              <win-chip 
-                                :isWinner="fighter.win"
-                                :isLoser="fighter.lose"
-                                :isDied="fighter.died"
-                                :fighter="fighter.name"
-                                v-bind="attrs"
-                                v-on="on"
-                                class="mr-1 mb-1"
-                                >
-                              </win-chip>
-                            </template>
-                            <span>{{ fighter.entry_cnt }}</span>
-                          </v-tooltip>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn 
+                            text 
+                            icon 
+                            v-on="on"
+                            @click.stop="showFighters(item)"
+                          >
+                            <v-icon>{{ fighterIcon }}</v-icon>
+                          </v-btn>
                         </template>
-                      </div>
+                        <span>{{ fighterIconTooltip }}</span>
+                      </v-tooltip>
+                    </template>
+                    <template v-slot:item.data-table-expand="{ item, isExpanded, expand }">
+                      <v-tooltip v-if="isExpanded" bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" icon text @click="expand(false)" >
+                            <v-icon>mdi-account-multiple-minus</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Hide Fighters</span>
+                      </v-tooltip>
+                      <v-tooltip v-else bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn v-on="on" icon text @click="expand(true)">
+                            <v-icon>mdi-account-multiple-plus</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Show Fighters</span>
+                      </v-tooltip>
+                    </template>
+                    <template v-slot:expanded-item="{ headers, item }">
+                      <td :colspan="headers.length">
+                        <div class="d-flex flex-wrap">
+                          <template v-for="fighter in item.fighters">
+                            <v-tooltip bottom>
+                              <template v-slot:activator="{ on, attrs }">
+                                <win-chip 
+                                  :isWinner="fighter.win"
+                                  :isLoser="fighter.lose"
+                                  :isDied="fighter.died"
+                                  :fighter="fighter.name"
+                                  v-bind="attrs"
+                                  v-on="on"
+                                  class="mr-1 mb-1"
+                                  >
+                                </win-chip>
+                              </template>
+                              <span>{{ fighter.entry_cnt }}</span>
+                            </v-tooltip>
+                          </template>
+                        </div>
+                      </td>
                     </template>
                   </v-data-table>
                 </v-card-text>
@@ -248,9 +288,9 @@
         <v-card-title
           class="display-2 font-weight-medium"
         >
-          Contest Users
+          Contest Users for <span class="red--text lighten-1">{{curBout.fighter}}</span>
         </v-card-title>
-        <div class="text-center subtitle-1">{{curBout}}</div>
+        <div class="text-center subtitle-1">({{curBout.name}})</div>
         <v-card-text>
           <div class="d-flex">
             <v-text-field
@@ -306,6 +346,8 @@
         boutSearch: '',
         entrySearch: '',
         tab: null,
+        curFighters: [],
+        expanded: [],
         boutHeaders: [
           {
             text: 'Fighter1',
@@ -343,7 +385,10 @@
         ],
         boutViews: [],
         entryDlg: false,
-        curBout: '',
+        curBout: {
+          name: '',
+          fighter: ''
+        },
         entries: [],
         entrySearch: '',
         entryHeaders: [
@@ -377,9 +422,14 @@
             value: 'wins',
             align: 'center'
           },
+          // {
+          //   text: 'Losses',
+          //   value: 'losses',
+          //   align: 'center'
+          // },
           {
-            text: 'Losses',
-            value: 'losses',
+            text: 'Quaked',
+            value: 'died',
             align: 'center'
           },
           {
@@ -387,11 +437,11 @@
             value: 'remainings',
             align: 'center'
           },
-          {
-            text: 'Fighters',
-            value: 'fighters',
-            align: 'center',
-          },
+          // {
+          //   text: 'Fighters',
+          //   value: 'fighters',
+          //   align: 'center',
+          // },
         ]
       }
     },
@@ -407,6 +457,12 @@
       eventStarted () {
         return this.event && this.event.action == 'started'
       },
+      fighterIcon () {
+        return this.expanded.length == 0 ? 'mdi-account-multiple-plus' : 'mdi-account-multiple-minus'
+      },
+      fighterIconTooltip () {
+        return this.expanded.length == 0 ? 'Show Fighters' : 'Hide Fighters'
+      }
     },
 
     mounted() {
@@ -425,9 +481,12 @@
         this.event = data.event
         this.loading = false
       },
-      async gotoEntry (item, entries) {
+      async gotoEntry (item, entries, fighter) {
         this.entryDlg = true
-        this.curBout = `${item.fighter1} vs. ${item.fighter2}`
+        this.curBout = {
+          name: `${item.fighter1} vs. ${item.fighter2}`,
+          fighter
+        }
         const users = []
         entries.map(entry => { users.push(entry[1])})
         this.entries = [{users}]
@@ -462,6 +521,16 @@
       },
       dragEnd (val) {
         this.$store.commit('SET_LASTLEFT', val.left)
+      },
+      showFighters (item) {
+        if (this.expanded.includes(item.rank)) {
+          const index = this.expanded.indexOf(item);
+          this.expanded.splice(index, 1);
+        } else {
+          this.expanded = []
+          this.expanded.push(item.rank)
+          this.curFighters = item.fighters
+        }
       }
     }
   }

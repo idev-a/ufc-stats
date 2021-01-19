@@ -214,6 +214,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_entry_views(self, selections):
         score = {}
         default_score = {
+            'id': '',
             'entry': '',
             'method': '', 
             'survived': 0,
@@ -235,7 +236,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
             winner_id = bout.winner and bout.winner.id # winner from bout
             score[username_id] = score.get(username_id, copy.deepcopy(default_score))
-            score[username_id]['entry'] = username_id
+            score[username_id]['id'] = username_id
             score[username_id]['last_edited'] = selection.entry.last_edited
 
             # Get winner and loser

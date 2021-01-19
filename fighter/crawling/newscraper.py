@@ -52,10 +52,7 @@ class Scraper:
 				'event': {
 					'started': True
 				},
-				'refresh': {
-					'cancelled': True
-				},
-				'refresh': True
+				'refresh': True,
 			},
 		'''
 		channel_layer = get_channel_layer()
@@ -68,23 +65,22 @@ class Scraper:
 		)
 
 	def start_requests(self):
-		while True:
-			logger.info('[scraper] started')
+		# upcoming events
+		res = self.session.get(self.upcoming_url)
+		self.parse_event(Selector(text=res.content))
+		# while True:
+		# 	logger.info('[scraper] started')
 
-			# upcoming events
-			# res = self.session.get(self.upcoming_url)
-			# self.parse_event(Selector(text=res.content))
+		# 	# scan db to get the scraped events to get the stats
+		# 	events = Event.objects.all().filter(status='upcoming')
+		# 	if events:
+		# 		event = events.latest('-date')
+		# 		res = self.session.get(event.detail_link)
+		# 		meta = {'event_id': event.id}
 
-			# scan db to get the scraped events to get the stats
-			events = Event.objects.all().filter(status='upcoming')
-			if events:
-				event = events.latest('-date')
-				res = self.session.get(event.detail_link)
-				meta = {'event_id': event.id}
+		# 		# self.parse_bout_list(Selector(text=res.content), meta)
 
-				self.parse_bout_list(Selector(text=res.content), meta)
-
-			time.sleep(6)
+		# 	time.sleep(6)
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
@@ -156,7 +152,7 @@ class Scraper:
 							'message': 'Event already started.'
 						}
 						event.action = 'started'
-					elif cnt_completed == len(trs[1:]):
+					elif cnt_completed == len(trs[1:]) and event.action != 'started':
 						notify_data = {
 							'event': {
 								'action': 'completed',
@@ -173,6 +169,7 @@ class Scraper:
 					event.save()
 					if notify_data:
 						self.notify_user(notify_data)
+						time.sleep(3)
 				try:
 					res = self.session.get(detail_link)
 					meta = {'bout_id': bout.id}
@@ -244,6 +241,7 @@ class Scraper:
 
 			}
 			self.notify_user(notify_data)
+			time.sleep(3)
 
 	def save_bout(self, item):
 		bout = None

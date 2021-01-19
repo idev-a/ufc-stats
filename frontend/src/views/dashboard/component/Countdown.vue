@@ -169,6 +169,9 @@ export default {
       this.updateTime(1, this.hours);
       this.updateTime(2, this.minutes);
       this.updateTime(3, this.seconds);
+      if (this.days == 0 && this.hours == 0 && this.minutes == 0 && this.seconds == 0) {
+        this.$emit('stopTimer')
+      }
     },
     updateTime(idx, newValue) {
       if (idx >= this.timeData.length || newValue === undefined) {
