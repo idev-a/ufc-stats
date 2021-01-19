@@ -80,7 +80,7 @@ class Scraper:
 
 		# 		# self.parse_bout_list(Selector(text=res.content), meta)
 
-		# 	time.sleep(6)
+		# 	time.sleep(2)
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
