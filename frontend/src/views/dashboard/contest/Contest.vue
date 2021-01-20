@@ -1,260 +1,267 @@
 <template>
-  <div>
+  <div id="contest">
     <v-card
       max-width="100%"
       class="ma-0 pa-0 pb-3"
       :class="{'max-60': !$vuetify.breakpoint.mobile}"
     >
-      <v-card-title 
-        class="justify-center font-weight-medium mb-md-3"
-      >
-        <div class="text-center">
-          <div>{{ this.event.name }}</div>
-          <div class="subtitle-1">
-            {{ this.event.date | beautifyDate }}
-            <span v-if="eventStarted" class="red--text h6">(Started)</span>
+      
+        <v-card-title 
+          class="justify-center font-weight-medium mb-md-3"
+        >
+          <div class="text-center">
+            <div>{{ this.event.name }}</div>
+            <div class="subtitle-1">
+              {{ this.event.date | beautifyDate }}
+              <span v-if="eventStarted" class="red--text h6">(Started)</span>
+            </div>
           </div>
-        </div>
-      </v-card-title>
-      <v-card-text>
-        <v-tabs
-          align-with-title
-          v-model="tab"
-          background-color="transparent"
-          color="basil"
-        >
-          <v-tabs-slider color="black"></v-tabs-slider>
-
-          <v-tab
+        </v-card-title>
+        <v-card-text>
+          <v-tabs
+            align-with-title
+            v-model="tab"
+            background-color="transparent"
+            color="basil"
           >
-            Fights
-          </v-tab>
-          <v-tab
+            <v-tabs-slider color="black"></v-tabs-slider>
+
+            <v-tab
+            >
+              Fights
+            </v-tab>
+            <v-tab
+            >
+              Entries
+            </v-tab>
+          </v-tabs>
+          <v-tabs-items
+            v-model="tab"
+            :touchless="$vuetify.breakpoint.mobile"
           >
-            Entries
-          </v-tab>
-        </v-tabs>
-        <v-tabs-items
-          v-model="tab"
-          :touchless="$vuetify.breakpoint.mobile"
-        >
-          <!-- fight/bout view -->
-          <v-tab-item>
-            <v-card
-              min-width="50%"
-              flat
-              class="mt-0"
-            >
-              <div class="mb-2">
-                <v-text-field
-                  v-model="boutSearch"
-                  append-icon="mdi-magnify"
-                  label="Search"
-                  clearable
-                  class="mb-5"
-                  single-line
-                  hide-details
-                ></v-text-field>
-                <v-spacer />
-              </div>
-              <v-data-table
-                :items="boutViews"
-                :loading="loading"
-                :headers="boutHeaders"
-                item-key="id"
-                height="280px"
-                dense
-                fixed-header
-                disable-pagination
-                hide-default-footer
-                :search="boutSearch"
-                mobile-breakpoint="0"
-              > 
-                <template #item.fighter1="{item}">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                      <win-chip 
-                        :isWinner="item.fighter1 == item.winner"
-                        :isLoser="item.fighter1 == item.loser"
-                        :isDied="item.died && item.died == item.fighter1"
-                        :fighter="item.fighter1"
-                        v-bind="attrs"
-                        v-on="on"
-                        >
-                      </win-chip>
+            <!-- fight/bout view -->
+            <v-tab-item>
+              <v-card
+                min-width="50%"
+                flat
+                class="mt-0"
+              >
+                <!-- <v-img
+                  class="white--text align-end"
+                  height="100px"
+                  src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
+                > -->
+                <div class="mb-2">
+                  <v-text-field
+                    v-model="boutSearch"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    clearable
+                    class="mb-5"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                  <v-spacer />
+                </div>
+                <!-- </v-img> -->
+                <v-data-table
+                  :items="boutViews"
+                  :loading="loading"
+                  :headers="boutHeaders"
+                  item-key="id"
+                  height="280px"
+                  dense
+                  fixed-header
+                  disable-pagination
+                  hide-default-footer
+                  :search="boutSearch"
+                  mobile-breakpoint="0"
+                > 
+                  <template #item.fighter1="{item}">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <win-chip 
+                          :isWinner="item.fighter1 == item.winner"
+                          :isLoser="item.fighter1 == item.loser"
+                          :isDied="item.died && item.died == item.fighter1"
+                          :fighter="item.fighter1"
+                          v-bind="attrs"
+                          v-on="on"
+                          >
+                        </win-chip>
+                        </template>
+                      <span>{{ fighterTooltip(item.fighter1, item) }}</span>
+                    </v-tooltip>
+                  </template>
+                  <template v-slot:item.entries_1="{ item }">
+                    <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1, item.fighter1)">{{ item.entries_1.length }}</a>
+                    <span v-else>{{item.entries_1.length}}</span>
+                  </template>
+                  <template #item.fighter2="{item}">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <win-chip 
+                          :isWinner="item.fighter2 == item.winner"
+                          :isLoser="item.fighter2 == item.loser"
+                          :isDied="item.died && item.died == item.fighter2"
+                          :fighter="item.fighter2"
+                          v-bind="attrs"
+                          v-on="on"
+                          >
+                        </win-chip>
                       </template>
-                    <span>{{ fighterTooltip(item.fighter1, item) }}</span>
-                  </v-tooltip>
-                </template>
-                <template v-slot:item.entries_1="{ item }">
-                  <a v-if="item.entries_1.length" href="#" @click="gotoEntry(item, item.entries_1, item.fighter1)">{{ item.entries_1.length }}</a>
-                  <span v-else>{{item.entries_1.length}}</span>
-                </template>
-                <template #item.fighter2="{item}">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                      <win-chip 
-                        :isWinner="item.fighter2 == item.winner"
-                        :isLoser="item.fighter2 == item.loser"
-                        :isDied="item.died && item.died == item.fighter2"
-                        :fighter="item.fighter2"
-                        v-bind="attrs"
-                        v-on="on"
-                        >
-                      </win-chip>
-                    </template>
-                    <span>{{ fighterTooltip(item.fighter2, item) }}</span>
-                  </v-tooltip>
-                </template>
-                <template v-slot:item.entries_2="{ item }">
-                  <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2, item.fighter2)">{{ item.entries_2.length }}</a>
-                  <span v-else>{{ item.entries_2.length }}</span>
-                </template>
+                      <span>{{ fighterTooltip(item.fighter2, item) }}</span>
+                    </v-tooltip>
+                  </template>
+                  <template v-slot:item.entries_2="{ item }">
+                    <a v-if="item.entries_2.length" href="#" @click="gotoEntry(item, item.entries_2, item.fighter2)">{{ item.entries_2.length }}</a>
+                    <span v-else>{{ item.entries_2.length }}</span>
+                  </template>
 
-                <template v-slot:item.round="{ item }">
-                  <span>{{item.round == 0 ? '' : item.round}}
-                  </span>
-                </template>
-              </v-data-table>
-            </v-card>
-          </v-tab-item>
+                  <template v-slot:item.round="{ item }">
+                    <span>{{item.round == 0 ? '' : item.round}}
+                    </span>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-tab-item>
 
-          <!-- Entry view -->
-          <v-tab-item>
-            <v-card
-              min-width="50%"
-              flat
-              class="mt-0"
-            >
-              <div class="mb-2">
-                <v-text-field
-                  v-model="entryViewSearch"
-                  append-icon="mdi-magnify"
-                  label="Search"
-                  clearable
-                  class="mb-5"
-                  single-line
-                  hide-details
-                ></v-text-field>
-                <v-spacer />
-              </div>
-              <v-data-table
-                :items="entryViews"
-                :loading="loading"
-                :headers="entryViewHeaders"
-                :search="entryViewSearch"
-                fixed-header
-                :disable-pagination="true"
-                item-key="id"
-                dense
-                height="280px"
-                hide-default-footer
-                show-expand
-                :expanded.sync="expanded"
-                :item-class="entryItemClass"
-                mobile-breakpoint="0"
-              > 
-                <template v-slot:item.rank="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}
-                  </span>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-icon v-bind="attrs" v-on="on" v-if="isMine(item)">mdi-account-tie</v-icon>
-                    </template>
-                    <span>My Entry</span>
-                  </v-tooltip>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-icon v-bind="attrs" v-on="on" v-if="isDied(item)">mdi-skull-outline</v-icon>
+            <!-- Entry view -->
+            <v-tab-item>
+              <v-card
+                min-width="50%"
+                flat
+                class="mt-0"
+              >
+                <div class="mb-2">
+                  <v-text-field
+                    v-model="entryViewSearch"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    clearable
+                    class="mb-5"
+                    single-line
+                    hide-details
+                  ></v-text-field>
+                  <v-spacer />
+                </div>
+                <v-data-table
+                  :items="entryViews"
+                  :loading="loading"
+                  :headers="entryViewHeaders"
+                  :search="entryViewSearch"
+                  fixed-header
+                  :disable-pagination="true"
+                  item-key="id"
+                  dense
+                  height="280px"
+                  hide-default-footer
+                  show-expand
+                  :expanded.sync="expanded"
+                  :item-class="entryItemClass"
+                  mobile-breakpoint="0"
+                > 
+                  <template v-slot:item.rank="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}
+                    </span>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon v-bind="attrs" v-on="on" v-if="isMine(item)">mdi-account-tie</v-icon>
                       </template>
-                    <span>Dead</span>
-                  </v-tooltip>
-                </template>
-                <template v-slot:item.entry="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}
-                  </span>
-                </template>
-                <template v-slot:item.survived="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.survived}}
-                  </span>
-                </template>
-                <template v-slot:item.wins="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.wins}}
-                  </span>
-                </template>
-                <!-- <template v-slot:item.losses="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.losses}}
-                  </span>
-                </template> -->
-                <template v-slot:item.died="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.died.length}}
-                  </span>
-                </template>
-                <template v-slot:item.remainings="{ item }">
-                  <span :class="highlight(item)" class="font-weight-bold">{{item.remainings}}
-                  </span>
-                </template>
-                <template v-slot:item.fighters="{ item }">
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn 
-                        text 
-                        icon 
-                        v-on="on"
-                        @click.stop="showFighters(item)"
-                      >
-                        <v-icon>{{ fighterIcon }}</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>{{ fighterIconTooltip }}</span>
-                  </v-tooltip>
-                </template>
-                <template v-slot:item.data-table-expand="{ item, isExpanded, expand }">
-                  <v-tooltip v-if="isExpanded" bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn v-on="on" icon text @click="expand(false)" >
-                        <v-icon>mdi-account-multiple-minus</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Hide Fighters</span>
-                  </v-tooltip>
-                  <v-tooltip v-else bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-btn v-on="on" icon text @click="expand(true)">
-                        <v-icon>mdi-account-multiple-plus</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Show Fighters</span>
-                  </v-tooltip>
-                </template>
-                <template v-slot:expanded-item="{ headers, item }">
-                  <td :colspan="headers.length">
-                    <div class="d-flex flex-wrap">
-                      <template v-for="fighter in item.fighters">
-                        <v-tooltip bottom>
-                          <template v-slot:activator="{ on, attrs }">
-                            <win-chip 
-                              :isWinner="fighter.win"
-                              :isLoser="fighter.lose"
-                              :isDied="fighter.died"
-                              :fighter="fighter.name"
-                              v-bind="attrs"
-                              v-on="on"
-                              class="mr-1 mb-1"
-                              >
-                            </win-chip>
-                          </template>
-                          <span>{{ fighter.entry_cnt }}</span>
-                        </v-tooltip>
+                      <span>My Entry</span>
+                    </v-tooltip>
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon v-bind="attrs" v-on="on" v-if="isDied(item)">mdi-skull-outline</v-icon>
+                        </template>
+                      <span>Dead</span>
+                    </v-tooltip>
+                  </template>
+                  <template v-slot:item.entry="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}
+                    </span>
+                  </template>
+                  <template v-slot:item.survived="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.survived}}
+                    </span>
+                  </template>
+                  <template v-slot:item.wins="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.wins}}
+                    </span>
+                  </template>
+                  <!-- <template v-slot:item.losses="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.losses}}
+                    </span>
+                  </template> -->
+                  <template v-slot:item.died="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.died.length}}
+                    </span>
+                  </template>
+                  <template v-slot:item.remainings="{ item }">
+                    <span :class="highlight(item)" class="font-weight-bold">{{item.remainings}}
+                    </span>
+                  </template>
+                  <template v-slot:item.fighters="{ item }">
+                    <v-tooltip bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn 
+                          text 
+                          icon 
+                          v-on="on"
+                          @click.stop="showFighters(item)"
+                        >
+                          <v-icon>{{ fighterIcon }}</v-icon>
+                        </v-btn>
                       </template>
-                    </div>
-                  </td>
-                </template>
-              </v-data-table>
-            </v-card>
-          </v-tab-item>
-        </v-tabs-items>
-      </v-card-text>
+                      <span>{{ fighterIconTooltip }}</span>
+                    </v-tooltip>
+                  </template>
+                  <template v-slot:item.data-table-expand="{ item, isExpanded, expand }">
+                    <v-tooltip v-if="isExpanded" bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" icon text @click="expand(false)" >
+                          <v-icon>mdi-account-multiple-minus</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Hide Fighters</span>
+                    </v-tooltip>
+                    <v-tooltip v-else bottom>
+                      <template v-slot:activator="{ on }">
+                        <v-btn v-on="on" icon text @click="expand(true)">
+                          <v-icon>mdi-account-multiple-plus</v-icon>
+                        </v-btn>
+                      </template>
+                      <span>Show Fighters</span>
+                    </v-tooltip>
+                  </template>
+                  <template v-slot:expanded-item="{ headers, item }">
+                    <td :colspan="headers.length">
+                      <div class="d-flex flex-wrap">
+                        <template v-for="fighter in item.fighters">
+                          <v-tooltip bottom>
+                            <template v-slot:activator="{ on, attrs }">
+                              <win-chip 
+                                :isWinner="fighter.win"
+                                :isLoser="fighter.lose"
+                                :isDied="fighter.died"
+                                :fighter="fighter.name"
+                                v-bind="attrs"
+                                v-on="on"
+                                class="mr-1 mb-1"
+                                >
+                              </win-chip>
+                            </template>
+                            <span>{{ fighter.entry_cnt }}</span>
+                          </v-tooltip>
+                        </template>
+                      </div>
+                    </td>
+                  </template>
+                </v-data-table>
+              </v-card>
+            </v-tab-item>
+          </v-tabs-items>
+        </v-card-text>
     </v-card>
 
     <!-- Entry dlg -->
@@ -515,10 +522,27 @@
 
 <style lang="scss">
   #contest {
+    backdrop-filter: blur(30px) contrast(1.0);
 
-.v-data-table { 
-  overflow-x: auto !important;
-}
+    * {
+      background-color: transparent;
+    }
+
+    .v-data-table { 
+      overflow-x: auto !important;
+
+      tr:hover {
+        background: url('../../../assets/bg.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        backdrop-filter: blur(40px);
+      }
+
+      thead > tr > th {
+        background-color: #808080db;
+        backdrop-filter: blur(40px);
+      }
+    }
 
     table { border-collapse: collapse; empty-cells: show; }
 

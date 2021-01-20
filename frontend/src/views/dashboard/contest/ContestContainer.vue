@@ -1,6 +1,5 @@
 <template>
   <v-container
-    id="contest"
     fluid
     tag="section"
     class="d-flex justify-center pa-1"

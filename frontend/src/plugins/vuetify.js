@@ -26,5 +26,6 @@ export default new Vuetify({
       dark: theme,
       light: theme,
     },
+    dark: true
   },
 })

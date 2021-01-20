@@ -95,16 +95,8 @@
     background: #E0E0E;
   }
 
-  .min-50 {
-    min-height: 50px;
-  }
-
-  .max-height-300 {
-    max-height: 300px;
-  }
-
-  .max-width-300 {
-    max-width: 300px;
+  .dialog-drag {
+    background-color: transparent;
   }
 
   .bg {
@@ -139,7 +131,7 @@
   }
 
   .dialog-drag .dialog-header {
-    background-color: #bbbbbb;
+    background-color: #969494;
   }
 
   .dialog-drag .dialog-body {

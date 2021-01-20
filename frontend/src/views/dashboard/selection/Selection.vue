@@ -1,14 +1,14 @@
 <template>
-  <div>
+  <div id="selection">
     <v-card
       :loading="loading"
-      class="grey lighten-4 ma-0 pa-0"
+      class="lighten-4 ma-0 pa-0"
     >
       <v-card-title 
         v-if="event" 
         class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
       >
-        <div>
+        <div style="width: 100%">
           <div class="grab">{{ this.event.name }}</div>
           <div class="grab subtitle-2">
             <span>{{ this.event.date | beautifyDate }}</span>
@@ -254,7 +254,13 @@
 </script>
 
 <style lang="scss">
-  #contest {
+  #selection {
+    backdrop-filter: blur(30px) contrast(.9);
+
+    * {
+      background-color: transparent;
+    }
+
     .v-btn-toggle {
       display: flex;
 
@@ -270,7 +276,7 @@
       background-color: #008000 !important;
     }
 
-    .theme--light.v-btn.v-btn--disabled {
+    .v-btn.v-btn--disabled {
       color: rgba(255, 255, 255, 0.26) !important;
     }
   }

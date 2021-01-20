@@ -1,11 +1,10 @@
 <template>
   <v-container
-    id="contest"
     fluid
     tag="section"
-    class="pa-1"
+    class="d-flex justify-center pa-1"
   >
-    <div class="w-100" v-if="$vuetify.breakpoint.mobile">
+    <div style="width: 100%" v-if="$vuetify.breakpoint.mobile">
       <selection />
     </div>
     <dialog-drag
