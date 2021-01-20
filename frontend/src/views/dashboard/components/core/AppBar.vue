@@ -68,7 +68,7 @@
         dense
         min-height="50"
         min-width="350"
-        light
+        dark
         style="max-height: 300px"
         class="overflow-y-auto"
       >
