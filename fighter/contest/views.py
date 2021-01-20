@@ -238,7 +238,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             score[username_id] = score.get(username_id, copy.deepcopy(default_score))
             score[username_id]['id'] = username_id
             score[username_id]['entry'] = username_id
-            score[username_id]['last_edited'] = selection.entry.last_edited
+            score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
 
             # Get winner and loser
             winner = {}
@@ -332,7 +332,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 score[username_id]['losses'] += losses
 
         entry_views = score.values()
-        entry_views = sorted(entry_views, reverse=True,  key=lambda x: (len(x['died'])*-1, x['survived'], x['wins'], x['last_edited'])) 
+        entry_views = sorted(entry_views, reverse=True,  key=lambda x: (len(x['died'])*-1, x['survived'], x['wins'], x['last_edited']*-1)) 
 
         for x, entry in enumerate(entry_views):
             entry['rank'] = x+1
