@@ -128,7 +128,6 @@ class LiveScoreConsumer(AsyncJsonWebsocketConsumer):
         )
 
     async def delete_message(self, data):
-        print(data)
         messages =  await self.action_delete_message(data)
         await self.channel_layer.group_send(
             self.room_group_name,

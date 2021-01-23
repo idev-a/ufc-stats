@@ -8,7 +8,7 @@
       :rooms="loadedRooms"
       :loading-rooms="false"
       :messages="messages"
-      :messages-loaded="true"
+      :messages-loaded="messagesLoaded"
       :rooms-loaded="true"
       :menu-actions="menuActions"
       text-formatting
@@ -75,11 +75,7 @@ export default {
       removeRoomId: null,
       removeUserId: '',
       removeUsers: [],
-      menuActions: [
-        { name: 'inviteUser', title: 'Invite User' },
-        { name: 'removeUser', title: 'Remove User' },
-        { name: 'deleteRoom', title: 'Delete Room' }
-      ],
+      menuActions: [],
       styles: { container: { borderRadius: '4px' } }
     }
   },
@@ -278,12 +274,13 @@ export default {
           seconds: this.$moment(timestamp).format('ss'),
           timestamp: parseTimestamp(timestamp, 'HH:mm'),
           date: parseTimestamp(timestamp, 'DD MMMM YYYY'),
-          username: senderUser ? senderUser.username : null,
+          username: senderUser ? senderUser.displayname : null,
           distributed: true
         }
       }
     },
     async fetchMessages({ room, options = {} }) {
+      console.log('------------------ ', this.startMessages)
       this._room = room
       if (options.reset) this.resetMessages()
       if (this.endMessages && !this.startMessages)
