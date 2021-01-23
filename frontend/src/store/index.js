@@ -1,22 +1,16 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 // import createPersistedState from 'vuex-persistedstate';
-import VuexPersistence from 'vuex-persist';
 import localForage from 'localforage';
 import moment from 'moment'
 
 Vue.use(Vuex)
 
-const vuexLocal = new VuexPersistence({
-  key: 'issuer-vuex',
-  storage: window.localStorage,
-  modules: ['auth', 'password', 'signup', 'snackbar'],
-})
-
 import auth from './auth'
 import password from './password';
 import signup from './signup';
 import snackbar from './snackbar';
+import chat from './chat';
 // import socket from './socket';
 
 const _lastLeft = () => {
@@ -36,7 +30,6 @@ export default new Vuex.Store({
     notifications: [],
     countdown: null
   },
-  // plugins: [vuexLocal.plugin],
   mutations: {
     SET_BAR_IMAGE (state, payload) {
       state.barImage = payload
@@ -63,27 +56,31 @@ export default new Vuex.Store({
     },
     // default handler called for all methods
     SOCKET_ONMESSAGE (state, message)  {
-      console.log('==========', message)
       state.socket.message = message
-      if (message.data) {
-        if (message.data.event) {
-          state.event = {
-            ...state.event,
-            ...message.data.event
+      if (message.type == 'chat_message') {
+        
+      } else {
+        if (message) {
+          if (message.event) {
+            state.event = {
+             ...state.event,
+             ...message.event
+            }
           }
-        }
-        if (message.data.refresh) {
-          snackbar.state.refresh = true
-        }
-        snackbar.state.snack = true
-        snackbar.state.status = 'red lighten-1'
-        snackbar.state.message = message.data.message
+          if (message.refresh) {
+            snackbar.state.refresh = true
+          }
+          snackbar.state.snack = true
+          snackbar.state.status = 'red lighten-1'
+          snackbar.state.message = message.message
 
-        state.notifications.push({
-          msg: message.data.message,
-          time: moment().format('mm:ss')
-        })
+          state.notifications.push({
+            msg: message.message,
+            time: moment().format('mm:ss')
+          })
+        }
       }
+
     },
     // mutations for reconnect methods
     SOCKET_RECONNECT(state, count) {
@@ -106,5 +103,6 @@ export default new Vuex.Store({
     password,
     signup,
     snackbar,
+    chat
   },
 })

@@ -103,9 +103,9 @@ let router = new Router({
           beforeEnter: requireAuthenticated
         },
         {
-          name: 'Score',
-          path: 'score',
-          component: () => import('@/views/dashboard/component/Score'),
+          name: 'Chat',
+          path: 'chat',
+          component: () => import('@/views/dashboard/chat/Chat'),
           beforeEnter: requireAuthenticated
         },
       ],

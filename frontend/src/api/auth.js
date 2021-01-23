@@ -37,4 +37,7 @@ export default {
   verifyAccountEmail(key) {
     return session.post('/registration/verify-email/', { key });
   },
+  fetchUsers(users) {
+    return session.post('/api/users/get_all/', users)
+  }
 };

@@ -16,7 +16,38 @@
 
     <div class="mx-3" />
 
-    <v-tooltip bottom>
+    <v-tooltip bottom z-index=100>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-on="on"
+          min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
+          text
+          to="/"
+        >
+          <v-icon color="white">mdi-view-dashboard</v-icon>
+        </v-btn>
+        </template>
+      <span>Selection</span>
+    </v-tooltip>
+
+    <v-tooltip bottom z-index=100>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-if="isAuthenticated"
+          v-on="on"
+          min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
+          text
+          to="/contest"
+        >
+          <v-icon color="white">mdi-lock-open-outline</v-icon>
+        </v-btn>
+      </template>
+      <span>Contest</span>
+    </v-tooltip>
+
+    <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
@@ -38,6 +69,7 @@
       offset-y
       origin="top right"
       transition="scale-transition"
+      z-index=100
     >
       <template v-slot:activator="{ attrs, on }">
         <v-btn
@@ -88,50 +120,19 @@
       </v-list>
     </v-menu>
 
-    <v-tooltip bottom>
+    <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
           min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
           text
-          to="/"
+          style="padding: 10px 10px !important; margin: 0 1px;"
+          @click.stop="showChat"
         >
-          <v-icon color="white">mdi-view-dashboard</v-icon>
+          <v-icon color="white">mdi-message-outline</v-icon>
         </v-btn>
         </template>
-      <span>Selection</span>
-    </v-tooltip>
-
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-if="isAuthenticated"
-          v-on="on"
-          min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
-          text
-          to="/contest"
-        >
-          <v-icon color="white">mdi-lock-open-outline</v-icon>
-        </v-btn>
-      </template>
-      <span>Contest</span>
-    </v-tooltip>
-    <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-if="isAuthenticated && false"
-          v-on="on"
-          min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
-          text
-          to="/score"
-        >
-          <v-icon color="white">mdi-application</v-icon>
-        </v-btn>
-      </template>
-      <span>Live Score By User</span>
+      <span>Chat</span>
     </v-tooltip>
 
     <v-menu
@@ -142,6 +143,7 @@
       origin="top right"
       open-on-hover
       transition="scale-transition"
+      z-index=100
     >
       <template v-slot:activator="{ attrs, on }">
         <v-btn
@@ -285,6 +287,10 @@
       },
       showInstruction () {
         this.instructionDlg = true
+      },
+      showChat () {
+        if (this.$route.name == 'Chat') return
+        this.$router.push({ name: 'Chat' })
       }
     },
   }

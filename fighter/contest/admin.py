@@ -1,5 +1,15 @@
 from django.contrib import admin
-from .models import Event, Fighter, Bout, Entry, Selection, CustomUser
+from .models import (
+	Event,
+	Fighter,
+	Bout,
+	Entry,
+	Selection,
+	CustomUser,
+	ChatRoom,
+	ChatFile,
+	ChatMessage
+)
 
 # Register your models here.
 @admin.register(CustomUser)
@@ -24,4 +34,18 @@ class EntryAdmin(admin.ModelAdmin):
 
 @admin.register(Selection)
 class SelectionAdmin(admin.ModelAdmin):
+    pass
+
+# Chat
+
+@admin.register(ChatRoom)
+class ChatRoomAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(ChatFile)
+class ChatFileAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(ChatMessage)
+class ChatMessgaeAdmin(admin.ModelAdmin):
     pass

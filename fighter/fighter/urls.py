@@ -31,10 +31,17 @@ event_router.register(
                 parents_query_lookups=['event']
             )
 
-router.register(r'fighters', views.FighterViewSet)
-router.register(r'entries', views.EntryViewSet)
-router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
+router.register(r'^fighters', views.FighterViewSet)
+router.register(r'^entries', views.EntryViewSet)
+router.register(r'^users', views.UserViewSet)
+router.register(r'^groups', views.GroupViewSet)
+
+# chat
+router.register(r'^chat/rooms', views.ChatRoomViewSet)
+router.register(r'^chat/rooms/(?P<id>\d+)$', views.ChatRoomViewSet)
+router.register(r'^chat/files', views.ChatFileViewSet)
+router.register(r'^chat/messages', views.ChatMessageViewSet)
+router.register(r'^chat/messages/(?P<id>\d+)$', views.ChatMessageViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -43,7 +50,7 @@ urlpatterns = [
     url(r'^auth/registration/', include('rest_auth.registration.urls')),
     # url(r'^auth/registration/', views.UserViewSet.as_view()),
     url(r'^auth/twitter/$', views.TwitterLogin.as_view(), name='twitter_login'),
-    url(r'^auth/twitter/request_token/', views.TwitterAuthRedirectEndpoint.as_view()),
+    url(r'^auth/twitter/request_token/$', views.TwitterAuthRedirectEndpoint.as_view()),
     url(r'^auth/twitter/callback/$', views.TwitterCallbackEndpoint.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

@@ -5,7 +5,10 @@ from contest.models import (
 	Fighter,
 	Selection,
 	Entry,
-	CustomUser
+	CustomUser,
+	ChatRoom,
+	ChatFile,
+	ChatMessage
 )
 from rest_framework import serializers
 
@@ -19,16 +22,21 @@ class CustomRegisterSerializer(RegisterSerializer):
 		required=False,
 		max_length=100,
 	)
+	avatar = serializers.CharField(
+		required=False,
+		max_length=500,
+	)
 
 	def get_cleaned_data(self):
 		data_dict = super().get_cleaned_data()
 		data_dict['displayname'] = self.validated_data.get('displayname', '')
+		data_dict['avatar'] = self.validated_data.get('avatar', '')
 		return data_dict
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'url', 'username', 'displayname', 'email']
+		fields = ['id', 'username', 'displayname', 'email', 'avatar']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
@@ -59,6 +67,23 @@ class SelectionSerializer(serializers.ModelSerializer):
 class EntrySerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Entry
+		fields = '__all__'
+
+# Chat
+
+class ChatRoomSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ChatRoom
+		fields = '__all__'
+
+class ChatFileSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ChatFile
+		fields = '__all__'
+
+class ChatMessageSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = ChatMessage
 		fields = '__all__'
 
 

@@ -9,53 +9,9 @@ import { companyId } from '@/api'
 //     }
 // });
 
-// mark colors based upon level
-
-export const levelColor = (level) => {
-  let color = 'green darken-1'
-  level = level ? level.toLowerCase() : 'low'
-  switch (level) {
-    case 'high':
-      color = 'red darken-4'
-      break
-    case 'medium':
-      color = 'red lighten-1'
-      break
-    case 'low':
-      color = 'green darken-1'
-      break
-  }
-  return color
-}
-
-export const getActiveData = (data) => {
-  return data.map(val => {
-    return [
-      val[0],
-      parseInt(val[1] - Math.random() * 3)
-    ]
-  })
-}
-
 export const validEmail = (email) => {
   const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   return pattern.test(email)
-}
-
-export const get_json = (val) => {
-  let res = {}
-  try {
-    res = JSON.parse(val.answer)
-  } catch(e) {}
-  return res
-}
-
-export const parse_array = (val) => {
-  let res = []
-  try {
-    res = JSON.parse(val.answer)
-  } catch(e) {}
-  return res
 }
 
 export const beautifyEmail = (email) => {
@@ -93,26 +49,8 @@ export const beautifyDateZ = (date) => {
   return moment(date, 'YYYYMMDDHHmmss').format('MMM DD YYYY HH:mm:ss')
 }
 
-export const removeQuotes = (val) => {
-  // return val.replace(/\"/g, "")
-  return val.substr(1, val.length-2)
-}
-
 export const readNewLine = (val) => {
   return val.replace(/\\n/g, '<br \\>')
-}
-
-export const getTableName = (val) => {
-  const _val = val.toLowerCase().replace(' ', '_');
-  var letters = /^[0-9a-zA-Z_]+$/;
-  let name = ''
-  for (var i = 0; i < _val.length; i++) {
-    if (_val.charAt(i).match(letters)) {
-      name += _val.charAt(i)
-    }
-  }
-
-  return name
 }
 
 export const hexEncode = (str) =>  {
@@ -140,4 +78,41 @@ export const downloadCSV = (jsonData, filename='filename.csv') => {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+}
+
+export const parseTimestamp = (timestamp, format = '') => {
+  if (!timestamp) return
+
+  const date = timestamp
+    ? new Date(timestamp)
+    : timestamp
+
+  if (format === 'HH:mm') {
+    return `${zeroPad(date.getHours(), 2)}:${zeroPad(date.getMinutes(), 2)}`
+  } else if (format === 'DD MMMM YYYY') {
+    const options = { month: 'long', year: 'numeric', day: 'numeric' }
+    return `${new Intl.DateTimeFormat('en-GB', options).format(date)}`
+  } else if (format === 'DD/MM/YY') {
+    const options = { month: 'numeric', year: 'numeric', day: 'numeric' }
+    return `${new Intl.DateTimeFormat('en-GB', options).format(date)}`
+  } else if (format === 'DD MMMM, HH:mm') {
+    const options = { month: 'long', day: 'numeric' }
+    return `${new Intl.DateTimeFormat('en-GB', options).format(
+      date
+    )}, ${zeroPad(date.getHours(), 2)}:${zeroPad(date.getMinutes(), 2)}`
+  }
+
+  return date
+}
+
+const zeroPad = (num, pad) => {
+  return String(num).padStart(pad, '0')
+}
+
+export const isSameDay = (d1, d2) => {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  )
 }

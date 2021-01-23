@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework import permissions
+from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
+from rest_framework.views import APIView
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -11,7 +11,6 @@ from asgiref.sync import async_to_sync
 import copy
 from requests_oauthlib import OAuth1
 from urllib.parse import urlencode
-from rest_framework.views import APIView
 from django.conf import settings
 import requests
 from datetime import datetime
@@ -23,7 +22,10 @@ from contest.models import (
     Fighter,
     Selection,
     Entry,
-    CustomUser
+    CustomUser,
+    ChatRoom,
+    ChatFile, 
+    ChatMessage
 )
 from contest.serializers import (
 	UserSerializer,
@@ -32,7 +34,10 @@ from contest.serializers import (
 	BoutSerializer,
 	FighterSerializer,
     SelectionSerializer,
-    EntrySerializer
+    EntrySerializer,
+    ChatRoomSerializer,
+    ChatFileSerializer,
+    ChatMessageSerializer
 )
 
 from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
@@ -49,6 +54,22 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    @action(methods=['post'], detail=False)
+    def get_all(self, request, **kwarg):
+        users = []
+        status = 200
+        try:
+            res = CustomUser.objects.all().filter(pk__in=request.data)
+            serializer_context = {
+                'request': request._request,
+            }
+            users = UserSerializer(res, many=True, context=serializer_context).data
+            for _ in users:
+                _['_id'] = _['id']
+        except Exception as err:
+            status = 500
+
+        return Response(dict(users=users), status)
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
@@ -268,20 +289,6 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     'lose': _s2.id == loser.get('id'),
                     'entry_cnt': len(self._count_entries(_s2 and _s2.id, selections))  
                 }
-            # fighter1 = { 
-            #     'id': bout.fighter1.id,
-            #     'name': bout.fighter1.name,
-            #     'win': bout.fighter1.id == winner.get('id'),
-            #     'lose': bout.fighter1.id == loser.get('id'),
-            #     'entry_cnt': len(self._count_entries(selection.survivor1 and selection.survivor1_id, selections))
-            # }
-            # fighter2 = { 
-            #     'id': bout.fighter2.id,
-            #     'name': bout.fighter2.name,
-            #     'win': bout.fighter2.id == winner.get('id'),
-            #     'lose': bout.fighter2.id == loser.get('id'),
-            #     'entry_cnt': len(self._count_entries(selection.survivor2 and selection.survivor2_id, selections))
-            # }
 
             if 'DEC' not in bout.method:
                 if survivor1 and survivor1.get('id') == loser.get('id'):
@@ -297,11 +304,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 score[username_id]['fighters'].append(survivor1)
             if survivor2:
                 score[username_id]['fighters'].append(survivor2)
-            # score[username_id]['fighters'].append(fighter1)
-            # score[username_id]['fighters'].append(fighter2)
             score[username_id]['winners'].append(winner)
             score[username_id]['losers'].append(loser)
-
             
             # remainings
             if bout.status != 'completed':
@@ -462,3 +466,70 @@ class TwitterCallbackEndpoint(APIView):
         except Exception as err:
             print(err)
             return Response(dict(message=["Something went wrong.Try again."]), status=403)
+
+# Chat
+
+class ChatRoomViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    """
+    API endpoint that allows chat rooms to be viewed or edited.
+    """
+    queryset = ChatRoom.objects.all()
+    serializer_class = ChatRoomSerializer
+    permission_classes = [permissions.AllowAny]
+    # permission_classes = [permissions.IsAuthenticated]
+
+    @action(methods=['get'], detail=False)
+    def get_all(self, request, **kwarg):
+        # limit by roomPerPage
+        idx = request.query_params.get('idx', 0)
+        res = ChatRoom.objects.all().order_by('-last_updated').filter(id__gt=idx)
+        rooms = ChatRoomSerializer(res, many=True).data
+        users = CustomUser.objects.all()
+        for _ in rooms:
+            _['_id'] = _['id']
+            for user in users:
+                if user.id not in _['users']:
+                    _['users'].append(user.id)
+
+        return Response(dict(rooms=rooms))
+
+class ChatFileViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    """
+    API endpoint that allows chat file to be viewed or edited.
+    """
+    queryset = ChatFile.objects.all()
+    serializer_class = ChatFileSerializer
+    permission_classes = [permissions.AllowAny]
+    # permission_classes = [permissions.IsAuthenticated]
+
+class ChatMessageViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    """
+    API endpoint that allows entries to be viewed or edited.
+    """
+    queryset = ChatMessage.objects.all()
+    serializer_class = ChatMessageSerializer
+    permission_classes = [permissions.AllowAny]
+    # permission_classes = [permissions.IsAuthenticated]
+
+    @action(methods=['get'], detail=False)
+    def get_by_room(self, request, **kwarg):
+        pdb.set_trace()
+        messages = []
+        return Response(dict(messages=messages))
+
+    @action(methods=['get'], detail=False)
+    def get_all(self, request, **kwarg):
+        # limit by messagePerPage
+        room_id = request.query_params.get('room_id')
+        idx = request.query_params.get('idx', 0)
+        messages = []
+        if idx == -1:
+            messages.append(ChatMessage.objects.all().order_by('-timestamp').latest())
+        else:
+            res = ChatMessage.objects.all().order_by('-timestamp').filter(room_id=room_id).filter(pk__gt=idx)
+            messages = ChatMessageSerializer(res, many=True).data
+        for _ in messages:
+            _['_id'] = _['id']
+            _['sender_id'] = _['sender']
+
+        return Response(dict(messages=messages))
