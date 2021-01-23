@@ -12,7 +12,7 @@
           <div class="grab">{{ this.event.name }}</div>
           <div class="grab subtitle-2">
             <span>{{ this.event.date | beautifyDate }}</span>
-            <span v-if="eventStarted" class="red--text lighten-1 h6">(Started)</span>
+            <span v-if="eventStarted" class="red--text lighten-1 h6">({{event.action.toUpperCase()}})</span>
             <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
           <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>

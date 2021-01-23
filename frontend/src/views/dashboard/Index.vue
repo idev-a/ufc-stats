@@ -117,7 +117,7 @@
   }
 
   .contest-over-bg {
-    background-image: url( '../../assets/contest_over.jpeg');
+    background-image: url( '../../assets/contest-over.jpeg');
   }
 
   .fixed-card {
