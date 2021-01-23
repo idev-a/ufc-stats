@@ -1,5 +1,4 @@
 import logging
-# import logging as logger
 import sys
 
 log_level = logging.DEBUG
@@ -9,10 +8,10 @@ logger = logging.getLogger('contest.log')
 logger.setLevel(log_level)     
 
 #writing to stdout                                                     
-# handler = logging.StreamHandler(sys.stdout)                             
-# handler.setLevel(log_level)                                        
-# handler.setFormatter(log_format)                                        
-# logger.addHandler(handler)           
+handler = logging.StreamHandler(sys.stdout)                             
+handler.setLevel(log_level)                                        
+handler.setFormatter(log_format)                                        
+logger.addHandler(handler)           
 
 # logger.basicConfig(
 # 	filename='mas.log',

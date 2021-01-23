@@ -10,10 +10,10 @@
           class="justify-center font-weight-medium mb-md-3"
         >
           <div class="text-center">
-            <div>{{ this.event.name }}</div>
+            <div>{{ event.name }}</div>
             <div class="subtitle-1">
-              {{ this.event.date | beautifyDate }}
-              <span v-if="eventStarted" class="red--text h6">(Started)</span>
+              {{ event.date | beautifyDate }}
+              <span v-if="eventStarted" class="red--text h6">({{event.action.toUpperCase()}})</span>
             </div>
           </div>
         </v-card-title>
@@ -51,7 +51,7 @@
                   height="100px"
                   src="https://cdn.vuetifyjs.com/images/cards/docks.jpg"
                 > -->
-                <div class="mb-2">
+                <v-card-title class="mb-2">
                   <v-text-field
                     v-model="boutSearch"
                     append-icon="mdi-magnify"
@@ -62,7 +62,7 @@
                     hide-details
                   ></v-text-field>
                   <v-spacer />
-                </div>
+                </v-card-title>
                 <!-- </v-img> -->
                 <v-data-table
                   :items="boutViews"
@@ -329,7 +329,6 @@
       return {
         loading: false,
         contests: [],
-        event: '',
         boutSearch: '',
         entrySearch: '',
         tab: null,
@@ -409,11 +408,6 @@
             value: 'wins',
             align: 'center'
           },
-          // {
-          //   text: 'Losses',
-          //   value: 'losses',
-          //   align: 'center'
-          // },
           {
             text: 'Quaked',
             value: 'died',
@@ -424,11 +418,6 @@
             value: 'remainings',
             align: 'center'
           },
-          // {
-          //   text: 'Fighters',
-          //   value: 'fighters',
-          //   align: 'center',
-          // },
         ]
       }
     },
@@ -438,10 +427,11 @@
     },
 
     computed: {
+      ...mapState(['event']),
       ...mapState('auth', ['authUser']),
 
       eventStarted () {
-        return this.event && this.event.action == 'started'
+        return this.event && this.event.action
       },
       fighterIcon () {
         return this.expanded.length == 0 ? 'mdi-account-multiple-plus' : 'mdi-account-multiple-minus'
@@ -464,7 +454,7 @@
         const { data } = await main.getLatestContest()
         this.boutViews = data.bout_views
         this.entryViews = data.entry_views
-        this.event = data.event
+        this.$store.commit('SET_EVENT', data.event)
         this.loading = false
       },
       async gotoEntry (item, entries, fighter) {

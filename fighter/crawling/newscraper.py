@@ -15,7 +15,6 @@ import requests
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import time
-import logging as logger
 
 from contest.models import (
 	Event,
@@ -31,12 +30,13 @@ from contest.serializers import (
 from contest.util import _valid, convert_date, strip_list1
 
 import pdb
-
-logger.basicConfig(
-	filename='contest.log',
-	level=logger.INFO,
-	format="%(asctime)s:%(levelname)s:%(message)s [in %(pathname)s:%(lineno)d]"
-)  
+from contest.logger import logger
+# import logging as logger
+# logger.basicConfig(
+# 	filename='contest.log',
+# 	level=logger.INFO,
+# 	format="%(asctime)s:%(levelname)s:%(message)s [in %(pathname)s:%(lineno)d]"
+# )  
 
 class Scraper:
 	upcoming_url = 'http://ufcstats.com/statistics/events/upcoming'
@@ -57,7 +57,7 @@ class Scraper:
 		'''
 		channel_layer = get_channel_layer()
 		async_to_sync(channel_layer.group_send)(
-			'UFC',
+			'UFC_chat',
 			{
 				'type': 'live_score',
 				'data': data
@@ -66,21 +66,21 @@ class Scraper:
 
 	def start_requests(self):
 		# upcoming events
-		res = self.session.get(self.upcoming_url)
-		self.parse_event(Selector(text=res.content))
-		# while True:
-		# 	logger.info('[scraper] started')
+		# res = self.session.get(self.upcoming_url)
+		# self.parse_event(Selector(text=res.content))
+		while True:
+			logger.info('[scraper] started')
 
-		# 	# scan db to get the scraped events to get the stats
-		# 	events = Event.objects.all().filter(status='upcoming')
-		# 	if events:
-		# 		event = events.latest('-date')
-		# 		res = self.session.get(event.detail_link)
-		# 		meta = {'event_id': event.id}
+			# scan db to get the scraped events to get the stats
+			events = Event.objects.all().filter(status='upcoming')
+			if events:
+				event = events.latest('-date')
+				res = self.session.get(event.detail_link)
+				meta = {'event_id': event.id}
 
-		# 		self.parse_bout_list(Selector(text=res.content), meta)
+				self.parse_bout_list(Selector(text=res.content), meta)
 
-		# 	time.sleep(2)
+			time.sleep(10)
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
@@ -133,10 +133,12 @@ class Scraper:
 					go_the_distance=go_the_distance,
 					detail_link=detail_link,
 					status='pending',
-					event=event.id
+					event=event_id
 				)
 				bout, is_notified = self.save_bout(item)
 				new_bouts.append(bout.id)
+
+				print('========================= action', event.action)
 
 				if fight_detail:
 					bout.status = 'completed'
@@ -144,13 +146,13 @@ class Scraper:
 
 					notify_data = None
 					cnt_completed += 1
-					if cnt_completed != len(trs[1:]) and event.action != 'started':
+					if cnt_completed != len(trs[1:]) and not event.action:
 						notify_data = {
 							'type': 'live_score',
 							'event': {
 								'action': 'started',
 							},
-							'message': 'Event already started.'
+							'message': 'Event just started.'
 						}
 						event.action = 'started'
 					elif cnt_completed == len(trs[1:]) and event.action != 'completed':
@@ -172,7 +174,6 @@ class Scraper:
 					event.save()
 					if notify_data:
 						self.notify_user(notify_data)
-						time.sleep(3)
 				try:
 					res = self.session.get(detail_link)
 					meta = {'bout_id': bout.id}

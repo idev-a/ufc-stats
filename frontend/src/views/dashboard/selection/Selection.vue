@@ -116,7 +116,7 @@
     },
 
     computed: {
-      ...mapState(['socket', 'event']),
+      ...mapState(['event']),
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
@@ -126,7 +126,7 @@
         return this.$vuetify.breakpoint.mobile ? 5 : 50
       },
       eventStarted () {
-        return this.event && this.event.action == 'started' || this.countdownEnd
+        return this.event && this.event.action || this.countdownEnd
       },
       countable () {
         return this.deadline2 && !this.eventStarted

@@ -74,11 +74,10 @@ class LiveScoreConsumer(AsyncJsonWebsocketConsumer):
             await self.commands[data['commands']](self, data['data'])
        
     async def live_score(self, event):
+        print(event)
         try:
             # Here helper function fetches live score from DB.
-            await self.send_json ({
-                event['data'] 
-            })
+            await self.send_json (event['data'])
         except Exception as err:
             print('live_score', err)
 
