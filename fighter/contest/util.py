@@ -17,4 +17,4 @@ def strip_list1(arr):
 	return new_list
 
 def convert_date(date):
-	return datetime.strptime(date, '%B %d, %Y').strftime('%Y-%m-%d')
+	return datetime.strptime(date, '%B %d, %Y %H:%M:%S').strftime('%Y-%m-%d %H%M:%S')
