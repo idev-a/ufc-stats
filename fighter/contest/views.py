@@ -4,6 +4,7 @@ from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -16,6 +17,7 @@ import requests
 from datetime import datetime
 
 from django.contrib.auth.models import Group
+from contest.decorators import paginate
 from contest.models import (
     Event,
     Bout,
@@ -45,6 +47,20 @@ from rest_auth.registration.views import SocialLoginView
 from rest_auth.social_serializers import TwitterLoginSerializer
 
 import pdb
+
+class LargeResultsSetPagination(PageNumberPagination):
+    page_size = 1000
+    page_size_query_param = 'page_size'
+    max_page_size = 10000
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 50
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+    ordering = 'timestamp'
+
+    # def get_paginated_response(self, data):
+    #     return Response(data)
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -148,6 +164,7 @@ class FighterViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Fighter.objects.all()
     serializer_class = FighterSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = LargeResultsSetPagination
     # permission_classes = [permissions.IsAuthenticated]
 
 class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
@@ -509,7 +526,16 @@ class ChatMessageViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = ChatMessage.objects.all()
     serializer_class = ChatMessageSerializer
     permission_classes = [permissions.AllowAny]
+    pagination_class = StandardResultsSetPagination
     # permission_classes = [permissions.IsAuthenticated]
+
+    def format_message(self, data):
+        messages = []
+        for _ in data:
+            _['_id'] = _['id']
+            _['sender_id'] = _['sender']
+            messages.append(_)
+        return messages
 
     @action(methods=['get'], detail=False)
     def get_by_room(self, request, **kwarg):
@@ -518,18 +544,29 @@ class ChatMessageViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         return Response(dict(messages=messages))
 
     @action(methods=['get'], detail=False)
+    def get_latest(self, request, **kwarg):
+        room_id = request.query_params.get('room_id')
+        message = ChatMessage.objects.all().filter(room_id=room_id)
+        messages = []
+        if message:
+            messages = [self.get_serializer(message.latest('timestamp')).data]
+        messages = self.format_message(messages)
+
+        return Response(dict(messages=messages))
+
+
+    @action(methods=['get'], detail=False)
     def get_all(self, request, **kwarg):
         # limit by messagePerPage
         room_id = request.query_params.get('room_id')
-        idx = request.query_params.get('idx', 0)
-        messages = []
-        if idx == -1:
-            messages.append(ChatMessage.objects.all().order_by('-timestamp').latest())
-        else:
-            res = ChatMessage.objects.all().order_by('-timestamp').filter(room_id=room_id).filter(pk__gt=idx)
-            messages = ChatMessageSerializer(res, many=True).data
-        for _ in messages:
-            _['_id'] = _['id']
-            _['sender_id'] = _['sender']
-
-        return Response(dict(messages=messages))
+        idx = int(request.query_params.get('idx', '0'))
+        message = ChatMessage.objects.all().filter(room_id=room_id).order_by('-timestamp', 'id')
+        page = self.paginate_queryset(message)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            messages = self.format_message(serializer.data)
+            return self.get_paginated_response(messages)
+        
+        serializer = self.get_serializer(message, many=True)
+        messages = self.format_message(serializer.data)
+        return Response(dict(results=messages))

@@ -14,38 +14,38 @@ from .models import (
 # Register your models here.
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(Fighter)
 class FighterAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(Bout)
 class BoutAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(Selection)
 class SelectionAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 # Chat
 
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(ChatFile)
 class ChatFileAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20
 
 @admin.register(ChatMessage)
 class ChatMessgaeAdmin(admin.ModelAdmin):
-    pass
+	list_per_page = 20

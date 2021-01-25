@@ -12,9 +12,10 @@
           <div class="grab">{{ this.event.name }}</div>
           <div class="grab subtitle-2">
             <span>{{ this.event.date | beautifyDate }}</span>
-            <span v-if="eventStarted" class="red--text lighten-1 h6">({{event.action.toUpperCase()}})</span>
+            <span v-if="eventStarted" class="red--text lighten-1 h6">({{(event.action || 'started').toUpperCase()}})</span>
             <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
+          <div class="grab overline">{{totalFighters}} FIGHTERS</div>
           <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
         </div>
       </v-card-title>
@@ -126,10 +127,13 @@
         return this.$vuetify.breakpoint.mobile ? 5 : 50
       },
       eventStarted () {
-        return this.event && this.event.action || this.countdownEnd
+        return this.event && this.event.action != '' || this.countdownEnd
       },
       countable () {
         return this.deadline2 && !this.eventStarted
+      },
+      totalFighters () {
+        return this.bouts && this.bouts.length * 2 || 0
       }
     },
 

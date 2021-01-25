@@ -84,7 +84,7 @@ export default new Vuex.Store({
     },
     // mutations for reconnect methods
     SOCKET_RECONNECT(state, count) {
-      console.info(state, count)
+      console.info('--- reconnect')
     },
     SOCKET_RECONNECT_ERROR(state) {
       state.socket.reconnectError = true;

@@ -87,13 +87,8 @@ let router = new Router({
       component: () => import('@/views/dashboard/Index'),
       children: [
         {
-          name: 'Dashboard',
-          path: '',
-          component: () => import('@/views/dashboard/selection/SelectionContainer'),
-        },
-        {
           name: 'Selection',
-          path: 'selection',
+          path: '',
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
@@ -105,7 +100,7 @@ let router = new Router({
         {
           name: 'Chat',
           path: 'chat',
-          component: () => import('@/views/dashboard/chat/Chat'),
+          component: () => import('@/views/dashboard/contest/Chat'),
           beforeEnter: requireAuthenticated
         },
       ],

@@ -17,9 +17,12 @@ export default {
     return session.patch(`/api/chat/messages/${data.id}/`, data);
   },
   fetchMessages(roomId, startIdx=0) {
-    return session.get(`/api/chat/messages/get_all?room_id=${roomId}&idx=${startIdx}`)
+    return session.get(`/api/chat/messages/get_all?room_id=${roomId}&page=${startIdx}`)
   },
   fetchMessage(roomId) {
     return session.get(`/api/chat/messages/get_by_room?room_id=${roomId}`)
   },
+  fetchLastMessages(roomId) {
+    return session.get(`/api/chat/messages/get_latest?room_id=${roomId}`)
+  }
 }

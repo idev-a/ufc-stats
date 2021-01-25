@@ -86,7 +86,7 @@
         if (this.$router.history && this.$router.history.current && this.$router.history.current.name == name) {
           return;
         }
-        if (name === 'Dashboard') {
+        if (name === 'Selection') {
           if (token === 'success') {
             this.$router.push({ name });
           }

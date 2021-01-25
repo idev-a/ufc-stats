@@ -151,8 +151,8 @@
 
     watch: {
       authenticating (val) {
-        if (!val && !this.error && this.$route.name != 'Dashboard') {
-          this.$router.push({name: 'Dashboard'})
+        if (!val && !this.error && this.$route.name != 'Selection') {
+          this.$router.push({name: 'Selection'})
         }
       },
       error (val) {
@@ -175,7 +175,6 @@
       gotoDashboard (user) {
         localStorage.setItem('jwt', 'success')
         localStorage.setItem('user', JSON.stringify(user))
-        // this.$router.push({ name: "Dashboard" });
         this.$store.commit('signup/showRegisterDlg', false)
       },
       submit () {

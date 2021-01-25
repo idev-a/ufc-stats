@@ -187,14 +187,16 @@
             this.snackbar.status = 'success'
           }
           this.snackbar.snack = true
-
+          
           this.$store.dispatch('snackbar/setSnack', this.snackbar)
 
-          const data = {
-            username: this.form.username,
-            password: this.form.password1
+          if (!this.registrationError) {
+            const data = {
+              username: this.form.username,
+              password: this.form.password1
+            }
+            this.$store.dispatch('auth/login', data)
           }
-          this.$store.dispatch('auth/login', data)
         }
       },
       authenticating (val) {

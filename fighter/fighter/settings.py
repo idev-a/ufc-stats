@@ -54,7 +54,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication'
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10000,
+    'PAGE_SIZE': 100,
     'EXCEPTION_HANDLER': 'contest.utils.custom_exception_handler'
 }
 

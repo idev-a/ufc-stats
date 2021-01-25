@@ -45,7 +45,7 @@
         return this.$route.name == 'Contest' && this.event.action == 'completed'
       },
       selectionPage () {
-        return this.$route.name == 'Dashboard'
+        return this.$route.name == 'Selection'
       }
     },
 
@@ -89,6 +89,14 @@
     .v-data-table > .v-data-table__wrapper > table > tbody > tr > td, .v-data-table > .v-data-table__wrapper > table > tbody > tr > th, .v-data-table > .v-data-table__wrapper > table > thead > tr > td, .v-data-table > .v-data-table__wrapper > table > thead > tr > th, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > td, .v-data-table > .v-data-table__wrapper > table > tfoot > tr > th {
       padding: 0 2px !important;
     }
+  }
+
+  .w-100 {
+    width: 100vw;
+  }
+
+  .w-50 {
+    width: 50vw;
   }
 
   .bg-dead {

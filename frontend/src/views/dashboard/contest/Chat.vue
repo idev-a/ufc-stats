@@ -2,7 +2,7 @@
   <div>
     <chat-window
       theme="dark"
-      height="calc(100vh - 80px)"
+      height="calc(100vh - 250px)"
       :styles="styles"
       :current-user-id="currentUserId"
       :rooms="loadedRooms"
@@ -27,6 +27,7 @@
       :show-files="false"
       :show-audio="false"
       :show-add-room="false"
+      :responsive-breakpoint="1400"
     >
     </chat-window>
   </div>
@@ -62,7 +63,7 @@ export default {
       rooms: [],
       messagesLoaded: false,
       roomMessage: '',
-      startMessages: 0,
+      startMessages: 1,
       endMessages: null,
       roomsListeners: [],
       listeners: [],
@@ -76,7 +77,6 @@ export default {
       removeUserId: '',
       removeUsers: [],
       menuActions: [],
-      styles: { container: { borderRadius: '4px' } }
     }
   },
 
@@ -99,6 +99,27 @@ export default {
     },
     loadedRooms() {
       return this.rooms.slice(0, this.roomsLoadedCount)
+    },
+    styles() {
+      return {
+        general: {
+          color: '#fff',
+          backgroundInput: '#a09c9c',
+        },
+        container: { borderRadius: '4px' },
+        room: {
+          colorMessage: '#eee',
+          colorTimestamp: '#eee',
+          colorStateOnline: '#4caf50',
+          colorStateOffline: '#596269',
+          backgroundCounterBadge: '#1976d2',
+          colorCounterBadge: '#fff'
+        },
+        message: {
+          background: '#a09c9c',
+          color: '#fff'
+        },
+      }
     }
   },
 
@@ -118,7 +139,7 @@ export default {
     resetMessages() {
       this.messages = []
       this.messagesLoaded = false
-      this.startMessages = 0
+      this.startMessages = 1
       this.endMessages = 0
       this.listeners.forEach(listener => listener())
       this.listeners = []
@@ -198,9 +219,8 @@ export default {
       window.open(message.file.url, '_blank')
     },
     async listenLastMessage(room) {
-      const { data: {messages} } = await chatAPI.fetchMessages(room.roomId, -1)
-      let _messages = messages.reverse()
-      _messages.forEach(message => {
+      const { data: {messages} } = await chatAPI.fetchLastMessages(room.roomId, -1)
+      messages.forEach(message => {
         const lastMessage = this.formatLastMessage(message)
         const roomIndex = this.rooms.findIndex(
           r => room.roomId === r.roomId
@@ -280,7 +300,6 @@ export default {
       }
     },
     async fetchMessages({ room, options = {} }) {
-      console.log('------------------ ', this.startMessages)
       this._room = room
       if (options.reset) this.resetMessages()
       if (this.endMessages && !this.startMessages)
@@ -288,23 +307,28 @@ export default {
 
       this.selectedRoom = room.roomId
 
-      const { data: { messages } } = await chatAPI.fetchMessages(room.roomId, this.startMessages)
-      if (this.selectedRoom !== room.roomId) return
-      if (messages.empty) this.messagesLoaded = true
-      if (this.startMessages) this.endMessages = this.startMessages
-      this.startMessages = messages[messages.length - 1]?.id || 0
+      let results = []
+      try {
+        const { data } = await chatAPI.fetchMessages(room.roomId, this.startMessages)
+        results = data.results
+      } catch (e) {}
 
+      if (this.selectedRoom !== room.roomId) return
+      if ( results.length == 0)this.messagesLoaded = true
+      if (this.startMessages) this.endMessages = this.startMessages
+      this.startMessages++
+      if (options.reset) this.results = []
+      results.forEach(message => {
+        const formattedMessage = this.formatMessage(room, message)
+        this.messages.unshift(formattedMessage)
+      })
       // let listenerQuery = ref.orderBy('timestamp')
       // if (this.startMessages)
       //   listenerQuery = listenerQuery.startAfter(this.startMessages)
       // if (this.endMessages)
       //   listenerQuery = listenerQuery.endAt(this.endMessages)
 
-      if (options.reset) this.messages = []
-      messages.forEach(message => {
-        const formattedMessage = this.formatMessage(room, message)
-        this.messages.unshift(formattedMessage)
-      })
+ 
 
       // subs
     },
@@ -555,10 +579,33 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss">
   .ellipsis {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .vac-room-list {
+    div.vac-room-item {
+      border-radius: 16px;
+      //border: solid 1px #a59a9a;
+    }
+  }
+
+  .vac-room-avatar {
+    background-color: #ddd !important;
+  }
+  
+  .vac-textarea {
+    border: solid 1px #fff2 !important;
+
+    &::placeholder {
+      color: #fff8 !important;  
+    }
+
+    &::-webkit-input-placeholder {
+      color: #fff8 !important;
+    }
   }
 </style>
