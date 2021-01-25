@@ -120,7 +120,7 @@
       </v-list>
     </v-menu>
 
-    <v-tooltip bottom z-index=100>
+<!--     <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
@@ -133,7 +133,7 @@
         </v-btn>
         </template>
       <span>Chat</span>
-    </v-tooltip>
+    </v-tooltip> -->
 
     <v-menu
       bottom

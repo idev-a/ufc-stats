@@ -97,12 +97,6 @@ let router = new Router({
           component: () => import('@/views/dashboard/contest/ContestContainer'),
           beforeEnter: requireAuthenticated
         },
-        {
-          name: 'Chat',
-          path: 'chat',
-          component: () => import('@/views/dashboard/contest/Chat'),
-          beforeEnter: requireAuthenticated
-        },
       ],
     },
     {
