@@ -476,7 +476,6 @@ class TwitterCallbackEndpoint(APIView):
                 'token_secret': oauth_secret
             }
             url = f"{request.scheme}://{request.get_host()}/auth/twitter/"
-            pdb.set_trace()
             res = requests.post(url, data=formdata).json()
             return Response(dict(key=res['key']))
         except ConnectionError:
