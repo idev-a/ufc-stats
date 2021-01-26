@@ -59,7 +59,7 @@
             </v-btn-toggle>
           </template>
         </v-virtual-scroll>
-        <div class="d-flex justify-center w-100">
+        <div class="d-flex justify-center">
           <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
           <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || event.started" small @click="clearSelection">Clear</v-btn>
         </div>
