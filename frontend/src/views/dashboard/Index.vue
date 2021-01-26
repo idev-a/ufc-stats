@@ -92,11 +92,11 @@
   }
 
   .w-100 {
-    width: 100vw;
+    width: 100%;
   }
 
   .w-50 {
-    width: 50vw;
+    width: 50%;
   }
 
   .bg-dead {

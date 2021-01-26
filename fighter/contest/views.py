@@ -430,7 +430,7 @@ class TwitterAuthRedirectEndpoint(APIView):
                 settings.TWITTER_API_KEY, 
                 client_secret=settings.TWITTER_API_SECRET_KEY
             )
-             #Step one: obtaining request token
+            #Step one: obtaining request token
             request_token_url = "https://api.twitter.com/oauth/request_token"
             data = urlencode({
                 "oauth_callback": settings.TWITTER_AUTH_CALLBACK_URL

@@ -18,7 +18,7 @@
           </div>
         </v-card-title>
         <v-card-text
-          class="w-50"
+          class="w-100"
         >
           <v-tabs
             align-with-title
