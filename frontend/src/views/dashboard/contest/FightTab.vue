@@ -30,6 +30,7 @@
         hide-default-footer
         :search="boutSearch"
         mobile-breakpoint="0"
+        :custom-sort="customSort"
       > 
         <template #item.fighter1="{item}">
           <v-tooltip bottom>
@@ -218,6 +219,24 @@
         }
         return text
       },
+      customSort(items, index, isDesc) {
+        items.sort((a, b) => {
+          if (isDesc != "false") {
+            if (index == "entries_1" || index == "entries_2") {
+              return a[index].length < b[index].length ? -1 : 1
+            } else {
+              return a[index] < b[index] ? -1 : 1
+            }
+          } else {
+            if (index == "entries_1" || index == "entries_2") {
+              return b[index].length < a[index].length ? -1 : 1
+            } else {
+              return b[index] < a[index] ? -1 : 1
+            }
+          }
+        })
+        return items
+      }
     }
   }
 </script>
