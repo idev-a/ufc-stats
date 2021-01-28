@@ -34,6 +34,7 @@ const initialState = {
 const getters = {
   launchLogin: state => state.launchLogin,
   isAuthenticated: state => !!state.token && state.token != 'null',
+  authUser: state => state.authUser
 };
 
 const actions = {
@@ -52,12 +53,6 @@ const actions = {
         commit(LOGIN_SUCCESS)
         window.location.href = data.twitter_redirect_url
         localStorage.setItem('return_url', window.location.href)
-        // window.open(data.twitter_redirect_url, '_blank');
-        // window.open(
-        //   data.twitter_redirect_url,
-        //   'popUpWindow',
-        //   'height=300,width=400,left=10,top=10,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no,status=yes'
-        // )
       })
       .catch((err) => commit(LOGIN_FAILURE, err))
   },

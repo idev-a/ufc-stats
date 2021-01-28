@@ -114,6 +114,7 @@
     top: 0;
     left: 0;
     background-size: cover;
+    background-image: url( '../../assets/selection.jpeg');
   }
 
   .contest-bg {

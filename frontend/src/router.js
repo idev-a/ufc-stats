@@ -97,6 +97,11 @@ let router = new Router({
           component: () => import('@/views/dashboard/contest/ContestContainer'),
           beforeEnter: requireAuthenticated
         },
+        {
+          name: 'Referral',
+          path: 'rf/:id',
+          component: () => import('@/views/dashboard/referral/ReferralCallback'),
+        }
       ],
     },
     {

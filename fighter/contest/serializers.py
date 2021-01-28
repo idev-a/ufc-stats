@@ -17,6 +17,12 @@ from allauth.account.utils import setup_user_email
 
 from rest_auth.registration.serializers import RegisterSerializer
 
+class UserSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = CustomUser
+		fields = ['id', 'username', 'displayname', 'email', 'avatar', 'referred_by']
+
+
 class CustomRegisterSerializer(RegisterSerializer):
 	displayname = serializers.CharField(
 		required=False,
@@ -27,16 +33,16 @@ class CustomRegisterSerializer(RegisterSerializer):
 		max_length=500,
 	)
 
+	referred_by = serializers.IntegerField(
+		required=False,
+	)
+
 	def get_cleaned_data(self):
 		data_dict = super().get_cleaned_data()
 		data_dict['displayname'] = self.validated_data.get('displayname', '')
 		data_dict['avatar'] = self.validated_data.get('avatar', '')
+		data_dict['referred_by'] = self.validated_data.get('referred_by', '')
 		return data_dict
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = CustomUser
-		fields = ['id', 'username', 'displayname', 'email', 'avatar']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):

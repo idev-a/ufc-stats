@@ -19,6 +19,14 @@ class CustomUser(AbstractUser):
     avatar = models.CharField(blank=True, null=True, max_length=500)
     first_name = models.CharField(blank=True, null=True, max_length=100)
     last_name = models.CharField(blank=True, null=True, max_length=100)
+    referred_by = models.ForeignKey(
+		'self',
+		on_delete=models.CASCADE,
+		related_name='referrals',
+		default=None,
+		blank=True,
+		null=True
+	) 
 
     def __str__(self):
         return self.email or self.username

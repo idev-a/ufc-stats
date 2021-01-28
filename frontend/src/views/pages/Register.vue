@@ -11,7 +11,7 @@
           width="400"
           class="px-5 py-3"
         >
-           <v-app-bar
+          <v-app-bar
             flat
             color="rgba(0, 0, 0, 0)"
           >
@@ -221,7 +221,9 @@
         
         if (this.valid) {
           this.form.username = this.form.email
-          this.$store.dispatch('signup/createAccount', this.form)          
+          this.form.referred_by = this.$route.params?.id
+          console.log(this.form)
+          this.$store.dispatch('signup/createAccount', this.form)
         }
       },
     },

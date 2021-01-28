@@ -48,7 +48,6 @@ urlpatterns = [
     path('api/', include(router.urls)),
     url(r'^auth/', include('rest_auth.urls')),
     url(r'^auth/registration/', include('rest_auth.registration.urls')),
-    # url(r'^auth/registration/', views.UserViewSet.as_view()),
     url(r'^auth/twitter/$', views.TwitterLogin.as_view(), name='twitter_login'),
     url(r'^auth/twitter/request_token/$', views.TwitterAuthRedirectEndpoint.as_view()),
     url(r'^auth/twitter/callback/$', views.TwitterCallbackEndpoint.as_view()),

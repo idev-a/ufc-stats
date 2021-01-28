@@ -192,12 +192,23 @@
           >
             Profile
           </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            @click="referralDlg=true"
+            block
+            plain
+          >
+            Refer a Friend
+          </v-btn>
         </div>
       </v-list>
     </v-menu>
 
     <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
     <user-profile v-if="isAuthenticated" :value.sync="profileDlg" @update="profileDlg=false" />
+    <referral :value.sync="referralDlg" @update="referralDlg=false"/>
   </v-app-bar>
 </template>
 
@@ -209,6 +220,7 @@
   import { mapState, mapMutations, mapGetters } from 'vuex'
   import UserProfile from '../../pages/UserProfile'
   import Instruction from '../../instruction/Instruction'
+  import Referral from '../../referral/Referral'
 
   export default {
     name: 'DashboardCoreAppBar',
@@ -216,6 +228,7 @@
     components: {
       Instruction,
       UserProfile,
+      Referral,
       AppBarItem: {
         render (h) {
           return h(VHover, {
@@ -250,7 +263,8 @@
 
     data: () => ({
       instructionDlg: false,
-      profileDlg: false
+      profileDlg: false,
+      referralDlg: false
     }),
 
     computed: {

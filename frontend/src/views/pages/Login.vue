@@ -182,7 +182,6 @@
 
         if (this.valid) {
           this.form.username = this.form.email
-          console.log(this.form)
           this.$store.dispatch('auth/login', this.form)
         }
       },

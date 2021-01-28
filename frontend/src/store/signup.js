@@ -46,6 +46,14 @@ export default {
     clearActivationStatus({ commit }) {
       commit(ACTIVATION_CLEAR);
     },
+    referralCallback({ rootState, commit, dispatch, state }, {id}) {
+      // show signup dialog
+      if (!!rootState.auth.token && rootState.auth.token != 'null') {
+        window.location.href = '/'
+      } else {
+        state.launchRegister = true
+      }
+    },
   },
   mutations: {
     [ACTIVATION_BEGIN](state) {

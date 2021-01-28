@@ -14,7 +14,8 @@ const theme = {
   loser: '#A5D6A7',
   died: '#B71C1C',
   highlight: '#E65100',
-  strike: '#B71C1C'
+  strike: '#B71C1C',
+  twitter: '#1DA1F2'
 }
 
 export default new Vuetify({

@@ -39,5 +39,11 @@ export default {
   },
   fetchUsers(users) {
     return session.post('/api/users/get_all/', users)
-  }
+  },
+  referralRequestUrl(id) {
+    return session.post('/api/users/request_referral_url/', {id})
+  },
+  referralCallback(url) {
+    return session.get(url);
+  },
 };

@@ -27,7 +27,7 @@
 
 <script>
   export default {
-    name: "",
+    name: "Instruction",
 
     props: ['value'],
 

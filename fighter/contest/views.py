@@ -68,7 +68,13 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = CustomUser.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes_by_action = {
+        'create': [permissions.IsAuthenticated],
+        'list': [permissions.IsAuthenticated],
+        'get_all': [permissions.IsAuthenticated],
+        'request_referral_url': [permissions.AllowAny],
+    }
 
     @action(methods=['post'], detail=False)
     def get_all(self, request, **kwarg):
@@ -86,6 +92,17 @@ class UserViewSet(viewsets.ModelViewSet):
             status = 500
 
         return Response(dict(users=users), status)
+
+    @action(methods=['post'], detail=False)
+    def request_referral_url(self, request, **kwarg):
+        status = 200
+        url = ''
+        try:
+            user_id = request.data.get('id')
+        except Exception as err:
+            status = 403
+
+        return Response(dict(url=url), status)
 
 class GroupViewSet(viewsets.ModelViewSet):
     """
@@ -570,3 +587,15 @@ class ChatMessageViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(message, many=True)
         messages = self.format_message(serializer.data)
         return Response(dict(results=messages))
+
+# Referral system
+class ReferralCallbackEndpoint(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            print(request, args, kwargs)
+            return Response(dict(key='ok'))
+        except ConnectionError:
+            return Response(dict(message=["You have no internet connection"]), status=403)
+        except Exception as err:
+            print(err)
+            return Response(dict(message=["Something went wrong.Try again."]), status=403)

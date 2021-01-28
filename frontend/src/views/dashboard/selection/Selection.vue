@@ -61,7 +61,7 @@
         </v-virtual-scroll>
         <div class="d-flex justify-center">
           <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
-          <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || event.started" small @click="clearSelection">Clear</v-btn>
+          <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || eventStarted" small @click="clearSelection">Clear</v-btn>
         </div>
       </v-card-text>
     </v-card>
@@ -121,7 +121,7 @@
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
-        return this.loading || !this.event || this.bouts.length < 1 || this.event.started
+        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50

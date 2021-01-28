@@ -36,7 +36,7 @@ export default {
       state.message = payload.message
       state.status = payload.status
     },
-    showSnack(state, payload=true) {
+    showSnack(state, payload=false) {
       state.snack = payload
     },
     resetState(state) {
