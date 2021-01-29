@@ -66,21 +66,21 @@ class Scraper:
 
 	def start_requests(self):
 		# upcoming events
-		# res = self.session.get(self.upcoming_url)
-		# self.parse_event(Selector(text=res.content))
-		while True:
-			logger.info('[scraper] started')
+		res = self.session.get(self.upcoming_url)
+		self.parse_event(Selector(text=res.content))
+		# while True:
+		# 	logger.info('[scraper] started')
 
-			# scan db to get the scraped events to get the stats
-			events = Event.objects.all().filter(status='upcoming')
-			if events:
-				event = events.latest('-date')
-				res = self.session.get(event.detail_link)
-				meta = {'event_id': event.id}
+		# 	# scan db to get the scraped events to get the stats
+		# 	events = Event.objects.all().filter(status='upcoming')
+		# 	if events:
+		# 		event = events.latest('-date')
+		# 		res = self.session.get(event.detail_link)
+		# 		meta = {'event_id': event.id}
 
-				self.parse_bout_list(Selector(text=res.content), meta)
+		# 		self.parse_bout_list(Selector(text=res.content), meta)
 
-			time.sleep(10)
+		# 	time.sleep(10)
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
