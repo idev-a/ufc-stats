@@ -81,15 +81,6 @@ export default {
     }
   },
 
-  watch: {
-    roomsLoaded(val) {
-      if (!val && this.startRooms) {
-        console.log(this.startRooms)
-        this.fetchMessages({room: this.startRooms})
-      }
-    }
-  },
-
   mounted() {
     this.fetchRooms()
     // this.updateUserOnlineStatus()
@@ -169,7 +160,6 @@ export default {
       }
     },
     async fetchMoreRooms() {
-      console.log(this.endRooms, this.startRooms)
       if (this.endRooms && !this.startRooms) {
         return (this.roomsLoaded = true)
       }
