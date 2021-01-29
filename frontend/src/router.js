@@ -110,7 +110,7 @@ let router = new Router({
       children: [
         {
           path: '',
-          component: () => import('@/views/dashboard/pages/Callback'),
+          component: () => import('@/views/dashboard/pages/TwitterCallback'),
         }
       ]
     },

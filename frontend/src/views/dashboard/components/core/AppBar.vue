@@ -25,7 +25,7 @@
           text
           to="/"
         >
-          <v-icon color="white">mdi-view-dashboard</v-icon>
+          <v-icon color="white">mdi-pickaxe</v-icon>
         </v-btn>
         </template>
       <span>Selection</span>
@@ -41,7 +41,7 @@
           text
           to="/contest"
         >
-          <v-icon color="white">mdi-lock-open-outline</v-icon>
+          <v-icon color="white">mdi-sofa-single-outline</v-icon>
         </v-btn>
       </template>
       <span>Contest</span>

@@ -7,13 +7,14 @@
       :current-user-id="currentUserId"
       :rooms="loadedRooms"
       :loading-rooms="false"
+      :rooms-loaded="true"
+      @fetch-more-rooms="fetchMoreRooms"
       :messages="messages"
       :messages-loaded="messagesLoaded"
-      :rooms-loaded="true"
       :menu-actions="menuActions"
       text-formatting
+      single-room
       :room-message="roomMessage"
-      @fetch-more-rooms="fetchMoreRooms"
       @fetch-messages="fetchMessages"
       @send-message="sendMessage"
       @edit-message="editMessage"
@@ -27,7 +28,7 @@
       :show-files="false"
       :show-audio="false"
       :show-add-room="false"
-      :responsive-breakpoint="1400"
+      :responsive-breakpoint="2400"
     >
     </chat-window>
   </div>
@@ -77,6 +78,15 @@ export default {
       removeUserId: '',
       removeUsers: [],
       menuActions: [],
+    }
+  },
+
+  watch: {
+    roomsLoaded(val) {
+      if (!val && this.startRooms) {
+        console.log(this.startRooms)
+        this.fetchMessages({room: this.startRooms})
+      }
     }
   },
 
@@ -159,11 +169,14 @@ export default {
       }
     },
     async fetchMoreRooms() {
-      if (this.endRooms && !this.startRooms) return (this.roomsLoaded = true)
+      console.log(this.endRooms, this.startRooms)
+      if (this.endRooms && !this.startRooms) {
+        return (this.roomsLoaded = true)
+      }
       const { data: { rooms } } = await chatAPI.fetchRooms(this.currentUserId, this.startRooms)
       this.roomsLoaded = rooms.empty || rooms.size < this.roomsPerPage
       if (this.startRooms) this.endRooms = this.startRooms
-      this.startRooms = rooms[rooms.length - 1]?.id || 0
+      this.startRooms = rooms[rooms.length - 1] || 0
       const roomUserIds = []
       rooms.forEach(room => {
         room.users.forEach(userId => {

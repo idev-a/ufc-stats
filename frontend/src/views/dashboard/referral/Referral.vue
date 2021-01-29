@@ -88,7 +88,7 @@
         return `${process.env.VUE_APP_URL}/rf/${id}`
       },
       tweetShareLink () {
-        const url = `https://twitter.com/intent/tweet?url=${this.link}&via=fightquake&text=Join me on fightquake today to play UFC survival game and we could both earn prize!&hashtags=ufc,fightquake,survival`
+        const url = `https://twitter.com/intent/tweet?url=${this.link}&via=fightquake&text=Join me on FIGHTQUAKE to play fantasy MMA!&hashtags=ufc,fightquake,survival`
         return encodeURI(url)
       }
     },

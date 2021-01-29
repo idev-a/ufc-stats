@@ -9,7 +9,7 @@
           light
           max-width="100%"
           width="400"
-          class="px-5 py-5"
+          class="px-auto py-5"
         >
           <v-app-bar
             flat
@@ -25,64 +25,91 @@
           <v-card-text
             class="text-center"
           >
-            <v-form
-              ref="form"
-              v-model="valid"
+            <v-btn 
+              block
+              color="#1DA1F2"
+              class="mb-5"
+              :loading="authenticating"
+              @click="twitterLogin()"
             >
-              <v-text-field
-                ref="email"
-                v-model="form.email"
-                :rules="[rules.required, rules.email]"
-                :loading="authenticating"
-                hide-details="auto"
-                class="mb-5"
-                color="secondary"
-                label="Email address"
-                prepend-icon="mdi-email"
-                @keyup.enter="submit"
-                required
-              />
-
-              <v-text-field
-                ref="password"
-                type="password"
-                v-model="form.password"
-                :rules="[rules.required]"
-                :loading="authenticating"
-                hide-details="auto"
-                class="mb-7"
-                color="secondary"
-                label="Password"
-                prepend-icon="mdi-key"
-                @keyup.enter="submit"
-                required
-              />
-
-              <v-btn
-                class="mt-5"
-                color="primary"
-                :loading="authenticating"
-                @click="submit"
-                block
-              >
-                Submit
-              </v-btn>
-              <div class="my-2">Or</div>
-              <v-btn 
-                block
-                color="#1DA1F2"
-                class="mb-5"
-                :loading="authenticating"
-                @click="twitterLogin()"
-              >
-                Login with Twitter
-                <v-icon right>mdi-twitter</v-icon>
-              </v-btn>
-              <div class="text-center mt-2 grey--text body-1 font-weight-light">
-                If you don't have any account, please <a href="javascript:;" @click="gotoSignup" class="">sign up</a>
-              </div>
-            </v-form>
+              Login with Twitter
+              <v-icon right>mdi-twitter</v-icon>
+            </v-btn>
+            <div class="my-2">Or</div>
+            <v-btn
+              block
+              color="teal accent-4"
+              @click="reveal = true"
+            >
+              Login with Email
+            </v-btn>
           </v-card-text>
+          <div class="text-center mt-2 grey--text body-1 font-weight-light">
+            If you don't have any account, please <a href="javascript:;" @click="gotoSignup" class="">sign up</a>
+          </div>
+
+          <v-expand-transition>
+            <v-card
+              tile
+              v-if="reveal"
+              class="transition-fast-in-fast-out v-card--reveal"
+              style="height: calc(100%); top:70px"
+            >
+              <v-card-text class="pb-0">
+                <v-form
+                  ref="form"
+                  v-model="valid"
+                >
+                  <v-text-field
+                    ref="email"
+                    v-model="form.email"
+                    :rules="[rules.required, rules.email]"
+                    :loading="authenticating"
+                    hide-details="auto"
+                    class="mb-5"
+                    color="secondary"
+                    label="Email address"
+                    prepend-icon="mdi-email"
+                    @keyup.enter="submit"
+                    required
+                  />
+
+                  <v-text-field
+                    ref="password"
+                    type="password"
+                    v-model="form.password"
+                    :rules="[rules.required]"
+                    :loading="authenticating"
+                    hide-details="auto"
+                    class="mb-7"
+                    color="secondary"
+                    label="Password"
+                    prepend-icon="mdi-key"
+                    @keyup.enter="submit"
+                    required
+                  />
+
+                  <v-btn
+                    class="mt-5"
+                    color="primary"
+                    :loading="authenticating"
+                    @click="submit"
+                    block
+                  >
+                    Submit
+                  </v-btn>
+                  <v-btn
+                    class="mt-5"
+                    color="teal accent-4"
+                    @click="reveal = false"
+                    block
+                  >
+                    Close
+                  </v-btn>
+                </v-form>
+              </v-card-text>
+            </v-card>
+          </v-expand-transition>
         </v-card>
       </v-slide-y-transition>
     </v-row>
@@ -110,6 +137,7 @@
       })
 
       return {
+        reveal: false,
         valid: true,
         loading: false,
         snackbar: {
@@ -144,6 +172,7 @@
       propDlg: {
         get () { return this.$store.getters['auth/launchLogin'] },
         set (value) { 
+          this.reveal = false
           this.$store.commit('auth/showLoginDlg', value)
         },
       },
@@ -191,3 +220,4 @@
     },
   }
 </script>
+
