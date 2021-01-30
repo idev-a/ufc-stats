@@ -120,6 +120,7 @@
 
     metaInfo() {
       return {
+        title: 'FightQuake',
         meta: [
             // Twitter Card
             {name: 'twitter:card', content: 'summary'},
