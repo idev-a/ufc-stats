@@ -27,6 +27,9 @@ import axios from 'axios';
 import { BASE_API } from '@/api/index'
 import { TwitterAuthConfig } from '@/config'
 import VueNativeSock from 'vue-native-websocket'
+import Meta from 'vue-meta'
+
+Vue.use(Meta);
 
 Vue.use(
   VueNativeSock,

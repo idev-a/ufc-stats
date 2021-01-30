@@ -69,6 +69,7 @@
 </template>
 
 <script>
+  let ROOT_PATH = 'http://localhost:8085'
   import main from '@/api/main'
   import { beautifyDate } from '@/util'
   import { mapState, mapGetters } from 'vuex'
@@ -96,6 +97,7 @@
 
     data () {
       return {
+        logo: 'https://vuejs.org/images/logo.png',
         deadline2: '',
         dlg: true,
         loading: false,
@@ -113,6 +115,25 @@
         toggle_multiple: [0, 1],
         squadSize: 0,
         cntdownInstance: null
+      }
+    },
+
+    metaInfo() {
+      return {
+        meta: [
+            // Twitter Card
+            {name: 'twitter:card', content: 'summary'},
+            {name: 'twitter:title', content: 'Vue Social Cards Example'},
+            {name: 'twitter:description', content: 'Vue sample site showing off Twitter and Facebook Cards.'},
+            // image must be an absolute path
+            {name: 'twitter:image', content: this.logo},
+            // Facebook OpenGraph
+            {property: 'og:title', content: 'Vue Social Cards Example'},
+            {property: 'og:site_name', content: 'Vue Example'},
+            {property: 'og:type', content: 'website'},
+            {property: 'og:image', content:  this.logo},
+            {property: 'og:description', content: 'Vue sample site showing off Twitter and Facebook Cards.'}
+        ]
       }
     },
 
