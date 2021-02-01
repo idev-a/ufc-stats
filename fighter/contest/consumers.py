@@ -143,7 +143,11 @@ class LiveScoreConsumer(AsyncJsonWebsocketConsumer):
         chat_serializer = ChatMessageSerializer(data=data)
         chat_serializer.is_valid()
         message = chat_serializer.save()
-        messages = [chat_serializer.data]
+        _message = chat_serializer.data
+        if message.reply_message:
+            reply_message = ChatMessage.objects.get(pk=message.reply_message_id)
+            _message['reply_message'] = ChatMessageSerializer(reply_message).data
+        messages = [_message]
         self.format_messages(messages)
         return messages
 

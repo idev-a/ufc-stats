@@ -556,7 +556,6 @@ class ChatMessageViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def get_by_room(self, request, **kwarg):
-        pdb.set_trace()
         messages = []
         return Response(dict(messages=messages))
 

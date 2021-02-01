@@ -281,6 +281,7 @@ export default {
         (!message.seen || !message.seen)
       ) {
         message.seen = new Date()
+
         const res = await chatAPI.updateMessage(message)
       }
     },
@@ -288,9 +289,10 @@ export default {
       const senderUser = room.users.find(
         user => message.sender_id === user._id
       )
-      const { sender_id, timestamp } = message
+      const { sender_id, timestamp, reply_message } = message
       return {
         ...message,
+        replyMessage: reply_message,
         ...{
           sender_id,
           _id: message.id,
@@ -304,7 +306,6 @@ export default {
     },
     async fetchMessages({ room, options = {} }) {
       this._room = room
-      console.log(room.id)
       if (options.reset) this.resetMessages()
       if (this.endMessages && !this.startMessages)
         return (this.messagesLoaded = true)
@@ -357,16 +358,8 @@ export default {
         }
       }
       if (replyMessage) {
-        message.replyMessage = {
-          _id: replyMessage._id,
-          content: replyMessage.content,
-          sender_id: replyMessage.sender_id
-        }
-        if (replyMessage.file) {
-          message.replyMessage.file = replyMessage.file
-        }
+        message.reply_message = replyMessage.id
       }
-      // const { id } = await chatAPI.addMessage(message)
       this.$socket.sendObj({commands: 'new_message', data: message})
       // if (file) this.uploadFile({ file, messageId: id, roomId })
       const res = await chatAPI.updateRoom(roomId, { last_updated: new Date() })
@@ -425,14 +418,14 @@ export default {
       this.roomMessage = 'Implement your own action!'
     },
     async sendMessageReaction({ reaction, remove, messageId, roomId }) {
-      const dbAction = remove
-        ? firebase.firestore.FieldValue.arrayRemove(this.currentUserId)
-        : firebase.firestore.FieldValue.arrayUnion(this.currentUserId)
-      await messagesRef(roomId)
-        .doc(messageId)
-        .update({
-          [`reactions.${reaction.name}`]: dbAction
-        })
+      // const dbAction = remove
+      //   ? firebase.firestore.FieldValue.arrayRemove(this.currentUserId)
+      //   : firebase.firestore.FieldValue.arrayUnion(this.currentUserId)
+      // await messagesRef(roomId)
+      //   .doc(messageId)
+      //   .update({
+      //     [`reactions.${reaction.name}`]: dbAction
+      //   })
     },
     typingMessage({ message, roomId }) {
       if (message?.length > 1) {

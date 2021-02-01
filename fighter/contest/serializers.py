@@ -11,6 +11,7 @@ from contest.models import (
 	ChatMessage
 )
 from rest_framework import serializers
+from rest_flex_fields import FlexFieldsModelSerializer
 
 from allauth.account.adapter import get_adapter
 from allauth.account.utils import setup_user_email
@@ -87,9 +88,12 @@ class ChatFileSerializer(serializers.ModelSerializer):
 		model = ChatFile
 		fields = '__all__'
 
-class ChatMessageSerializer(serializers.ModelSerializer):
+class ChatMessageSerializer(FlexFieldsModelSerializer):
 	class Meta:
 		model = ChatMessage
 		fields = '__all__'
+		expandable_fields = {
+          'reply_message': ('contest.ChatMessageSerializer')
+        }
 
 
