@@ -280,7 +280,7 @@ export default {
         message.sender !== this.currentUserId &&
         (!message.seen || !message.seen)
       ) {
-        message.seen = this.$moment().format('YYYY-MM-DD HH:mm:ss')
+        message.seen = new Date()
         const res = await chatAPI.updateMessage(message)
       }
     },
@@ -294,7 +294,7 @@ export default {
         ...{
           sender_id,
           _id: message.id,
-          seconds: this.$moment(timestamp).format('ss'),
+          seconds: parseTimestamp(timestamp, 'ss'),
           timestamp: parseTimestamp(timestamp, 'HH:mm'),
           date: parseTimestamp(timestamp, 'DD MMMM YYYY'),
           username: senderUser ? senderUser.displayname : null,
@@ -304,6 +304,7 @@ export default {
     },
     async fetchMessages({ room, options = {} }) {
       this._room = room
+      console.log(room.id)
       if (options.reset) this.resetMessages()
       if (this.endMessages && !this.startMessages)
         return (this.messagesLoaded = true)
@@ -340,7 +341,7 @@ export default {
         room: roomId,
         sender: this.currentUserId,
         content,
-        timestamp: this.$moment().format('YYYY-MM-DD HH:mm:ss')
+        timestamp: new Date()
       }
       if (file) {
         message.file = {
@@ -375,7 +376,7 @@ export default {
         id: messageId,
         room: roomId,
         sender: this.currentUserId,
-        edited: this.$moment().format('YYYY-MM-DD HH:mm:ss'),
+        edited: new Date(),
         content: newContent
       }
       if (file) {
@@ -401,7 +402,7 @@ export default {
         id: messageId,
         room: roomId,
         sender: this.currentUserId,
-        deleted: this.$moment().format('YYYY-MM-DD HH:mm:ss') 
+        deleted: new Date()
       }
       this.$socket.sendObj({commands: 'delete_message', data: message })
     },
