@@ -34,7 +34,6 @@
     <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
-          v-if="isAuthenticated"
           v-on="on"
           min-width="0"
           style="padding: 10px 10px !important; margin: 0 1px;"

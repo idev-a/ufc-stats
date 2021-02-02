@@ -51,7 +51,7 @@
         'User can pick any number of fighters. If any of them get finished, user is eliminated.',
         'Out of all surviving entries, the user with the most surviving fighters, wins the contest.',
         'If there is a tie, the winner is the entry with the most winning fighters.',
-        'If there is still a tie, the winner is the user who entered the contest first.'
+        'You are allowed to resubmit your team. 1 team per person.'
       ]
     }),
   }

@@ -10,6 +10,7 @@ const requireAuthenticated = (to, from, next) => {
       if (!self.getters['auth/isAuthenticated']) {
         if (from != to) { 
           next('/')
+          self.commit('auth/showLoginDlg')
         }
       } else {
         next();
