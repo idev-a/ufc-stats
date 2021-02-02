@@ -43,6 +43,16 @@ router.register(r'^chat/files', views.ChatFileViewSet)
 router.register(r'^chat/messages', views.ChatMessageViewSet)
 router.register(r'^chat/messages/(?P<id>\d+)$', views.ChatMessageViewSet)
 
+# customize admin
+# class CustomAdminSite(admin.AdminSite):
+  
+#     def get_urls(self):
+#         urls = super(CustomAdminSite, self).get_urls()
+#         custom_urls = [
+#             url(r'desired/path$', self.admin_view(organization_admin.preview), name="preview"),
+#         ]
+#         return urls + custom_urls
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),

@@ -63,6 +63,12 @@ class Fighter(models.Model):
 	def __str__(self):
 		return "%s" % self.name
 
+class Notification(models.Model):
+	title = models.CharField(max_length=100, blank=True, default='')
+
+	def __str__(self):
+		return "%s" % self.name
+
 class Bout(models.Model):
 	STATUS_TYPE = [
 		('pending', 'Pending'),
