@@ -79,16 +79,14 @@
           style="padding: 10px 10px !important; margin: 0 1px;"
         >
           <v-badge
+            :content="notificationLengh"
+            :value="notificationLengh"
             color="red lighten-1"
             overlap
             left
             small
           >
-            <template v-slot:badge>
-              <span>{{ notificationLengh }}</span>
-            </template>
-
-            <v-icon color="white">mdi-bell</v-icon>
+            <v-icon>mdi-bell</v-icon>
           </v-badge>
         </v-btn>
       </template>

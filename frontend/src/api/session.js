@@ -10,6 +10,8 @@ const session = axios.create({
   baseURL: process.env.VUE_APP_BACKEND_URL
 })
 
+delete session.defaults.headers.Authorization;
+
 const token = localStorage.getItem(TOKEN_STORAGE_KEY)
 // console.log(session.defaults.headers)
 if (token && token != 'null') {

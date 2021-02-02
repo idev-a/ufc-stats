@@ -140,9 +140,11 @@ const mutations = {
     state.error = false;
   },
   [SET_TOKEN](state, token) {
-    localStorage.setItem(TOKEN_STORAGE_KEY, token);
-    session.defaults.headers.Authorization = `Token ${token}`;
-    state.token = token 
+    if (token && token != 'null') {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      session.defaults.headers.Authorization = `Token ${token}`;
+      state.token = token 
+    }
   },
   [SET_AUTH_USER] (state, user) {
     localStorage.setItem('authUser', JSON.stringify(user))
