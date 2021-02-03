@@ -1,8 +1,11 @@
 <template>
-  <div id="selection">
+  <div 
+    id="selection"
+    :style="`height: ${height}`" 
+  >
     <v-card
       :loading="loading"
-      class="lighten-4 ma-0 pa-0"
+      class="lighten-4 ma-0 pa-0 selection-card"
     >
       <v-card-title 
         v-if="event" 
@@ -65,6 +68,7 @@
         </div>
       </v-card-text>
     </v-card>
+    <instruction-body v-if="needsInstruction" />
   </div>
 </template>
 
@@ -74,6 +78,7 @@
   import { beautifyDate } from '@/util'
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
+  import InstructionBody from "../instruction/InstructionBody";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
 
@@ -81,7 +86,8 @@
     name: 'Selection',
 
     components: {
-      FlipCountdown
+      FlipCountdown,
+      InstructionBody
     },
 
     watch: {
@@ -118,27 +124,6 @@
       }
     },
 
-    // metaInfo() {
-    //   return {
-    //     title: 'FightQuake',
-    //     meta: [
-    //         // Twitter Card
-    //         {name: 'twitter:card', content: 'summary'},
-    //         {name: 'twitter:title', content: 'Vue Social Cards Example'},
-    //         {name: 'twitter:description', content: 'Vue sample site showing off Twitter and Facebook Cards.'},
-    //         // image must be an absolute path
-    //         // {name: 'twitter:image', content: this.logo},
-    //         // Facebook OpenGraph
-    //         {property: 'og:title', content: 'Vue Social Cards Example'},
-    //         {property: 'og:site_name', content: 'Vue Example'},
-    //         {property: 'og:type', content: 'website'},
-    //         // {property: 'og:image', content:  this.logo},
-    //         {property: 'og:locale', content:  'en_US'},
-    //         {property: 'og:description', content: 'Vue sample site showing off Twitter and Facebook Cards.'}
-    //     ]
-    //   }
-    // },
-
     computed: {
       ...mapState(['event']),
       ...mapState('auth', ['authUser']),
@@ -157,6 +142,12 @@
       },
       totalFighters () {
         return this.bouts && this.bouts.length * 2 || 0
+      },
+      needsInstruction () {
+        return this.$vuetify.breakpoint.smAndDown
+      },
+      height () {
+        return this.$vuetify.breakpoint.smAndDown ? 'calc(100vh + 300px)' : '100vh'
       }
     },
 
@@ -199,21 +190,7 @@
         const fighters = this.fighters.filter(fighter => fighter.id == id)
         return fighters[0]
       },
-      // myOptions (item) {
-      //   const fighter1 = this._fighter(item.fighter1)
-      //   const fighter2 = this._fighter(item.fighter2)
-      //   return {
-      //     items: {
-      //       delay: .4,
-      //       preSelected: 'unknown',
-      //       disabled: false,
-      //       labels: [
-      //         {name: fighter1.name, id: fighter1.id, color: 'white', backgroundColor: 'green'}, 
-      //         {name: fighter2.name, id: fighter2.id, color: 'white', backgroundColor: 'green'}
-      //       ]
-      //     }
-      //   }
-      // },
+
       async submit () {
         if (!this.isAuthenticated) {
           this.$store.commit('auth/showLoginDlg')
@@ -282,9 +259,9 @@
 
 <style lang="scss">
   #selection {
-    backdrop-filter: blur(30px) contrast(.9);
 
-    * {
+    backdrop-filter: blur(30px) contrast(.9);
+    .selection-card * {
       background-color: transparent;
     }
 
