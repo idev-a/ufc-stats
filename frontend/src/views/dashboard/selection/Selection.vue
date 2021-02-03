@@ -147,7 +147,7 @@
         return this.$vuetify.breakpoint.smAndDown
       },
       height () {
-        return this.$vuetify.breakpoint.smAndDown ? 'calc(100vh + 300px)' : '100vh'
+        return this.$vuetify.breakpoint.smAndDown ? 'calc(100vh + 220px)' : '100vh'
       }
     },
 
