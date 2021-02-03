@@ -3,7 +3,10 @@
     v-model="insideValue"
     width="600px"
   >
-    <v-card icon="mdi-account-outline">
+    <v-card
+      class="fq-popup"
+      icon="mdi-account-outline"
+    >
       <v-card-title>
         <div class="font-weight-light card-title mt-2">
           User Profile

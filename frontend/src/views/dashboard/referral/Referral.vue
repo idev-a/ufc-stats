@@ -4,7 +4,9 @@
     width="600px"
     persistent
   >
-    <v-card>
+    <v-card
+      class="fq-popup"
+    >
       <v-app-bar
         flat
         color="rgba(0, 0, 0, 0)"
