@@ -207,7 +207,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             view_id = f"{_bout.id}"
             view = bout_views.get(view_id, {})
             user = dict(
-                username=f'{selection.entry.user.username}-{selection.entry.id}', 
+                username=f'{selection.entry.user.displayname}', 
                 status=selection.bout.status
             )
             if not view:
@@ -248,12 +248,12 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         survivor1s = []
         for selection in selections:
             if selection.survivor1 and selection.survivor1.id == fighter_id:
-                survivor1s.append([selection.survivor1.name, f"{selection.entry.user.displayname}-{selection.entry.id}"] ) 
+                survivor1s.append([selection.survivor1.name, f"{selection.entry.user.displayname}"] ) 
              
         survivor2s = []
         for selection in selections:
             if selection.survivor2 and selection.survivor2.id == fighter_id:
-                survivor2s.append([selection.survivor2.name, f"{selection.entry.user.displayname}-{selection.entry.id}"]) 
+                survivor2s.append([selection.survivor2.name, f"{selection.entry.user.displayname}"]) 
         return survivor1s + survivor2s
 
     def _calc_suv_win_loss(self, survivor1, survivor2, winner, loser):
@@ -292,7 +292,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             winner_id = bout.winner and bout.winner.id # winner from bout
             score[username_id] = score.get(username_id, copy.deepcopy(default_score))
             score[username_id]['id'] = username_id
-            score[username_id]['entry'] = username_id
+            score[username_id]['entry'] = selection.entry.user.displayname
             score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
 
             # Get winner and loser

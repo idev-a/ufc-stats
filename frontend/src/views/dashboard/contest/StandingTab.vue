@@ -214,7 +214,7 @@
         return died
       },
       isMine (item) {
-        return item.entry.split('-')[0] == this.authUser.displayname
+        return item.entry == this.authUser.displayname
       },
       showFighters (item) {
         if (this.expanded.includes(item.rank)) {
