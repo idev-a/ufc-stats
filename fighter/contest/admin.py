@@ -51,4 +51,4 @@ class ChatFileAdmin(admin.ModelAdmin):
 class ChatMessgaeAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
-admin.site.unregister(Group)
+# admin.site.unregister(Group)
