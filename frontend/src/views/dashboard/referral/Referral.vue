@@ -8,7 +8,7 @@
       class="fq-popup"
     >
       <v-app-bar
-        flat
+        class="pt-3 mb-5"
         color="rgba(0, 0, 0, 0)"
       >
         <div class="text-center display-2 font-weight-bold">
