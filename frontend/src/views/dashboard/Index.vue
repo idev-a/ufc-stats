@@ -103,9 +103,7 @@
     background: #E0E0E;
   }
 
-  .dialog-drag {
-    background-color: transparent;
-  }
+
 
   .bg {
     width: 100%;
@@ -135,12 +133,22 @@
     right: 10px;
   }
 
+  .fq-popup {
+    background-image: url('../../assets/bg.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    background-blend-mode: multiply;
+  }
+
   .dialog-drag {
+    background-color: transparent;
     border: none;
   }
 
   .dialog-drag .dialog-header {
     background-color: #969494;
+    background-image: url('../../assets/bg-pattern.png');
+    background-repeat: repeat-x;
   }
 
   .dialog-drag .dialog-body {

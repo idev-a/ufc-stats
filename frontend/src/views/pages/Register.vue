@@ -6,10 +6,9 @@
     <v-row justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
         <v-card
-          light
           max-width="100%"
           width="400"
-          class="px-auto py-3"
+          class="px-auto py-3 fq-popup"
           :height="height"
         >
           <v-app-bar
@@ -53,7 +52,7 @@
           <v-expand-transition>
             <v-card
               v-if="reveal"
-              class="transition-fast-in-fast-out v-card--reveal"
+              class="transition-fast-in-fast-out v-card--reveal fq-popup"
               style="height: 100%; top:70px;"
             >
               <v-card-text class="pb-0">

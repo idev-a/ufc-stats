@@ -3,7 +3,9 @@
     v-model="insideValue"
     width="600px"
   >
-    <v-card>
+    <v-card
+      class="fq-popup"
+    >
       <v-card-title>
         <b class="display-2">Instructions</b>
       </v-card-title>
