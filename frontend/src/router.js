@@ -44,46 +44,6 @@ let router = new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/pages',
-      component: () => import('@/views/pages/Index'),
-      children: [
-        {
-          name: 'Lock',
-          path: 'lock',
-          component: () => import('@/views/pages/Lock'),
-          meta: {
-            requiresAuth: false
-          }
-        },
-        {
-          name: 'Login',
-          path: 'login',
-          component: () => import('@/views/pages/Login'),
-        },
-        {
-          name: 'Logout',
-          path: 'logout',
-          beforeEnter: redirectLogout,
-        },
-        {
-          name: 'Pricing',
-          path: 'pricing',
-          component: () => import('@/views/pages/Pricing'),
-          meta: {
-            requiresAuth: false
-          }
-        },
-        {
-          name: 'Register',
-          path: 'register',
-          component: () => import('@/views/pages/Register'),
-          meta: {
-            requiresAuth: false
-          }
-        },
-      ],
-    },
-    {
       path: '/',
       component: () => import('@/views/dashboard/Index'),
       children: [
