@@ -315,7 +315,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_leaderboard(self, request, **kwarg):
         views = get_leaderboard_view(self.queryset)
 
-        return Response(dict(views=leaderboard_views))
+        return Response(dict(views=views))
 
     @action(methods=['post'], detail=False)
     def get_entries(self, request, **kwarg):
