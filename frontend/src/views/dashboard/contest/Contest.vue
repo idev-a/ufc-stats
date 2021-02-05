@@ -1,5 +1,5 @@
 <template>
-  <div id="contest">
+  <div id="contest-table">
     <v-card
       max-width="100%"
       class="ma-0 pa-0 pb-3"
@@ -113,61 +113,3 @@
     }
   }
 </script>
-
-<style lang="scss">
-  #contest {
-    backdrop-filter: blur(30px) contrast(1.0);
-
-    * {
-      background-color: transparent;
-    }
-
-    .v-data-table { 
-      overflow-x: auto !important;
-
-      tr:hover {
-        background: url('../../../assets/bg.jpg');
-        background-size: cover;
-        background-attachment: fixed;
-        backdrop-filter: blur(40px);
-      }
-
-      thead > tr > th {
-        background-color: #808080db;
-        backdrop-filter: blur(40px);
-      }
-    }
-
-    table { border-collapse: collapse; empty-cells: show; }
-
-    td { position: relative; }
-
-    tr.strike-through td {
-      background-color: #B71C1C;
-      opacity: 0.9;
-      color: #EEEEEE;
-      
-      &:first-child {
-        border-top-left-radius: 6px;
-        border-bottom-left-radius: 6px;
-      }
-      
-      &:last-child {
-        border-top-right-radius: 6px;
-        border-bottom-right-radius: 6px;
-      }
-    }
-    .v-application .survivor-header {
-      text-align: center !important;
-    }
-
-    .v-chip__content {
-      font-size: 12px;
-      font-weight: 400;
-    }
-
-    .max-60 {
-      max-width: 800px;
-    }
-  }
-</style>

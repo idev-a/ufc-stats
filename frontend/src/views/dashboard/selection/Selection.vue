@@ -68,6 +68,7 @@
         </div>
       </v-card-text>
     </v-card>
+
     <instruction-body v-if="needsInstruction" />
   </div>
 </template>
@@ -259,10 +260,11 @@
 
 <style lang="scss">
   #selection {
+    
 
-    backdrop-filter: blur(30px) contrast(.9);
-    .selection-card * {
+    .selection-card, .selection-card * {
       background-color: transparent;
+      backdrop-filter: blur(30px) contrast(.9);
     }
 
     .v-btn-toggle {

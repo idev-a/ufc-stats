@@ -15,5 +15,8 @@ export default {
   },
   createEntries(payload) {
   	return session.post('api/entries/', payload)
-  }
+  },
+  getLeaderboard () {
+    return session.get('api/entries/get_leaderboard/')
+  },
 }

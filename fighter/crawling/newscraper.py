@@ -27,6 +27,7 @@ from contest.serializers import (
 	BoutSerializer,
 	FighterSerializer
 )
+from contest.views.entry_views import update_rank
 from contest.util import _valid, convert_date, strip_list1
 
 import pdb
@@ -164,6 +165,7 @@ class Scraper:
 							'message': 'All fights were completed.'
 						}
 						event.action = 'completed'
+						update_rank(event.id)
 					elif not is_notified:
 						notify_data = {
 							'type': 'live_score',
@@ -233,12 +235,12 @@ class Scraper:
 		queryset = Bout.objects.all().filter(event_id=event_id).exclude(pk__in=new_bouts)
 		if queryset:
 			logger.info(f'[scraper] delete cancelled bouts {queryset.count()}')
-			queryset.delete()
 
 			message = f'{queryset.count()} bout was cancelled.'
 			if queryset.count() > 1:
 				message = f'{queryset.count()} bouts were cancelled.'
 
+			queryset.delete()
 			notify_data = {
 				'refresh': True,
 				'message': message

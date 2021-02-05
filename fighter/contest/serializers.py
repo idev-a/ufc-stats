@@ -21,7 +21,7 @@ from rest_auth.registration.serializers import RegisterSerializer
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'username', 'displayname', 'email', 'avatar', 'referred_by']
+		fields = ['id', 'username', 'displayname', 'email', 'fq_points', 'initials', 'avatar', 'referred_by']
 
 
 class CustomRegisterSerializer(RegisterSerializer):
@@ -44,7 +44,6 @@ class CustomRegisterSerializer(RegisterSerializer):
 		data_dict['avatar'] = self.validated_data.get('avatar', '')
 		data_dict['referred_by'] = self.validated_data.get('referred_by', '')
 		return data_dict
-
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
@@ -77,7 +76,6 @@ class EntrySerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 # Chat
-
 class ChatRoomSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ChatRoom
@@ -95,5 +93,3 @@ class ChatMessageSerializer(FlexFieldsModelSerializer):
 		expandable_fields = {
           'reply_message': ('contest.ChatMessageSerializer')
         }
-
-

@@ -59,6 +59,12 @@ let router = new Router({
           beforeEnter: requireAuthenticated
         },
         {
+          name: 'Leaderboard',
+          path: 'leaderboard',
+          component: () => import('@/views/dashboard/leaderboard/LeaderboardContainer'),
+          beforeEnter: requireAuthenticated
+        },
+        {
           name: 'Referral',
           path: 'rf/:id',
           component: () => import('@/views/dashboard/referral/ReferralCallback'),

@@ -15,7 +15,10 @@ const theme = {
   died: '#B71C1C',
   highlight: '#E65100',
   strike: '#B71C1C',
-  twitter: '#1DA1F2'
+  twitter: '#1DA1F2',
+  gold: '#FFD700',
+  silver: '#C0C0C0',
+  bronze: '#cd7f32'
 }
 
 export default new Vuetify({

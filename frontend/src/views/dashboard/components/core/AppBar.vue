@@ -199,6 +199,16 @@
           >
             Refer a Friend
           </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            to="leaderboard"
+            block
+            plain
+          >
+            Leaderboard
+          </v-btn>
         </div>
       </v-list>
     </v-menu>

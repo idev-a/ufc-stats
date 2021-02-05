@@ -8,28 +8,43 @@ from django.contrib.auth.models import AbstractUser
 
 from .managers import CustomUserManager
 
+import pdb
+
 # Customize User model
 class CustomUser(AbstractUser):
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = []
+	USERNAME_FIELD = 'username'
+	REQUIRED_FIELDS = []
 
-    objects = CustomUserManager()
+	objects = CustomUserManager()
 
-    displayname = models.CharField(blank=True, null=True, max_length=100)
-    avatar = models.CharField(blank=True, null=True, max_length=500)
-    first_name = models.CharField(blank=True, null=True, max_length=100)
-    last_name = models.CharField(blank=True, null=True, max_length=100)
-    referred_by = models.ForeignKey(
+	displayname = models.CharField(blank=True, null=True, max_length=100)
+	avatar = models.CharField(blank=True, null=True, max_length=500)
+	first_name = models.CharField(blank=True, null=True, max_length=100)
+	last_name = models.CharField(blank=True, null=True, max_length=100)
+	fq_points = models.PositiveIntegerField(blank=True, null=True, default=100)
+	referred_by = models.ForeignKey(
 		'self',
 		on_delete=models.CASCADE,
 		related_name='referrals',
 		default=None,
 		blank=True,
 		null=True
-	) 
+	)
 
-    def __str__(self):
-        return self.email or self.username
+	@property
+	def initials(self):
+		name_list = self.displayname.split()
+
+		_initials = ""
+
+		for name in name_list:  # go through each name
+			_initials += name[0].upper()  # append the initial
+
+		return _initials
+
+
+	def __str__(self):
+		return self.email or self.username
 
 # Create your models here.
 class Event(models.Model):
@@ -136,13 +151,15 @@ class Entry(models.Model):
 	)
 
 	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+	# last_edited.editable=True
+	ranking = models.IntegerField(blank=True, null=True, default=-1)
 
 	def __str__(self):
 		return "%s - %s" % (self.user, self.event)
 
 class SelectionManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset()
+	def get_queryset(self):
+		return super().get_queryset()
 
 class Selection(models.Model):
 	bout = models.ForeignKey(

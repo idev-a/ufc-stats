@@ -32,6 +32,7 @@ class BoutAdmin(admin.ModelAdmin):
 @admin.register(Entry)
 class EntryAdmin(admin.ModelAdmin):
 	list_per_page = 20
+	readonly_fields = ('last_edited',)
 
 @admin.register(Selection)
 class SelectionAdmin(admin.ModelAdmin):
