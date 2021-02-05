@@ -154,7 +154,7 @@ class Entry(models.Model):
 
 	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 	# last_edited.editable=True
-	ranking = models.IntegerField(blank=True, null=True, default=-1)
+	ranking = models.IntegerField(blank=True, null=True, default=0)
 
 	def __str__(self):
 		return "%s - %s" % (self.user, self.event)
