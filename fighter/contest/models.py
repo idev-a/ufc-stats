@@ -33,7 +33,7 @@ class CustomUser(AbstractUser):
 
 	@property
 	def initials(self):
-		name_list = self.displayname.split()
+		name_list = (self.displayname or 'Unknown').split()
 
 		_initials = ""
 
