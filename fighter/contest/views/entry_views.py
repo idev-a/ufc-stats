@@ -256,16 +256,16 @@ def get_leaderboard_view(entries):
                 third_place=0,
                 fq_points=_user.fq_points # fq_points from user
             ) 
-        else:
-            if entry.ranking == 1:
-                view['first_place'] += 1
-                view['fq_points'] += 100 
-            elif entry.ranking == 2:
-                view['second_place'] += 1
-                view['fq_points'] += 10 
-            elif entry.ranking == 3:
-                view['third_place'] += 1
-                view['fq_points'] += 1 
+            
+        if entry.ranking == 1:
+            view['first_place'] += 1
+            view['fq_points'] += 100 
+        elif entry.ranking == 2:
+            view['second_place'] += 1
+            view['fq_points'] += 10 
+        elif entry.ranking == 3:
+            view['third_place'] += 1
+            view['fq_points'] += 1 
 
             '''
                 FQ points rule
