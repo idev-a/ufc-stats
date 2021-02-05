@@ -194,11 +194,12 @@ def get_entry_views(selections):
     entry_views = score.values()
     entry_views = sorted(entry_views, reverse=True,  key=lambda x: (len(x['died'])*-1, x['survived'], x['wins'], x['last_edited']*-1)) 
 
+    pdb.set_trace()
     for x, entry in enumerate(entry_views):
-        entry['rank'] = x+1
-        # not sure whether entry model should be updated at this time regarding rank
+        entry['ranking'] = x+1
+        # not sure whether entry model should be updated at this time regarding ranking
         _entry = get_object_or_404(Entry, pk=entry['id'])
-        _entry.rank = x+1
+        _entry.ranking = x+1
         _entry.save()
 
     return entry_views

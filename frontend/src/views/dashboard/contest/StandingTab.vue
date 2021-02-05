@@ -33,8 +33,8 @@
         :item-class="entryItemClass"
         mobile-breakpoint="0"
       > 
-        <template v-slot:item.rank="{ item }">
-          <span :class="highlight(item)" class="font-weight-bold">{{item.rank}}
+        <template v-slot:item.ranking="{ item }">
+          <span :class="highlight(item)" class="font-weight-bold">{{item.ranking}}
           </span>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -152,8 +152,8 @@
         entryViewSearch: '',
         entryViewHeaders: [
           {
-            text: 'Rank',
-            value: 'rank',
+            text: 'Ranking',
+            value: 'ranking',
             align: 'center',
           },
           {
@@ -198,7 +198,7 @@
 
     methods: {
       highlight(item) {
-        return {'highlight--text': item.rank==1}
+        return {'highlight--text': item.ranking==1}
       },
       entryItemClass (item) {
         return item.died.length ? 'strike-through' : ''
@@ -216,12 +216,12 @@
         return item.entry == this.authUser.displayname
       },
       showFighters (item) {
-        if (this.expanded.includes(item.rank)) {
+        if (this.expanded.includes(item.ranking)) {
           const index = this.expanded.indexOf(item);
           this.expanded.splice(index, 1);
         } else {
           this.expanded = []
-          this.expanded.push(item.rank)
+          this.expanded.push(item.ranking)
           this.curFighters = item.fighters
         }
       }
