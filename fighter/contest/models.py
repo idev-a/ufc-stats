@@ -40,6 +40,8 @@ class CustomUser(AbstractUser):
 		for name in name_list:  # go through each name
 			_initials += name[0].upper()  # append the initial
 
+		if len(_initials) > 2:
+			return _initials[:2]
 		return _initials
 
 
