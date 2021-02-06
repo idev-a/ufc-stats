@@ -53,15 +53,6 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     # permission_classes = [permissions.IsAuthenticated]
 
-    def _selection(self, selections, bout):
-        selected = None
-        for selection in selections:
-            if selection.bout_id == bout['id']:
-                selected = selection
-                break
-
-        return selected
-
     @action(methods=['get'], detail=False)
     def get_latestevent(self, request, **kwarg):
         try:
@@ -74,7 +65,8 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 if request.user.id:
                     selections = Selection.objects.all().filter(entry__user_id=request.user.id).filter(entry__event_id=latest_event.id)
                     for bout in _bouts:
-                        selected = self._selection(selections, bout)
+                        my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id)
+                        selected = Selection.objects.all().get(entry_id=my_entry.id, bout_id=bout['id'])
                         if selected:
                             bout['survivors'] = []
                             if selected.survivor1_id:
@@ -92,6 +84,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     event=None
                 ))
         except Exception as err:
+            print(err)
             return Response(dict(
                     bouts=[],
                     event=None,
