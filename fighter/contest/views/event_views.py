@@ -72,7 +72,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 _bouts = BoutSerializer(bouts, many=True).data
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                 if request.user.id:
-                    selections = Selection.objects.all().filter(entry__user_id=request.user.id)
+                    selections = Selection.objects.all().filter(entry__user_id=request.user.id).filter(entry__event_id=latest_event.id)
                     for bout in _bouts:
                         selected = self._selection(selections, bout)
                         if selected:
