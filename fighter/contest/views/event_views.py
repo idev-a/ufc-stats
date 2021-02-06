@@ -63,16 +63,15 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 _bouts = BoutSerializer(bouts, many=True).data
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                 if request.user.id:
-                    selections = Selection.objects.all().filter(entry__user_id=request.user.id).filter(entry__event_id=latest_event.id)
+                    my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id)
                     for bout in _bouts:
-                        my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id)
-                        selected = Selection.objects.all().get(entry_id=my_entry.id, bout_id=bout['id'])
+                        selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
                         if selected:
                             bout['survivors'] = []
-                            if selected.survivor1_id:
-                                bout['survivors'].append(selected.survivor1_id)
-                            if selected.survivor2_id:
-                                bout['survivors'].append(selected.survivor2_id)
+                            if selected[0].survivor1_id:
+                                bout['survivors'].append(selected[0].survivor1_id)
+                            if selected[0].survivor2_id:
+                                bout['survivors'].append(selected[0].survivor2_id)
 
                 return Response(dict(
                     bouts=_bouts,
