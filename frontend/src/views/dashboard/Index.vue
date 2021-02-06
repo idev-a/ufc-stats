@@ -112,19 +112,19 @@
     top: 0;
     left: 0;
     background-size: cover;
-    background-image: url( '../../assets/selection.jpeg');
+    background-image: url( 'https://ik.imagekit.io/cuhwrvztecz/selection_y1o6t0Jv-PF2p.jpeg');
   }
 
   .contest-bg {
-    background-image: url( '../../assets/contest.jpeg');
+    background-image: url( 'https://ik.imagekit.io/cuhwrvztecz/contest_e3BTQfvtQ58x.jpeg');
   }
 
   .selection-bg {
-    background-image: url( '../../assets/selection.jpeg');
+    background-image: url( 'https://ik.imagekit.io/cuhwrvztecz/selection_y1o6t0Jv-PF2p.jpeg');
   }
 
   .contest-over-bg {
-    background-image: url( '../../assets/contest-over.jpeg');
+    background-image: url( 'https://ik.imagekit.io/cuhwrvztecz/contest-over__hEVgOYfN.jpeg');
   }
 
   .fixed-card {
@@ -134,7 +134,7 @@
   }
 
   .fq-popup {
-    background-image: url('../../assets/bg.jpg');
+    background-image: url('https://ik.imagekit.io/cuhwrvztecz/bg_A4TO7AM8_E43.jpg');
     background-size: cover;
     background-attachment: fixed;
     background-blend-mode: multiply;
@@ -147,7 +147,7 @@
 
   .dialog-drag .dialog-header {
     background-color: #969494;
-    background-image: url('../../assets/bg-pattern.png');
+    background-image: url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
     background-repeat: repeat-x;
   }
 
@@ -180,7 +180,7 @@
       overflow-x: auto !important;
 
       tr:hover {
-        background: url('../../assets/bg.jpg');
+        background: url('https://ik.imagekit.io/cuhwrvztecz/bg_A4TO7AM8_E43.jpg');
         background-size: cover;
         background-attachment: fixed;
         backdrop-filter: blur(40px);

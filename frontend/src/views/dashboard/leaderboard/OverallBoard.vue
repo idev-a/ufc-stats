@@ -5,7 +5,7 @@
     <v-card
       min-width="50%"
       flat
-      class="mt-0"
+      class="my-0"
     >
       <v-card-title class="mb-2">
         <v-text-field
@@ -46,6 +46,12 @@
           <template v-slot:item.ranking="{ item }">
             <span :class="highlight(item)">{{item.ranking}}
             </span>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" size="18" v-on="on" v-if="isMine(item)">mdi-account-tie</v-icon>
+              </template>
+              <span>Me</span>
+            </v-tooltip>
           </template>
           <template v-slot:item.user="{ item }">
             <div
@@ -70,7 +76,7 @@
                 class="text-left ml-2"
                 style="margin: .5rem 0;"
               >
-                <div :class="highlight(item)" class="displayname" v-html="item.displayname"></div>
+                <div :class="highlight(item)" class="displayname" v-html="item.displayname || 'Unknown'"></div>
                 <!-- <div :class="highlight(item)" class="subtitle" v-html="item.username"></div> -->
               </div>
             </div>
@@ -139,6 +145,12 @@
       }
     },
 
+    computed: {
+      displayname() {
+        return this.$store.getters['auth/authUser'].displayname
+      }
+    },
+
     mounted() {
       this.getLeaderboard()
     },
@@ -155,7 +167,10 @@
       },
       avatar(item) {
         return item.avatar ? avatar : 'https://picsum.photos/id/11/500/300'
-      }
+      },
+      isMine (item) {
+        return item.displayname == this.displayname
+      },
     }
   }
 </script>
