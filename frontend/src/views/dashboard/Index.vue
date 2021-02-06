@@ -6,7 +6,7 @@
     <dashboard-core-view :key="`newKey${newKey}`"/>
 
     <snackbar @update="reloadPage"/>
-    <login-view  />
+    <login-view @update="reloadPage"/>
     <register-view />
     <v-overlay :value="overlay" :opacity=".7" absolute></v-overlay>
 

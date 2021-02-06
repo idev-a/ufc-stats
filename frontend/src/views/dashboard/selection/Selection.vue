@@ -32,7 +32,6 @@
           :key="key"
         >
           <template v-slot:default="{ item }">
-            <!-- <toggle-switch v-model="contests[item.id]" :key="item.id" :options="myOptions(item)" /> -->
             <v-btn-toggle
               v-model="contests[item.id]"
               :key="item.id"
