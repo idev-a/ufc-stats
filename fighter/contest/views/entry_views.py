@@ -281,6 +281,7 @@ def get_leaderboard_view(entries):
     # leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['first_place'], x['second_place'], x['third_place'])) 
     leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['fq_points']))
 
+
     for x, _ in enumerate(leaderboard_views):
         _['ranking'] = x+1
 

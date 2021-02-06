@@ -53,7 +53,7 @@
             >
               <v-avatar
                 color="brown"
-                size="34"
+                size="30"
               >
                 <v-img 
                   v-if="item.avatar"
@@ -68,10 +68,10 @@
               </v-avatar>
               <div
                 class="text-left ml-2"
-                style="margin: .2rem 0;"
+                style="margin: .5rem 0;"
               >
-                <div :class="highlight(item)" class="username" v-html="item.displayname"></div>
-                <div :class="highlight(item)" class="subtitle" v-html="item.username"></div>
+                <div :class="highlight(item)" class="displayname" v-html="item.displayname"></div>
+                <!-- <div :class="highlight(item)" class="subtitle" v-html="item.username"></div> -->
               </div>
             </div>
           </template>
@@ -161,13 +161,13 @@
 </script>
 
 <style>
-  .username {
-    font-size: 15px;
+  .displayname {
+    font-size: 14px;
     font-weight: 300;
   }
 
   .initials {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 400;
     line-height: 2rem;
     letter-spacing: normal !important;
