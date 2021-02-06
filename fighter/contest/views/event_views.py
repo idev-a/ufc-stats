@@ -66,7 +66,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     my_entry = Entry.objects.all().filter(user_id=request.user.id, event_id=latest_event.id)
                     for bout in _bouts:
                         if my_entry:
-                            selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
+                            selected = Selection.objects.all().filter(entry_id=my_entry[0].id, bout_id=bout['id'])
                             if selected:
                                 bout['survivors'] = []
                                 if selected[0].survivor1_id:
