@@ -42,6 +42,8 @@ from contest.serializers import (
     ChatMessageSerializer
 )
 
+import pdb
+
 class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows events to be viewed or edited.
@@ -91,7 +93,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 ))
         except Exception as err:
             return Response(dict(
-                    bouts=_bouts,
-                    event=EventSerializer(latest_event).data,
+                    bouts=[],
+                    event=None,
                     message=str(err)
                 ), status=500)
