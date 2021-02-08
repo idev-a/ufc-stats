@@ -85,3 +85,30 @@ class UserViewSet(viewsets.ModelViewSet):
             status = 403
 
         return Response(dict(url=url), status)
+
+    @action(methods=['get'], detail=False)
+    def get_profile(self, request, **kwarg):
+        status = 200
+        data = {'contest_history': []}
+        try:
+            data['total_contests'] = Entry.objects.filter(user_id=request.user.id).count()
+            total_wins = Entry.objects.filter(user_id=request.user.id, ranking=1).count()
+            data['total_wins'] = "{:5.1f}".format(total_wins/data['total_contests'] * 100) 
+            # contest history
+            entries = Entry.objects.filter(user_id=request.user.id)
+            for _ in entries:
+                event = Event.objects.get(pk=_.event_id)
+                _event = EventSerializer(event).data
+                _entry = EntrySerializer(_).data
+                data['contest_history'].append(dict(
+                    id= _entry['id'],
+                    event=_event['name'],
+                    date=_event['date'],
+                    ranking=_.ranking,
+                    last_edited=_entry['last_edited']
+                ))
+        except Exception as err:
+            status = 500
+
+        return Response(data, status)
+

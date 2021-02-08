@@ -47,4 +47,7 @@ export default {
   referralCallback(url) {
     return session.get(url);
   },
+  getProfile() {
+    return session.get('/api/users/get_profile')
+  }
 };

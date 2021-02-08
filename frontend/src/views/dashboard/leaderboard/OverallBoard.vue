@@ -77,7 +77,6 @@
                 style="margin: .5rem 0;"
               >
                 <div :class="highlight(item)" class="displayname" v-html="item.displayname || 'Unknown'"></div>
-                <!-- <div :class="highlight(item)" class="subtitle" v-html="item.username"></div> -->
               </div>
             </div>
           </template>
@@ -175,7 +174,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .displayname {
     font-size: 14px;
     font-weight: 300;
@@ -187,10 +186,5 @@
     line-height: 2rem;
     letter-spacing: normal !important;
     font-family: "Roboto", sans-serif !important;
-  }
-
-  .subtitle {
-    font-size: 12px;
-    color: #afafaf;
   }
 </style>

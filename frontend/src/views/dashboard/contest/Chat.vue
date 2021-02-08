@@ -199,7 +199,7 @@ export default {
         //   roomContacts.length === 1 && roomContacts[0].avatar
         //     ? roomContacts[0].avatar
         //     : require('@/assets/logo.png')
-        const roomAvatar = require('@/assets/ufc.png')
+        const roomAvatar = 'https://ik.imagekit.io/cuhwrvztecz/0sHOA324_200x200_nYjw_BM9ezv7.jpg'
         formattedRooms.push({
           ...{
             roomId: key,

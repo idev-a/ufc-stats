@@ -8,94 +8,94 @@
       icon="mdi-account-outline"
     >
       <v-card-title>
-        <div class="font-weight-light card-title mt-2">
-          User Profile
+        <div
+          class="d-flex align-center"
+        >
+          <v-avatar
+            color="brown"
+            size="84"
+          >
+            <v-img 
+              v-if="authUser.avatar"
+              :src="authUser.avatar"
+            />
+            <span 
+              v-else
+              class="white--text initials"
+            >
+              {{ authUser.initials }}
+            </span>
+            <!-- <v-icon
+              class="lock-icon"
+            > 
+              mdi-lock
+            </v-icon> -->
+          </v-avatar>
+          <div
+            class="display-box"
+          >
+            <div class="displayname" v-html="authUser.displayname || 'Unknown'"></div>
+            <div class="subtitle">Member since {{authUser.date_joined | beautifyDate}}</div>
+          </div>
         </div>
       </v-card-title>
       <v-card-text 
-        v-if="authUser"
+        v-if="data"
       >
-        <v-form
-          ref="form"
-          v-model="valid"
+        <v-divider />
+        <div
+          class="stats-title"
         >
-          <v-container class="py-0">
-            <v-row>
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  class="purple-input"
-                  label="User Name"
-                  disabled
-                  v-model="authUser.username"
-                />
-              </v-col>
-
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  class="purple-input"
-                  label="Display Name"
-                  v-model="authUser.displayname"
-                  required
-                  :rules="[rules.required]"
-                />
-              </v-col>
-
-              <v-col
-                cols="12"
-                md="4"
-              >
-                <v-text-field
-                  label="Email Address"
-                  class="purple-input"
-                  v-model="authUser.email"
-                  disabled
-                />
-              </v-col>
-
-              <!-- <v-col
-                cols="12"
-                md="6"
-              >
-                <v-text-field
-                  label="First Name"
-                  class="purple-input"
-                  v-model="authUser.first_name"
-                />
-              </v-col>
-
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <v-text-field
-                  label="Last Name"
-                  class="purple-input"
-                  v-model="authUser.last_name"
-                />
-              </v-col> -->
-
-              <v-col
-                cols="12"
-                class="text-right"
-              >
-                <v-btn
-                  color="success"
-                  class="mr-0"
-                  @click.stop="updateProfile"
-                  :disabled="!valid || loading"
-                >
-                  Update
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-form>
+          Overview
+        </div>
+        <div
+          class="stats-blocks"
+        > 
+          <v-card
+            class="well"
+            :loading="loading"
+          >
+            <div
+              class="stats-value"
+            >
+              {{data.total_contests}}
+            </div>
+            <div>
+              Contests
+            </div>
+          </v-card>
+          <v-card
+            class="well"
+            :loading="loading"
+          >
+            <div
+              class="stats-value"
+            >
+              {{data.total_wins}}
+            </div>
+            <div>
+              Win Rate %
+            </div>
+          </v-card>
+        </div>
+        
+        <div
+          class="stats-title mt-5"
+        >
+          Contest History
+        </div>
+        <v-data-table
+          :items="data.contest_history"
+          :loading="loading"
+          :headers="headers"
+          fixed-header
+          item-key="id"
+          dense
+        > 
+          <template v-slot:item.date="{ item }">
+            {{ item.date | beautifyDate }}
+          </template>
+        </v-data-table>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -104,6 +104,7 @@
 <script>
   import { mapState } from 'vuex'
   import auth from '@/api/auth'
+  import { beautifyDate } from '@/util'
 
   export default {
     name: "UserProfile",
@@ -111,6 +112,21 @@
     data: () => ({
       loading: false,
       valid: true,
+      data: null,
+      headers: [
+        {
+          text: 'Event',
+          value: 'event'
+        },
+        {
+          text: 'Date',
+          value: 'date'
+        },
+        {
+          text: 'Ranking',
+          value: 'ranking'
+        },
+      ],
       rules: {
         required: v => {
           return !!v || 'This field is required.'
@@ -132,10 +148,86 @@
       }
     },
 
+    filters: {
+      beautifyDate
+    },
+
+    mounted () {
+      this.getProfile()
+    },
+
     methods: {
+      async getProfile() {
+        this.loading = true
+        const { data } = await auth.getProfile()
+        this.data = data
+        this.loading = false
+      },
       async updateProfile() {
         this.$store.dispatch('auth/updateUser', this.authUser)
       }
     }
   }
 </script>
+
+<style lang="scss" scoped>
+
+  .display-box {
+    text-align: left !important;
+    margin: .5rem 0 0 1rem;
+  }
+
+  .displayname {
+    font-size: 24px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .initials {
+    font-size: 36px;
+    font-weight: 400;
+    line-height: 2rem;
+    letter-spacing: normal !important;
+    font-family: "Roboto", sans-serif !important;
+  }
+
+  .lock-icon {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    width: 100%;
+  }
+
+  .stats-title {
+    margin: .2rem 0 .5rem;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .stats-blocks {
+    display: flex;
+    
+    .well {
+      padding: 19px 10px;
+      font-size: 12px;
+      text-align: center;
+      background-color: #181818;
+      height: 100%;
+      border-radius: 3px;
+      margin-right: 1.5rem;
+      min-width: 100px;
+
+      .stats-value {
+        font-size: 18px;
+        font-weight: 700;
+      }
+    }
+  }
+
+</style>

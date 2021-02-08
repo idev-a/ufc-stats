@@ -75,7 +75,7 @@ def _calc_suv_win_loss(survivor1, survivor2, winner, loser):
     return wins, losses
 
 def update_rank(event_id):
-    selections = Selection.objects.all().filter(entry__event_id=event_id)
+    selections = Selection.objects.filter(entry__event_id=event_id)
     entry_views = get_entry_views(selections)
     status = 200
     try:
@@ -305,8 +305,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
  
     @action(methods=['get'], detail=False)
     def get_latestcontest(self, request, **kwarg):
-        latest_event = Event.objects.all().filter(status='upcoming').latest('-date')
-        selections = Selection.objects.all().filter(entry__event_id=latest_event.id)
+        latest_event = Event.objects.filter(status='upcoming').latest('-date')
+        selections = Selection.objects.filter(entry__event_id=latest_event.id)
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
 

@@ -170,16 +170,7 @@
           >
             Login
           </v-btn>
-          <v-btn
-            v-else
-            text
-            @click="logout"
-            block
-            plain
-          >
-            Logout
-          </v-btn>
-          <v-divider v-if="isAuthenticated" />
+          
           <v-btn
             text
             v-if="isAuthenticated"
@@ -187,7 +178,16 @@
             block
             plain
           >
-            Profile
+            View Profile
+          </v-btn>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            @click="accountDlg=true"
+            block
+            plain
+          >
+            Your Account
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
           <v-btn
@@ -209,12 +209,23 @@
           >
             Leaderboard
           </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            v-if="isAuthenticated"
+            text
+            @click="logout"
+            block
+            plain
+          >
+            Logout
+          </v-btn>
         </div>
       </v-list>
     </v-menu>
 
     <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
     <user-profile v-if="isAuthenticated" :value.sync="profileDlg" @update="profileDlg=false" />
+    <your-account v-if="isAuthenticated" :value.sync="accountDlg" @update="accountDlg=false" />
     <referral :value.sync="referralDlg" @update="referralDlg=false"/>
   </v-app-bar>
 </template>
@@ -226,6 +237,7 @@
   // Utilities
   import { mapState, mapMutations, mapGetters } from 'vuex'
   import UserProfile from '../../pages/UserProfile'
+  import YourAccount from '../../pages/YourAccount'
   import Instruction from '../../instruction/Instruction'
   import Referral from '../../referral/Referral'
 
@@ -235,6 +247,7 @@
     components: {
       Instruction,
       UserProfile,
+      YourAccount,
       Referral,
       AppBarItem: {
         render (h) {
@@ -271,7 +284,8 @@
     data: () => ({
       instructionDlg: false,
       profileDlg: false,
-      referralDlg: false
+      referralDlg: false,
+      accountDlg: false
     }),
 
     computed: {
