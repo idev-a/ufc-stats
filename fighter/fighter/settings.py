@@ -28,7 +28,7 @@ SECRET_KEY = 'u1jy5r$$5xc2d1=1ckb#ndnn2h99b2b!1xd9cw-@0_5nsttt@y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '3.140.186.130', 'beta.fightquake.com', 'fightquake.com', 'www.fightquake.com']
+ALLOWED_HOSTS = ['localhost', 'beta.fightquake.com', 'fightquake.com', 'www.fightquake.com']
 
 DATABASES = { 'default' : dj_database_url.config(default=config('DATABASE_URL'))}
 
@@ -121,16 +121,59 @@ TEMPLATES = [
 WSGI_APPLICATION = 'fighter.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-
+# Logging
+LOG_PATH = STATIC_ROOT = os.path.join(BASE_DIR, 'logs/fighter.log')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[%(levelname)s]> %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S'
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': LOG_PATH,
+            'formatter': 'simple',
+            'encoding': 'utf-8'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'filters': []
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': [config('LOG_HANDLER')],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -184,6 +227,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:8085',
     'http://localhost:8000',
     'http://beta.fightquake.com',
+    'https://beta.fightquake.com',
     'http://fightquake.com',
     'https://fightquake.com'
 ]

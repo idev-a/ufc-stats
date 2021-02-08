@@ -1,5 +1,6 @@
 from django.conf import settings
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
 from contest.models import CustomUser
 
 class MyAccountAdapter(DefaultAccountAdapter):
@@ -7,7 +8,6 @@ class MyAccountAdapter(DefaultAccountAdapter):
 	def save_user(self, request, user, form, commit=False):
 		user = super().save_user(request, user, form, commit)
 		data = form.cleaned_data
-		print(data)
 		user.displayname = data.get('displayname')
 		user.avatar = data.get('avatar')
 		referred_by = None
@@ -20,3 +20,8 @@ class MyAccountAdapter(DefaultAccountAdapter):
 			user.referred_by = referred_by
 		user.save()
 		return user
+
+# class MyTwitterAdapter(TwitterOAuthAdapter):
+
+# 	def save_user(self, request, user, form, commit=False):
+		

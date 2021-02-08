@@ -13,7 +13,7 @@
         </div>
       </v-card-title>
       <v-card-text 
-        v-if="authUser"
+        v-if="user"
       >
         <v-form
           ref="form"
@@ -28,7 +28,8 @@
                 <v-text-field
                   class="purple-input"
                   label="User Name"
-                  v-model="authUser.username"
+                  v-model="user.username"
+                  @keyup.enter="updateProfile"
                 />
               </v-col>
 
@@ -39,9 +40,12 @@
                 <v-text-field
                   class="purple-input"
                   label="Display Name"
-                  v-model="authUser.displayname"
+                  v-model="user.displayname"
                   required
-                  :rules="[rules.required]"
+                  counter
+                  minlength="3"
+                  :rules="[rules.required, rules.min3]"
+                  @keyup.enter="updateProfile"
                 />
               </v-col>
 
@@ -52,7 +56,8 @@
                 <v-text-field
                   label="Email Address"
                   class="purple-input"
-                  v-model="authUser.email"
+                  v-model="user.email"
+                  @keyup.enter="updateProfile"
                 />
               </v-col>
 
@@ -109,17 +114,21 @@
     data: () => ({
       loading: false,
       valid: true,
+      user: null,
       rules: {
         required: v => {
           return !!v || 'This field is required.'
         },
+        min3: v => {
+          return v.length >= 3 || 'Minimum length is 3'
+        }
       }
     }),
 
     props: ['value'],
 
     computed: {
-      ...mapState('auth', ['authUser']),
+      ...mapState('auth', ['authUser', 'error']),
       insideValue: {
         get() {
           return this.value
@@ -127,12 +136,30 @@
         set () {
           this.$emit('update');
         }
+      },
+    },
+
+    watch: {
+      insideValue (val) {
+        if (val) {
+          this.user = {...this.authUser}
+        }
+      },
+      error (val) {
+        if (val) {
+          const snackbar = {
+            message: val,
+            status: 'failed',
+            snack: true
+          }
+          this.$store.dispatch('snackbar/setSnack', snackbar)
+        }
       }
     },
 
     methods: {
       async updateProfile() {
-        this.$store.dispatch('auth/updateUser', this.authUser)
+        this.$store.dispatch('auth/updateUser', this.user)
       }
     }
   }

@@ -164,6 +164,25 @@
     position: absolute;
     width: 100%;
   }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,.7) rgba(0,0,0,0.5);
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+   
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+    border-radius: 10px;
+  }
+   
+  ::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,1); 
+  }
 </style>
 
 

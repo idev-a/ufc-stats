@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinLengthValidator, MaxValueValidator
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
@@ -17,7 +17,7 @@ class CustomUser(AbstractUser):
 
 	objects = CustomUserManager()
 
-	displayname = models.CharField(blank=True, null=True, max_length=100)
+	displayname = models.CharField(blank=True, null=True, max_length=100, unique=True, validators=[MinLengthValidator(3)])
 	avatar = models.CharField(blank=True, null=True, max_length=500)
 	first_name = models.CharField(blank=True, null=True, max_length=100)
 	last_name = models.CharField(blank=True, null=True, max_length=100)

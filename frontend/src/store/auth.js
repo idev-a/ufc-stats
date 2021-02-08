@@ -104,6 +104,7 @@ const actions = {
         commit(SET_AUTH_USER, data)
         commit(LOGIN_SUCCESS)
       })
+      .catch((err) => commit(LOGIN_FAILURE, err));
   },
   loadProfile({ commit, state }, payload) {
     commit('setLoading', true)

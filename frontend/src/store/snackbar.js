@@ -34,7 +34,7 @@ export default {
     setSnack(state, payload) {
       state.snack = payload.snack
       state.message = payload.message
-      state.status = payload.status
+      state.status = payload.status == 'success' ? payload.status : 'red lighten-1'
     },
     showSnack(state, payload=false) {
       state.snack = payload
