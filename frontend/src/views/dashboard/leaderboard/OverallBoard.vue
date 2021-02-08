@@ -32,6 +32,7 @@
           height="280px"
           hide-default-footer
           mobile-breakpoint="0"
+          @click:row="showUserProfile"
         > 
           <template v-slot:header.first_place="{ header }">
             <v-icon color="gold">mdi-trophy-outline</v-icon>
@@ -170,6 +171,9 @@
       isMine (item) {
         return item.displayname == this.displayname
       },
+      showUserProfile (item) {
+        this.$store.dispatch('auth/loadProfile', item.id)
+      }
     }
   }
 </script>

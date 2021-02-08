@@ -29,12 +29,16 @@ const initialState = {
   userContestStatus: false,
   error: false,
   token: localStorage.getItem('TOKEN_STORAGE_KEY'),
+  selectedUserId: null,
+  loading: false,
+  profile: {}
 };
 
 const getters = {
   launchLogin: state => state.launchLogin,
   isAuthenticated: state => !!state.token && state.token != 'null',
-  authUser: state => state.authUser
+  authUser: state => state.authUser,
+  selectedUserId: state => state.selectedUserId,
 };
 
 const actions = {
@@ -101,6 +105,16 @@ const actions = {
         commit(LOGIN_SUCCESS)
       })
   },
+  loadProfile({ commit, state }, payload) {
+    commit('setLoading', true)
+    console.log(payload)
+    commit('setUserId', payload)
+    auth.loadProfile(payload)
+      .then(({data}) => {
+        commit('setProfile', data)
+        commit('setLoading', false)
+      })
+  },
   logout({ commit }) {
     return auth.logout()
       .then(() => commit(LOGOUT))
@@ -162,6 +176,15 @@ const mutations = {
   },
   showLoginDlg(state, payload=true) {
     state.launchLogin = payload
+  },
+  setUserId(state, payload) {
+    state.selectedUserId = payload
+  },
+  setLoading(state, payload=true) {
+    state.loading = payload
+  },
+  setProfile(state, payload) {
+    state.profile = payload
   }
 };
 

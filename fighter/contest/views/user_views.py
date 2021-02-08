@@ -86,16 +86,24 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(dict(url=url), status)
 
-    @action(methods=['get'], detail=False)
-    def get_profile(self, request, **kwarg):
+    @action(methods=['post'], detail=False)
+    def load_profile(self, request, **kwarg):
         status = 200
         data = {'contest_history': []}
         try:
-            data['total_contests'] = Entry.objects.filter(user_id=request.user.id).count()
-            total_wins = Entry.objects.filter(user_id=request.user.id, ranking=1).count()
-            data['total_wins'] = "{:5.1f}".format(total_wins/data['total_contests'] * 100) 
+            user = CustomUser.objects.get(pk=request.data['id'])
+            data['total_contests'] = Entry.objects.filter(user_id=user.id).count()
+            total_wins = Entry.objects.filter(user_id=user.id, ranking=1).count()
+            data['total_wins'] = "{:5.1f}".format(total_wins/data['total_contests'] * 100)
+            # user
+            data['user'] = dict(
+                id=user.id,
+                displayname=user.displayname,
+                date_joined=user.date_joined,
+                initials=user.initials
+            )
             # contest history
-            entries = Entry.objects.filter(user_id=request.user.id)
+            entries = Entry.objects.filter(user_id=user.id)
             for _ in entries:
                 event = Event.objects.get(pk=_.event_id)
                 _event = EventSerializer(event).data

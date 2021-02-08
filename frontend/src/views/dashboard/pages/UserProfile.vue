@@ -6,6 +6,8 @@
     <v-card
       class="fq-popup"
       icon="mdi-account-outline"
+      :loading="loading"
+      id="profile-card"
     >
       <v-card-title>
         <div
@@ -16,14 +18,14 @@
             size="84"
           >
             <v-img 
-              v-if="authUser.avatar"
-              :src="authUser.avatar"
+              v-if="userAvatar"
+              :src="userAvatar"
             />
             <span 
               v-else
               class="white--text initials"
             >
-              {{ authUser.initials }}
+              {{ userInitials }}
             </span>
             <!-- <v-icon
               class="lock-icon"
@@ -34,13 +36,12 @@
           <div
             class="display-box"
           >
-            <div class="displayname" v-html="authUser.displayname || 'Unknown'"></div>
-            <div class="subtitle">Member since {{authUser.date_joined | beautifyDate}}</div>
+            <div class="displayname" v-html="userDisplayname"></div>
+            <div class="subtitle">Member since {{ userJoinedDate }}</div>
           </div>
         </div>
       </v-card-title>
       <v-card-text 
-        v-if="data"
       >
         <v-divider />
         <div
@@ -58,7 +59,7 @@
             <div
               class="stats-value"
             >
-              {{data.total_contests}}
+              {{profile.total_contests}}
             </div>
             <div>
               Contests
@@ -71,7 +72,7 @@
             <div
               class="stats-value"
             >
-              {{data.total_wins}}
+              {{profile.total_wins}}
             </div>
             <div>
               Win Rate %
@@ -85,15 +86,16 @@
           Contest History
         </div>
         <v-data-table
-          :items="data.contest_history"
+          :items="profile.contest_history"
           :loading="loading"
           :headers="headers"
           fixed-header
           item-key="id"
           dense
+          item-class="contest-history-tb-row"
         > 
           <template v-slot:item.date="{ item }">
-            {{ item.date | beautifyDate }}
+            {{ beautifyDate(item.date)}}
           </template>
         </v-data-table>
       </v-card-text>
@@ -110,9 +112,7 @@
     name: "UserProfile",
 
     data: () => ({
-      loading: false,
       valid: true,
-      data: null,
       headers: [
         {
           text: 'Event',
@@ -134,35 +134,32 @@
       }
     }),
 
-    props: ['value'],
-
     computed: {
-      ...mapState('auth', ['authUser']),
+      ...mapState('auth', ['authUser', 'loading', 'profile']),
       insideValue: {
         get() {
-          return this.value
+          return this.$store.getters['auth/selectedUserId']
         },
-        set () {
-          this.$emit('update');
+        set (val) {
+          this.$store.commit('auth/setUserId', val);
         }
+      },
+      userAvatar () {
+        return this.profile.user && this.profile.user.avatar
+      },
+      userInitials () {
+        return this.profile.user && this.profile.user.initials
+      },
+      userDisplayname () {
+        return this.profile.user && this.profile.user.displayname || 'Unknown'
+      },
+      userJoinedDate () {
+        return this.profile.user && this.beautifyDate(this.profile.user.date_joined)
       }
     },
 
-    filters: {
-      beautifyDate
-    },
-
-    mounted () {
-      this.getProfile()
-    },
-
     methods: {
-      async getProfile() {
-        this.loading = true
-        const { data } = await auth.getProfile()
-        this.data = data
-        this.loading = false
-      },
+      beautifyDate,
       async updateProfile() {
         this.$store.dispatch('auth/updateUser', this.authUser)
       }

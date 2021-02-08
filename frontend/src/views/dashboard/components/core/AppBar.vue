@@ -174,7 +174,7 @@
           <v-btn
             text
             v-if="isAuthenticated"
-            @click="profileDlg=true"
+            @click="showProfileDlg"
             block
             plain
           >
@@ -224,7 +224,7 @@
     </v-menu>
 
     <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
-    <user-profile v-if="isAuthenticated" :value.sync="profileDlg" @update="profileDlg=false" />
+    <user-profile v-if="isProfileDlg"/>
     <your-account v-if="isAuthenticated" :value.sync="accountDlg" @update="accountDlg=false" />
     <referral :value.sync="referralDlg" @update="referralDlg=false"/>
   </v-app-bar>
@@ -295,6 +295,9 @@
 
       notificationLengh () {
         return this.notifications.length < 100 ? this.notifications.length : '99+'
+      },
+      isProfileDlg () {
+        return this.$store.getters['auth/selectedUserId']
       }
     },
 
@@ -326,6 +329,9 @@
       showChat () {
         if (this.$route.name == 'Chat') return
         this.$router.push({ name: 'Chat' })
+      },
+      showProfileDlg () {
+        this.$store.dispatch('auth/loadProfile', this.authUser.pk || this.authUser.id)
       }
     },
   }

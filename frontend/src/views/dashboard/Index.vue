@@ -51,9 +51,8 @@
 
     mounted() {
       // login
-      this.$store.subscribe((mutation, state) => {
-        this.key++
-      })
+      // this.$store.subscribe((mutation, state) => {
+      // })
     },
 
     methods: {
