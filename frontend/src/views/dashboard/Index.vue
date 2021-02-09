@@ -140,7 +140,7 @@
   }
 
   .dialog-drag {
-    background-color: transparent;
+    /*background-color: transparent;*/
     border: none;
   }
 
@@ -175,7 +175,7 @@
   }
    
   ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
     border-radius: 10px;
   }
    
@@ -189,10 +189,6 @@
 <style lang="scss">
   #contest-table {
     backdrop-filter: blur(30px) contrast(1.0);
-
-    * {
-      background-color: transparent;
-    }
 
     .v-data-table { 
       overflow-x: auto !important;

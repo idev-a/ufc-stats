@@ -5,7 +5,11 @@
       class="ma-0 pa-0 pb-3"
       :class="{'max-60': !$vuetify.breakpoint.mobile}"
     >
-      
+     <!--  <v-img
+        class="white--text align-end"
+        height="100px"
+        src="https://ik.imagekit.io/cuhwrvztecz/bg_A4TO7AM8_E43.jpg"
+      > -->
         <v-card-title 
           class="justify-center font-weight-medium mb-md-3"
         >
@@ -17,6 +21,7 @@
             </div>
           </div>
         </v-card-title>
+      <!-- </v-img> -->
         <v-card-text
           class="w-100"
         >

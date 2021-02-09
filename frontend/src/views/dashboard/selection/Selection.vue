@@ -18,8 +18,8 @@
             <span v-if="eventStarted" class="red--text lighten-1 h6">({{(event.action || 'started').toUpperCase()}})</span>
             <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
-          <div class="grab overline">{{totalFighters}} FIGHTERS</div>
-          <div class="grab overline">SQUAD SIZE: <b>{{squadSize}}</b></div>
+          <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
+          <!-- <div class="grab overline"></div> -->
         </div>
       </v-card-title>
       <v-card-text
@@ -260,11 +260,10 @@
 <style lang="scss">
   #selection {
     
-
-    .selection-card, .selection-card * {
-      background-color: transparent;
-      backdrop-filter: blur(30px) contrast(.9);
-    }
+  //  .selection-card, .selection-card * {
+  //    background-color: transparent;
+  //    backdrop-filter: blur(30px) contrast(.9);
+  //  }
 
     .v-btn-toggle {
       display: flex;

@@ -1,7 +1,7 @@
 <template>
   <v-chip 
     small
-    class="grey lighten-1"
+    class="grey"
     :class="{'winner': isWinner, 'loser': isLoser, 'died': isDied}"
     v-bind="$attrs"
     v-on="$listeners"
