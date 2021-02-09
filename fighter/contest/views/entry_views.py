@@ -115,6 +115,7 @@ def get_entry_views(selections):
         score[username_id] = score.get(username_id, copy.deepcopy(default_score))
         score[username_id]['id'] = username_id
         score[username_id]['entry'] = selection.entry.user.displayname
+        score[username_id]['user_id'] = selection.entry.user.id
         score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
 
         # Get winner and loser

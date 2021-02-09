@@ -1,0 +1,36 @@
+Watching for file changes with StatReloader
+WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56196]
+WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56196]
+[31;1mHTTP PATCH /auth/user/ 400 [0.07, 127.0.0.1:56206][0m
+/mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+INFO 2021-02-08 11:05:10,797 Watching for file changes with StatReloader
+INFO 2021-02-08 11:05:12,788 WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56324]
+INFO 2021-02-08 11:05:12,879 WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56324]
+WARNING 2021-02-08 11:05:15,930 [31;1mHTTP PATCH /auth/user/ 400 [0.07, 127.0.0.1:56334][0m
+INFO 2021-02-08 11:07:26,938 /mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+[INFO]> Watching for file changes with StatReloader
+[INFO]> WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56541]
+[INFO]> WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56541]
+[WARNING]> [31;1mHTTP PATCH /auth/user/ 400 [0.07, 127.0.0.1:56549][0m
+[INFO]> /mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+[INFO]> Watching for file changes with StatReloader
+[INFO]> WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56621]
+[INFO]> WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56621]
+[INFO]> /mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+[INFO]> Watching for file changes with StatReloader
+[INFO]> WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56636]
+[INFO]> WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56636]
+[INFO]> /mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+[INFO]> Watching for file changes with StatReloader
+[INFO]> WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56678]
+[INFO]> WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56678]
+[WARNING]> [31;1mHTTP PATCH /auth/user/ 400 [0.07, 127.0.0.1:56684][0m
+[INFO]> /mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+[INFO]> Watching for file changes with StatReloader
+[INFO]> WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:56984]
+[INFO]> WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:56984]
+[WARNING]> [31;1mHTTP PATCH /auth/user/ 400 [0.07, 127.0.0.1:56991][0m
+[INFO]> /mnt/g/work/john/dashboard/fighter/fighter/settings.py changed, reloading.
+[INFO]> Watching for file changes with StatReloader
+[INFO]> WebSocket HANDSHAKING /ws/ufc-event/ [127.0.0.1:57711]
+[INFO]> WebSocket CONNECT /ws/ufc-event/ [127.0.0.1:57711]

@@ -71,7 +71,7 @@ class Event(models.Model):
 		ordering = ['date']
 
 	def __str__(self):
-		return "%s" % self.name
+		return "%s (%s)" % (self.name, self.date.strftime('%Y-%m-%d'))
 
 class Fighter(models.Model):
 	name = models.CharField(max_length=100, blank=False, default='')
