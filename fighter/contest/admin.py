@@ -18,7 +18,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
 	search_fields = ('username', 'displayname', 'email', )
-	list_display = ('username', 'email', 'displayname', "date_joined", "fq_points", 'referred_by', )
+	list_display = ('username', 'email', 'displayname', "date_joined", "fq_points", 'referred_by', 'id', )
 
 	class Meta:
 		ordering = ("email", 'date_joined', )
@@ -37,7 +37,7 @@ class EventAdmin(admin.ModelAdmin):
 class FighterAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	search_fields = ('name', 'title', )
-	list_display = ('name', 'title', )
+	list_display = ('name', 'title', 'id')
 
 	class Meta:
 		ordering = ("name", )
@@ -46,7 +46,7 @@ class FighterAdmin(admin.ModelAdmin):
 class BoutAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	search_fields = ('weight_class', 'method', 'status', 'event__name', 'fighter1__name', 'fighter2__name')
-	list_display = ('fighter1', 'fighter2', 'event', "method", "weight_class", 'status', 'round', 'time')
+	list_display = ('fighter1', 'fighter2', 'event', "method", "weight_class", 'status', 'round', 'time', 'id')
 
 	class Meta:
 		ordering = ('event', "fighter1", 'fighter2')
