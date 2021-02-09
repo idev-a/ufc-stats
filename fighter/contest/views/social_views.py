@@ -46,9 +46,22 @@ from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
 from rest_auth.registration.views import SocialLoginView
 from rest_auth.social_serializers import TwitterLoginSerializer
 
+import pdb
+
+class CustomTwitterLoginSerializer(TwitterLoginSerializer):
+
+    def validate(self, attrs):
+        _attrs = super().validate(attrs)
+
+        user = _attrs['user']
+        user.displayname = user.username
+        _attrs['user'] = user
+        user.save()
+        return _attrs
+
 # Social
 class TwitterLogin(SocialLoginView):
-    serializer_class = TwitterLoginSerializer
+    serializer_class = CustomTwitterLoginSerializer
     adapter_class = TwitterOAuthAdapter
 
 
