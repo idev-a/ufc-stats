@@ -25,19 +25,16 @@
       <v-card-text
         class="pb-0"
       >
-        <v-virtual-scroll
-          :items="bouts"
-          :item-height="45"
-          height="300"
-          :key="key"
+        <div
+          style="height: 300px; overflow-y: scroll;"
         >
-          <template v-slot:default="{ item }">
+          <template v-for="item in bouts">
             <v-btn-toggle
               v-model="contests[item.id]"
               :key="item.id"
               dense
               multiple
-              class="justify-space-between"
+              class="justify-space-between mb-2 mx-1"
               tile
               @change="changeContests"
             >
@@ -60,7 +57,7 @@
               </v-btn>
             </v-btn-toggle>
           </template>
-        </v-virtual-scroll>
+        </div>
         <div class="d-flex justify-center">
           <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
           <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || eventStarted" small @click="clearSelection">Clear</v-btn>
