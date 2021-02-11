@@ -3,7 +3,7 @@
     <v-card
       max-width="100%"
       class="ma-0 pa-0 pb-3"
-      :class="{'max-60 y-scroll': !$vuetify.breakpoint.mobile}"
+      :class="{'max-60': !$vuetify.breakpoint.mobile}"
     >
      <!--  <v-img
         class="white--text align-end"

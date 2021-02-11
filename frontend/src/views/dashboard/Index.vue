@@ -90,10 +90,6 @@
     }
   }
 
-  .y-scroll {
-    overflow-y: scroll;
-  }
-
   .w-100 {
     width: 100%;
   }
@@ -105,6 +101,8 @@
   .bg-dead {
     background: #E0E0E;
   }
+
+
 
   .bg {
     width: 100%;
@@ -184,12 +182,6 @@
   ::-webkit-scrollbar-thumb {
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,1); 
-  }
-
-
-  ::-webkit-scrollbar-thumb:vertical
-  {
-      background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
   }
 </style>
 
