@@ -8,31 +8,39 @@ After=network.target
 User=ubuntu
 Group=www-data
 WorkingDirectory=/home/ubuntu/ufc-stats/fighter
-ExecStart=/home/ubuntu/ufc-stats/fighter/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/ufc-stats/fighter/fighter.sock fighter.wsgi:application   
+ExecStart=/home/ubuntu/ufc-stats/fighter/venv/bin/gunicorn \
+	--access-logfile - \
+	--workers 3 \
+	--bind unix:/run/gunicorn.sock \
+	fighter.wsgi:application   
 
 [Install]           
 WantedBy=multi-user.target                          
 
 <!-- Daphne deploy -->
 [Unit]              
-Description=myproject Daphne Service           
-After=network.target       
+Description=fightquake Daphne Service           
+After=network.target 
+
 [Service]
 Type=simple
 User=ubuntu
 Group=www-data
 WorkingDirectory=/home/ubuntu/ufc-stats/fighter
 ExecStart=/home/ubuntu/ufc-stats/fighter/venv/bin/daphne -b 0.0.0.0 -p 9001  fighter.asgi:application
+
 [Install]           
 WantedBy=multi-user.target 
 
 <!-- nginx -->
 upstream socket_server {                  	
 	server localhost:9001;          
-}       server {
+}   
+
+server {
 	listen 80;
 	listen [::]:80;
-	server_name 18.220.33.195 test.fightquake.com;       
+	server_name 3.133.96.194 test.fightquake.com;       
 	root /home/ubuntu/ufc-stats/frontend/dist;
 	index index.html index.htm index.nginx-debian.html;
 
@@ -88,9 +96,6 @@ upstream socket_server {
 		root /home/ubuntu/ufc-stats/fighter;
 	}
 
-	location /robots.txt {
-		alias /home/ubuntu/ufc-stats/frontend/public/robots.txt
-	}                         
 }  
 
  ## psycopg2
