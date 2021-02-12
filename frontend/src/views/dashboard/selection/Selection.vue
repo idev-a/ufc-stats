@@ -19,14 +19,17 @@
             <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
           <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
-          <!-- <div class="grab overline"></div> -->
         </div>
       </v-card-title>
       <v-card-text
         class="pb-0"
+        style="position: relative;"
       >
+        <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
         <div
-          style="height: 300px; overflow-y: scroll;"
+          id="scrollContainer"
+          style="height: 300px; overflow-y: scroll; -webkit-overflow-scrolling: touch; -webkit-overflow-scrolling: scroll; position: relative;"
+          @scroll="onScroll"
         >
           <template v-for="item in bouts">
             <v-btn-toggle
@@ -58,6 +61,7 @@
             </v-btn-toggle>
           </template>
         </div>
+        <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
         <div class="d-flex justify-center">
           <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
           <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || eventStarted" small @click="clearSelection">Clear</v-btn>
@@ -78,7 +82,6 @@
   import InstructionBody from "../instruction/InstructionBody";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
-
   export default {
     name: 'Selection',
 
@@ -95,7 +98,7 @@
           }
         },
         deep: true
-      }
+      },
     },
 
     data () {
@@ -117,7 +120,9 @@
         },
         toggle_multiple: [0, 1],
         squadSize: 0,
-        cntdownInstance: null
+        cntdownInstance: null,
+        top: 0,
+        sHeight: -1,
       }
     },
 
@@ -145,6 +150,16 @@
       },
       height () {
         return this.$vuetify.breakpoint.smAndDown ? 'calc(100vh + 210px)' : 'inherit'
+      },
+      _up() {
+        return this.top > 0 
+              && this.$vuetify.breakpoint.mobile
+      },
+      _down() {
+        console.log((this.top == 0 || (this.top + 300) < this.sHeight) && 
+              this.$vuetify.breakpoint.mobile)
+        return (this.top == 0 || (this.top + 300) < this.sHeight) && 
+              this.$vuetify.breakpoint.mobile
       }
     },
 
@@ -160,8 +175,13 @@
       this.changeContests()
       this.loading = false
     },
-
     methods: {
+      onScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
+        this.top = scrollTop
+        this.sHeight = scrollHeight
+        if (scrollTop + clientHeight >= scrollHeight) {
+        }
+      },
       startCountDown(val) {
         this.deadline2 = this.$moment(`${val.date}`).format(fmt)
       },
@@ -279,6 +299,20 @@
 
     .v-btn.v-btn--disabled {
       color: rgba(255, 255, 255, 0.26) !important;
+    }
+
+    .arrow-up {
+      position: absolute;
+      bottom: 44px;
+      left: calc(50% - 17px);
+      z-index: 10;
+    }
+
+    .arrow-down {
+      position: absolute;
+      top: 0;
+      left: calc(50% - 11px);
+      z-index: 10;
     }
   }
 </style>
