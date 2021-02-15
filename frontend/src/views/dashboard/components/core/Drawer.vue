@@ -6,7 +6,7 @@
     :expand-on-hover="expandOnHover"
     :right="$vuetify.rtl"
     :src="barImage"
-    mobile-break-point="960"
+    mobile-breakpoint="960"
     app
     mini-variant-width="80"
     width="260"
@@ -22,8 +22,8 @@
     <v-list-item two-line>
       <v-list-item-content>
         <v-list-item-title class="text-uppercase font-weight-regular display-2">
-          <span class="logo-mini">{{ $t('SD') }}</span>
-          <span class="logo-normal">{{ $t('Dashboard') }}</span>
+          <span class="logo-mini">{{ $t('FQ') }}</span>
+          <span class="logo-normal">{{ $t('FightQuake') }}</span>
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
@@ -89,9 +89,19 @@
     data: () => ({
       items: [
         {
-          icon: 'mdi-view-dashboard',
-          title: 'dashboard',
+          icon: 'mdi-pickaxe',
+          title: 'Selection',
           to: '/',
+        },
+        {
+          icon: 'mdi-sofa-single-outline',
+          title: 'Contest',
+          to: '/contest',
+        },
+        {
+          icon: 'mdi-view-dashboard-outline',
+          title: 'Leaderboard',
+          to: '/leaderboard',
         },
       ],
     }),
