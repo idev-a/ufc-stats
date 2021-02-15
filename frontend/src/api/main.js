@@ -19,4 +19,7 @@ export default {
   getLeaderboard () {
     return session.get('api/entries/get_leaderboard/')
   },
+  loadGames() {
+    return session.get('api/games/load_games/')
+  }
 }

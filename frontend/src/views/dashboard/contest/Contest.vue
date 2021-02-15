@@ -2,26 +2,20 @@
   <div id="contest-table">
     <v-card
       max-width="100%"
-      class="ma-0 pa-0 pb-3"
-      :class="{'max-60 y-scroll': !$vuetify.breakpoint.mobile}"
+      class="ma-0 pa-0 pb-3 fq-popup"
+      :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
     >
-     <!--  <v-img
-        class="white--text align-end"
-        height="100px"
-        src="https://ik.imagekit.io/cuhwrvztecz/bg_A4TO7AM8_E43.jpg"
-      > -->
-        <v-card-title 
-          class="justify-center font-weight-medium mb-md-3"
-        >
-          <div class="text-center">
-            <div>{{ event.name }}</div>
-            <div class="subtitle-1">
-              {{ event.date | beautifyDate }}
-              <span v-if="eventStarted" class="red--text h6">({{(event.action || 'started').toUpperCase()}})</span>
-            </div>
+      <v-card-title 
+        class="justify-center font-weight-medium mb-md-3"
+      >
+        <div class="text-center">
+          <div>{{ event.name }}</div>
+          <div class="subtitle-1">
+            {{ event.date | beautifyDate }}
+            <span v-if="eventStarted" class="red--text h6">({{(event.action || 'started').toUpperCase()}})</span>
           </div>
-        </v-card-title>
-      <!-- </v-img> -->
+        </div>
+      </v-card-title>
         <v-card-text
           class="w-100"
         >

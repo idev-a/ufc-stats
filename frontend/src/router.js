@@ -68,7 +68,13 @@ let router = new Router({
           name: 'Referral',
           path: 'rf/:id',
           component: () => import('@/views/dashboard/referral/ReferralCallback'),
-        }
+        },
+        {
+          name: 'Lobby',
+          path: 'lobby',
+          component: () => import('@/views/dashboard/lobby/LobbyContainer'),
+          beforeEnter: requireAuthenticated
+        },
       ],
     },
     {

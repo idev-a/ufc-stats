@@ -5,7 +5,7 @@
   >
     <v-card
       :loading="loading"
-      class="lighten-4 ma-0 pa-0 selection-card"
+      class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
       <v-card-title 
         v-if="event" 
@@ -156,8 +156,6 @@
               && this.$vuetify.breakpoint.mobile
       },
       _down() {
-        console.log((this.top == 0 || (this.top + 300) < this.sHeight) && 
-              this.$vuetify.breakpoint.mobile)
         return (this.top == 0 || (this.top + 300) < this.sHeight) && 
               this.$vuetify.breakpoint.mobile
       }

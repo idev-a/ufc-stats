@@ -200,13 +200,6 @@
     width: 100%;
   }
 
-  .stats-title {
-    margin: .2rem 0 .5rem;
-    font-size: 14px;
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-
   .stats-blocks {
     display: flex;
     

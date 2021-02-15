@@ -5,6 +5,7 @@ from contest.models import (
 	Fighter,
 	Selection,
 	Entry,
+	Game,
 	CustomUser,
 	ChatRoom,
 	ChatFile,
@@ -75,6 +76,11 @@ class SelectionSerializer(serializers.ModelSerializer):
 class EntrySerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Entry
+		fields = '__all__'
+
+class GameSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Game
 		fields = '__all__'
 
 # Chat

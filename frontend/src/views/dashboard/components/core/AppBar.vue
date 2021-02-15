@@ -51,6 +51,21 @@
         <v-btn
           v-on="on"
           min-width="0"
+          style="padding: 10px 10px !important; margin: 0 1px;"
+          text
+          to="/lobby"
+        >
+          <v-icon color="white">mdi-google-controller</v-icon>
+        </v-btn>
+      </template>
+      <span>Lobby</span>
+    </v-tooltip>
+
+    <v-tooltip bottom z-index=100>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-on="on"
+          min-width="0"
           text
           style="padding: 10px 10px !important; margin: 0 1px;"
           @click.stop="showInstruction"

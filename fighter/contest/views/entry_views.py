@@ -24,9 +24,6 @@ from contest.models import (
     Selection,
     Entry,
     CustomUser,
-    ChatRoom,
-    ChatFile, 
-    ChatMessage
 )
 from contest.serializers import (
     UserSerializer,
@@ -36,9 +33,6 @@ from contest.serializers import (
     FighterSerializer,
     SelectionSerializer,
     EntrySerializer,
-    ChatRoomSerializer,
-    ChatFileSerializer,
-    ChatMessageSerializer
 )
 
 import pdb

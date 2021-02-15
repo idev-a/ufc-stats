@@ -7,6 +7,7 @@ from .models import (
 	Entry,
 	Selection,
 	CustomUser,
+	Game,
 	ChatRoom,
 	ChatFile,
 	ChatMessage
@@ -65,11 +66,21 @@ class EntryAdmin(admin.ModelAdmin):
 class SelectionAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
-	search_fields = ('bout__fighter1__name', 'bout__fighter2__name', 'entry__event__name', 'entry__user__email' )
+	search_fields = ('bout__fighter1__name', 'bout__fighter2__name', 'entry__event__name', 'entry__user__email',)
 	list_display = ('entry', 'bout', 'survivor1', 'survivor2', )
 
 	class Meta:
 		ordering = ('entry', "bout", )
+
+@admin.register(Game)
+class GameAdmin(admin.ModelAdmin):
+	list_per_page = 20
+
+	search_fields = ('event__name', 'type_of_registration', 'entrants__username', 'instructions', 'rules_set', 'date_started', )
+	list_display = ('event', 'type_of_registration', 'info_entrants', 'short_instructions', 'short_rules_set', )
+
+	class Meta:
+		ordering = ('event', 'date_started', )
 
 # Chat
 

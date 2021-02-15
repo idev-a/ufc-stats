@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
+from django.template.defaultfilters import truncatewords  # or 
 
 from .managers import CustomUserManager
 
@@ -191,15 +192,40 @@ class Selection(models.Model):
 		on_delete=models.CASCADE
 	)
 
-	# objects = SelectionManager()
-	# Indicate whether the user won the contest based upon the bout result
-	# 1: winner 0: loser
-	# status = models.BooleanField(default=False, null=True, blank=True)
-	# Indicate whether the bout has finished
-	# finished = models.BooleanField(default=False, null=True, blank=True)
-
 	def __str__(self):
 		return "%s - %s (%s)" % (self.survivor1, self.survivor2, self.bout)
+
+# multiple games
+class Game(models.Model):
+	REGISTRATION_TYPES = [
+		('private', 'Private'),
+		('public', 'Public')
+	]
+
+	event = models.ForeignKey(
+		Event,
+		related_name='game_event', 
+		on_delete=models.CASCADE,
+	)
+
+	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
+	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
+	instructions = models.TextField(default='', max_length=50, blank=True)
+	rules_set = models.TextField(default='', max_length=50, blank=True)
+	date_started = models.DateTimeField(null=True, blank=True)
+
+	def info_entrants(self):
+		return '{}'.format(len(self.entrants.all()))
+
+	@property
+	def short_instructions(self):
+		return truncatewords(self.instructions, 50)
+
+	@property
+	def short_rules_set(self):
+		return truncatewords(self.rules_set, 50)
+
+	info_entrants.short_description  = 'Total entrants'
 
 # Chat
 class ChatRoom(models.Model):
