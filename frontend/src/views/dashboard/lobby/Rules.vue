@@ -3,10 +3,11 @@
     <v-sheet
       class="pa-2 mt-3"
       elevation="1"
-      height="100"
+      max-height="300"
       width="100%"
+      style="overflow-y: auto"
     >
-      {{ game.rules_set }}
+      <span v-html="game.rules_set.replace(/\n/g, '<br/>')"></span>
     </v-sheet>
   </div>
 </template>

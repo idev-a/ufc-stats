@@ -8,10 +8,11 @@
     <v-sheet
       class="pa-2"
       elevation="1"
-      height="100"
+      max-height="300"
       width="100%"
+      style="overflow-y: auto"
     >
-      {{ game.instructions }}
+      <span v-html="game.instructions.replace(/\n/g, '<br/>')"></span>
     </v-sheet>
 
     <div
