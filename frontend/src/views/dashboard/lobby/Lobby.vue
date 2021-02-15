@@ -58,7 +58,7 @@
             <span>{{ item.date_started | beautifyDateTimeMin }}</span>
           </template>
           <template v-slot:item.actions="{ item }">
-            <v-tooltip bottom>
+            <v-tooltip right>
               <template  v-slot:activator="{ on }">
                 <div v-on="on">
                   <v-btn 
@@ -99,7 +99,7 @@
                 <v-list-item-subtitle><b>Start at</b> {{ curGame.date_started | beautifyDateTimeMin }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
-                <v-tooltip bottom>
+                <v-tooltip left>
                   <template  v-slot:activator="{ on }">
                     <div v-on="on">
                       <v-btn 
@@ -277,7 +277,7 @@
           return true
         }
 
-        return true
+        return false
       },
       JoinBtnTooltip(item) {
         if (!this.canJoin(item)) {
