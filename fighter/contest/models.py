@@ -210,8 +210,8 @@ class Game(models.Model):
 
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
-	instructions = models.TextField(default='', max_length=50, blank=True)
-	rules_set = models.TextField(default='', max_length=50, blank=True)
+	instructions = models.TextField(default='', max_length=500, blank=True)
+	rules_set = models.TextField(default='', max_length=500, blank=True)
 	date_started = models.DateTimeField(null=True, blank=True)
 
 	def info_entrants(self):
