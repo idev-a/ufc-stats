@@ -63,8 +63,8 @@
         </div>
         <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
         <div class="d-flex justify-center">
-          <v-btn class="success mt-2 mb-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
-          <v-btn class="grey darken-2 mt-2 mb-2" :disabled="!squadSize || eventStarted" small @click="clearSelection">Clear</v-btn>
+          <v-btn class="success my-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
+          <v-btn class="grey darken-2 my-2" :disabled="!squadSize || eventStarted" small @click="clearSelection"><v-icon small left>mdi-cancel</v-icon>Clear</v-btn>
         </div>
       </v-card-text>
     </v-card>

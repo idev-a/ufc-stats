@@ -27,7 +27,7 @@
         >
           <v-icon color="white">mdi-pickaxe</v-icon>
         </v-btn>
-        </template>
+      </template>
       <span>Selection</span>
     </v-tooltip>
 

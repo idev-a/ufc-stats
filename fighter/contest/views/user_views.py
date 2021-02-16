@@ -119,6 +119,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     last_edited=_entry['last_edited']
                 ))
         except Exception as err:
+            print(err)
             status = 500
 
         return Response(data, status)

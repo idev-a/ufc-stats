@@ -91,7 +91,9 @@
   }
 
   .y-scroll {
+    overflow-x: hidden;
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
   }
 
   .w-100 {
@@ -185,6 +187,7 @@
 
   ::-webkit-scrollbar {
     width: 12px;
+    -webkit-appearance: none;
   }
    
   ::-webkit-scrollbar-track {
