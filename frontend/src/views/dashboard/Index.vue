@@ -3,6 +3,8 @@
     <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage, 'contest-over-bg': contestOverPage}"></span>
     <dashboard-core-app-bar :key="`key${key}`" v-model="expandOnHover" />
 
+    <dashboard-core-drawer v-if="$vuetify.breakpoint.mobile" :expand-on-hover.sync="expandOnHover" />
+
     <dashboard-core-view :key="`newKey${newKey}`"/>
 
     <snackbar @update="reloadPage"/>
@@ -22,6 +24,7 @@
     components: {
       DashboardCoreAppBar: () => import('./components/core/AppBar'),
       DashboardCoreView: () => import('./components/core/View'),
+      DashboardCoreDrawer: () => import('./components/core/Drawer'),
       LoginView: () => import('../pages/Login'),
       RegisterView: () => import('../pages/Register'),
       Snackbar: () => import('./component/Snackbar'),
@@ -186,17 +189,21 @@
   }
 
   ::-webkit-scrollbar {
+<<<<<<< HEAD
     width: 12px;
     -webkit-appearance: none;
+=======
+    width: 8px;
+>>>>>>> 67e9149a2da200e8849f9f4aa6f5586103425ea7
   }
    
   ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-    border-radius: 10px;
+    border-radius: 4px;
   }
    
   ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
+    border-radius: 4px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,1); 
   }
 

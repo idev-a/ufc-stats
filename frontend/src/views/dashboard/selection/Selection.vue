@@ -303,14 +303,14 @@
       position: absolute;
       bottom: 44px;
       left: calc(50% - 17px);
-      z-index: 10;
+      z-index: 2;
     }
 
     .arrow-down {
       position: absolute;
       top: 0;
       left: calc(50% - 11px);
-      z-index: 10;
+      z-index: 2;
     }
   }
 </style>

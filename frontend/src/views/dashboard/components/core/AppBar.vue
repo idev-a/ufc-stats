@@ -7,6 +7,23 @@
     flat
     height="75"
   >
+    <v-btn
+      v-if="$vuetify.breakpoint.smAndDown"
+      class="mr-3"
+      elevation="1"
+      fab
+      small
+      @click="$vuetify.breakpoint.smAndDown ? setDrawer(!drawer) : $emit('input', !value)"
+    >
+      <v-icon v-if="value">
+        mdi-view-quilt
+      </v-icon>
+
+      <v-icon v-else>
+        mdi-dots-vertical
+      </v-icon>
+    </v-btn>
+
     <v-toolbar-title
       class="hidden-sm-and-down font-weight-medium white--text"
       v-text="$route.name"
@@ -19,13 +36,15 @@
     <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
+          v-if="$vuetify.breakpoint.smAndUp"
           v-on="on"
           min-width="0"
           style="padding: 10px 10px !important; margin: 0 1px;"
           text
           to="/"
         >
-          <v-icon color="white">mdi-pickaxe</v-icon>
+          <!-- <v-icon color="white">mdi-pickaxe</v-icon> -->
+          Selection
         </v-btn>
       </template>
       <span>Selection</span>
@@ -35,12 +54,14 @@
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
+          v-if="$vuetify.breakpoint.smAndUp"
           min-width="0"
           style="padding: 10px 10px !important; margin: 0 1px;"
           text
           to="/contest"
         >
-          <v-icon color="white">mdi-sofa-single-outline</v-icon>
+          <!-- <v-icon color="white">mdi-sofa-single-outline</v-icon> -->
+          Contest
         </v-btn>
       </template>
       <span>Contest</span>
@@ -49,13 +70,15 @@
     <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
+          v-if="$vuetify.breakpoint.smAndUp"
           v-on="on"
           min-width="0"
           style="padding: 10px 10px !important; margin: 0 1px;"
           text
           to="/lobby"
         >
-          <v-icon color="white">mdi-google-controller</v-icon>
+          <!-- <v-icon color="white">mdi-google-controller</v-icon> -->
+          Lobby
         </v-btn>
       </template>
       <span>Lobby</span>
@@ -70,82 +93,12 @@
           style="padding: 10px 10px !important; margin: 0 1px;"
           @click.stop="showInstruction"
         >
-          <v-icon color="white">mdi-information-outline</v-icon>
+          <!-- <v-icon color="white">mdi-information-outline</v-icon> -->
+          Instructions
         </v-btn>
         </template>
       <span>Instructions</span>
     </v-tooltip>
-
-    <!-- Notifications -->
-    <v-menu
-      bottom
-      left
-      offset-y
-      origin="top right"
-      transition="scale-transition"
-      z-index=100
-    >
-      <template v-slot:activator="{ attrs, on }">
-        <v-btn
-          min-width="0"
-          text
-          v-bind="attrs"
-          v-on="on"
-          style="padding: 10px 10px !important; margin: 0 1px;"
-        >
-          <v-badge
-            :content="notificationLengh"
-            :value="notificationLengh"
-            color="red lighten-1"
-            overlap
-            left
-            small
-          >
-            <v-icon>mdi-bell</v-icon>
-          </v-badge>
-        </v-btn>
-      </template>
-      <v-list
-        :tile="false"
-        nav
-        two-line
-        dense
-        min-height="50"
-        min-width="350"
-        style="max-height: 300px"
-        class="overflow-y-auto"
-      >
-        <v-list-item-group >
-          <template v-for="(item, index) in notifications">
-            <v-list-item :key="index" dense>
-              <v-list-item-content>
-                <!-- <v-list-item-title v-text="item.title"></v-list-item-title> -->
-                <v-list-item-subtitle class="text--primary" v-text="item.msg"></v-list-item-subtitle>
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-icon class="mb-2">mdi-clock</v-icon>
-                <v-list-item-action-text v-text="item.time"></v-list-item-action-text>
-              </v-list-item-action>
-            </v-list-item>
-          </template>
-        </v-list-item-group>
-      </v-list>
-    </v-menu>
-
-<!--     <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-on="on"
-          min-width="0"
-          text
-          style="padding: 10px 10px !important; margin: 0 1px;"
-          @click.stop="showChat"
-        >
-          <v-icon color="white">mdi-message-outline</v-icon>
-        </v-btn>
-        </template>
-      <span>Chat</span>
-    </v-tooltip> -->
 
     <v-menu
       bottom
@@ -235,6 +188,62 @@
             Logout
           </v-btn>
         </div>
+      </v-list>
+    </v-menu>
+
+       <!-- Notifications -->
+    <v-menu
+      bottom
+      left
+      offset-y
+      origin="top right"
+      transition="scale-transition"
+      z-index=100
+    >
+      <template v-slot:activator="{ attrs, on }">
+        <v-btn
+          min-width="0"
+          text
+          v-bind="attrs"
+          v-on="on"
+          style="padding: 10px 10px !important; margin: 0 1px;"
+        >
+          <v-badge
+            :content="notificationLengh"
+            :value="notificationLengh"
+            color="red lighten-1"
+            overlap
+            left
+            small
+          >
+            <v-icon>mdi-bell</v-icon>
+          </v-badge>
+        </v-btn>
+      </template>
+      <v-list
+        :tile="false"
+        nav
+        two-line
+        dense
+        min-height="50"
+        min-width="350"
+        style="max-height: 300px"
+        class="overflow-y-auto"
+      >
+        <v-list-item-group >
+          <template v-for="(item, index) in notifications">
+            <v-list-item :key="index" dense>
+              <v-list-item-content>
+                <!-- <v-list-item-title v-text="item.title"></v-list-item-title> -->
+                <v-list-item-subtitle class="text--primary" v-text="item.msg"></v-list-item-subtitle>
+              </v-list-item-content>
+              <v-list-item-action>
+                <v-icon class="mb-2">mdi-clock</v-icon>
+                <v-list-item-action-text v-text="item.time"></v-list-item-action-text>
+              </v-list-item-action>
+            </v-list-item>
+          </template>
+        </v-list-item-group>
       </v-list>
     </v-menu>
 
