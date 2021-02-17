@@ -74,13 +74,13 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 if request.user.id:
                     game_id = request.data['game_id']
                     my_entry = None
-                    if game_id == -1:
-                        my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
-                    else:
-                        try:
+                    try:
+                        if game_id == -1:
+                            my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
+                        else:
                             my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game_id=game_id)
-                        except:
-                            pass
+                    except:
+                        pass
                     for bout in _bouts:
                         if my_entry:
                             selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
