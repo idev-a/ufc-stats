@@ -189,12 +189,8 @@
   }
 
   ::-webkit-scrollbar {
-<<<<<<< HEAD
-    width: 12px;
     -webkit-appearance: none;
-=======
     width: 8px;
->>>>>>> 67e9149a2da200e8849f9f4aa6f5586103425ea7
   }
    
   ::-webkit-scrollbar-track {

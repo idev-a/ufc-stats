@@ -53,6 +53,11 @@ let router = new Router({
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
+          name: 'Game',
+          path: '/game/:type',
+          component: () => import('@/views/dashboard/selection/SelectionContainer'),
+        },
+        {
           name: 'Contest',
           path: 'contest',
           component: () => import('@/views/dashboard/contest/ContestContainer'),

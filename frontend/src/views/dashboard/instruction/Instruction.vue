@@ -3,11 +3,12 @@
     v-model="insideValue"
     width="600px"
   >
-    <InstructionBody  />
+    <InstructionBody :instructions="instructions" :rulesSet="rulesSet" />
   </v-dialog>
 </template>
 
 <script>
+  import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET } from '@/constants/constant'
   import InstructionBody from './InstructionBody'
 
   export default {
@@ -27,6 +28,12 @@
         set () {
           this.$emit('update');
         }
+      },
+      instructions () {
+        return DEFAULT_INSTRUCTIONS
+      },
+      rulesSet () {
+        return DEFAULT_RULES_SET
       }
     },
   }

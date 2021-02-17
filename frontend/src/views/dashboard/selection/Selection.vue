@@ -12,9 +12,9 @@
         class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
       >
         <div style="width: 100%">
-          <div class="grab">{{ this.event.name }}</div>
+          <div class="grab">{{ contestName }}</div>
           <div class="grab subtitle-2">
-            <span>{{ this.event.date | beautifyDate }}</span>
+            <span>{{ contestDate }}</span>
             <span v-if="eventStarted" class="red--text lighten-1 h6">({{(event.action || 'started').toUpperCase()}})</span>
             <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
@@ -34,6 +34,7 @@
           <template v-for="item in bouts">
             <v-btn-toggle
               v-model="contests[item.id]"
+              :disabled="loading"
               :key="item.id"
               dense
               multiple
@@ -62,21 +63,67 @@
           </template>
         </div>
         <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
-        <div class="d-flex justify-center">
-          <v-btn class="success my-2 mr-2" :disabled="submitDisabled" small @click="submit">Submit</v-btn>
-          <v-btn class="grey darken-2 my-2" :disabled="!squadSize || eventStarted" small @click="clearSelection"><v-icon small left>mdi-cancel</v-icon>Clear</v-btn>
-        </div>
       </v-card-text>
+      <div class="d-flex justify-center mr-2">
+        <v-btn 
+          class="success my-2 mr-2" 
+          :disabled="submitDisabled"
+          :loading="loading"
+          small
+          @click="submit"
+        >
+          Submit
+        </v-btn>
+        <v-btn 
+          class="grey darken-2 my-2" 
+          :disabled="!squadSize || eventStarted" 
+          :loading="loading"
+          small 
+          @click="clearSelection"
+        >
+          <v-icon small left>mdi-cancel</v-icon>Clear
+        </v-btn>
+      </div>
+      <v-autocomplete 
+        :loading="loading"
+        v-model="curGame"
+        :items="games"
+        chips
+        label="Select Contest"
+        class="mx-5 py-0"
+        @change="changeGame"
+      >
+        <template v-slot:selection="data">
+          <v-chip
+            v-bind="data.attrs"
+            :input-value="data.selected"
+            @click="data.select"
+          >
+            {{ data.item.name }}
+          </v-chip>
+        </template>
+        <template v-slot:item="data">
+          <template v-if="typeof data.item !== 'object'">
+            <v-list-item-content v-text="data.item"></v-list-item-content>
+          </template>
+          <template v-else>
+            <v-list-item-content>
+              <v-list-item-title v-html="data.item.name"></v-list-item-title>
+            </v-list-item-content>
+          </template>
+        </template>
+      </v-autocomplete>
     </v-card>
 
-    <instruction-body v-if="needsInstruction" />
+    <instruction-body :key="key" :rulesSet="rulesSet" :instructions="instructions" v-if="needsInstruction" />
   </div>
 </template>
 
 <script>
   let ROOT_PATH = 'http://localhost:8085'
   import main from '@/api/main'
-  import { beautifyDate } from '@/util'
+  import { beautifyDate, equals } from '@/util'
+  import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET } from '@/constants/constant'
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
   import InstructionBody from "../instruction/InstructionBody";
@@ -112,7 +159,6 @@
         fighters: [],
         selectedItem: -1,
         contests: {},
-        key: 1,
         snackbar: {
           snack: false,
           message: '',
@@ -123,6 +169,11 @@
         cntdownInstance: null,
         top: 0,
         sHeight: -1,
+        games: [],
+        curGame: -1,
+        instructions: [],
+        rulesSet: [],
+        key: 0,
       }
     },
 
@@ -132,6 +183,32 @@
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
         return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
+      },
+      contestName () {
+        if (this.curGame == -1) {
+          return this.event.name
+        } else {
+          let name = ''
+          this.games.map(game => {
+            if (game.value == this.curGame) {
+              name = game.name
+            }
+          })
+          return name
+        }
+      },
+      contestDate () {
+        let date = ''
+        if (this.curGame == -1) {
+          date = this.event.date
+        } else {
+          this.games.map(game => {
+            if (game.value == this.curGame) {
+              date = game.date
+            }
+          })
+        }
+        return beautifyDate(date)
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
@@ -158,19 +235,21 @@
       _down() {
         return (this.top == 0 || (this.top + 300) < this.sHeight) && 
               this.$vuetify.breakpoint.mobile
+      },
+      defaultInstructions () {
+        return DEFAULT_INSTRUCTIONS
+      },
+      defaultRulesSet () {
+        return DEFAULT_RULES_SET
       }
-    },
-
-    filters: {
-      beautifyDate,
     },
 
     async mounted () {
       this.loading = true
       await this.getFighters()
-      await this.getLatestBouts()
-      this.preselectFighters()
-      this.changeContests()
+      this.rulesSet = this.defaultRulesSet
+      this.instructions = this.defaultInstructions
+      await this.getLatestData()
       this.loading = false
     },
     methods: {
@@ -190,12 +269,17 @@
             this.contests[bout.id] = bout.survivors
           }
         })
-        this.key++
       },
-      async getLatestBouts () {
-        const { data } = await main.getLatestEvent()
+      async getLatestData(game_id=-1) {
+        await this.getLatestEvent(game_id)
+        this.preselectFighters()
+        this.changeContests()
+      },
+      async getLatestEvent (game_id=-1) {
+        const { data } = await main.getLatestEvent(game_id)
         this.bouts = data.bouts
         this.$store.commit('SET_EVENT', data.event)
+        this.games = data.games
       },
       async getFighters () {
         const { data } = await main.getFighters()
@@ -214,6 +298,7 @@
         const event_id = this.bouts[0].event
         const payload = {
           entry: {
+            game: this.curGame,
             event: event_id,
             user: this.authUser.pk || this.authUser.id,
           },
@@ -241,12 +326,13 @@
           this.$store.commit('snackbar/setSnack', this.snackbar)
           return
         }
-
+        this.loading = true
         const { data } = await main.createEntries(payload)
         this.snackbar = {
           ...data,
           snack: true
         }
+        this.loading = false
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
         if (data.status == 'success') {
@@ -267,10 +353,35 @@
       },
       disableSelection () {
         this.countdownEnd = true
+      },
+      async changeGame (item) {
+        console.log(item)
+        this.loading = true
+        await this.getLatestData(item)
+        if (item == -1) {
+          this.instructions = this.defaultInstructions
+          this.rulesSet = this.defaultRulesSet
+        } else {
+          this.games.map(game => {
+            if (game.value == item) {
+              this.instructions = game.instructions.split('\n')
+              this.rulesSet = game.rules_set.split('\n')
+            }
+          })
+          this.key++
+        }
+        this.loading = false
       }
     }
   }
 </script>
+
+<style>
+  .v-list .v-subheader{
+    height: 15px;
+    color: #008000;
+  }
+</style>
 
 <style lang="scss">
   #selection {
@@ -301,7 +412,7 @@
 
     .arrow-up {
       position: absolute;
-      bottom: 44px;
+      bottom: 6px;
       left: calc(50% - 17px);
       z-index: 2;
     }

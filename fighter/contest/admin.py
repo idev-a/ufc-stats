@@ -57,7 +57,7 @@ class EntryAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	readonly_fields = ('last_edited',)
 	search_fields = ('event__name', 'user__email', 'user__displayname', 'ranking', )
-	list_display = ('event', 'user', 'ranking', )
+	list_display = ('event', 'user', 'ranking', 'game')
 
 	class Meta:
 		ordering = ('ranking', "event", 'user')
@@ -77,7 +77,7 @@ class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
 	search_fields = ('event__name', 'type_of_registration', 'entrants__username', 'instructions', 'rules_set', 'date_started', )
-	list_display = ('event', 'type_of_registration', 'info_entrants', 'short_instructions', 'short_rules_set', )
+	list_display = ('event', 'type_of_registration', 'info_entrants', 'info_joined', 'short_instructions', 'short_rules_set', )
 
 	class Meta:
 		ordering = ('event', 'date_started', )

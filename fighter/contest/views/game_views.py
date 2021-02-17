@@ -56,8 +56,10 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             for _ in self.queryset:
                 games.append(dict(
+                    id=_.id,
                     event=EventSerializer(_.event).data,
                     type_of_registration=_.type_of_registration,
+                    joined_users=UserSerializer(_.joined_users.all(), many=True).data,
                     entrants=UserSerializer(_.entrants.all(), many=True).data,
                     instructions=_.instructions,
                     rules_set=_.rules_set,
@@ -67,3 +69,19 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             status = 500
 
         return Response(dict(games=games), status)
+
+    @action(methods=['post'], detail=False)
+    def join_game(self, request, **kwarg):
+        status = 200
+        message = 'Successfully Joined'
+        try:
+            user = CustomUser.objects.get(pk=request.data['user_id'])
+            game = Game.objects.get(pk=request.data['game_id'])
+            game.joined_users.add(user)
+            game.save()
+        except Exception as err:
+            print(err)
+            status = 500
+            message = 'Something went wrong.'
+
+        return Response(dict(message=message), status)

@@ -6,15 +6,44 @@
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
-        class="justify-center font-weight-medium mb-md-3"
+        class="font-weight-medium mb-3 ml-md-5"
       >
-        <div class="text-center">
+        <div class="text-center mr-10">
           <div>{{ event.name }}</div>
           <div class="subtitle-1">
             {{ event.date | beautifyDate }}
             <span v-if="eventStarted" class="red--text h6">({{(event.action || 'started').toUpperCase()}})</span>
           </div>
         </div>
+        <v-autocomplete 
+          :loading="loading"
+          v-model="curGame"
+          :items="games"
+          chips
+          label="Select Contest"
+          class="mt-2 mr-4"
+          @change="changeGame"
+        >
+          <template v-slot:selection="data">
+            <v-chip
+              v-bind="data.attrs"
+              :input-value="data.selected"
+              @click="data.select"
+            >
+              {{ data.item.name }}
+            </v-chip>
+          </template>
+          <template v-slot:item="data">
+            <template v-if="typeof data.item !== 'object'">
+              <v-list-item-content v-text="data.item"></v-list-item-content>
+            </template>
+            <template v-else>
+              <v-list-item-content>
+                <v-list-item-title v-html="data.item.name"></v-list-item-title>
+              </v-list-item-content>
+            </template>
+          </template>
+        </v-autocomplete>
       </v-card-title>
         <v-card-text
           class="w-100"
@@ -80,7 +109,9 @@
           'Fights',
           'Standings',
           'Chat'
-        ]
+        ],
+        games: [],
+        curGame: -1,
       }
     },
 
@@ -101,14 +132,20 @@
     },
 
     methods: {
-      async getLatestContest() {
+      async getLatestContest(game_id=-1) {
         this.loading = true
-        const { data } = await main.getLatestContest()
+        const { data } = await main.getLatestContest(game_id)
         this.boutViews = data.bout_views
         this.entryViews = data.entry_views
+        this.games = data.games
         this.$store.commit('SET_EVENT', data.event)
         this.loading = false
       },
+      async changeGame (item) {
+        this.loading = true
+        await this.getLatestContest(item)
+        this.loading = false
+      }
     }
   }
 </script>

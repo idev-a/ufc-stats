@@ -99,6 +99,11 @@
           to: '/contest',
         },
         {
+          icon: 'mdi-google-controller',
+          title: 'Lobby',
+          to: '/lobby',
+        },
+        {
           icon: 'mdi-view-dashboard-outline',
           title: 'Leaderboard',
           to: '/leaderboard',

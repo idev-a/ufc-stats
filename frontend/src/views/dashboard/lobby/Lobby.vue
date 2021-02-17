@@ -66,7 +66,7 @@
                     :disabled="!canJoin(item)" 
                     @click.stop="joinContest(item)"
                   >
-                    Join
+                    {{joinLabel(item)}}
                   </v-btn>
                 </div>
               </template>
@@ -107,7 +107,7 @@
                         :disabled="!canJoin(curGame)" 
                         @click.stop="joinContest(curGame)"
                       >
-                        Join
+                        {{joinLabel(curGame)}}
                       </v-btn>
                     </div>
                   </template>
@@ -237,7 +237,7 @@
       },
       gameAvatar () {
         return require('@/assets/logo.jpg')
-      }
+      },
     },
 
     filters: {
@@ -260,6 +260,9 @@
         this.dlg = true
       },
       canJoin (item) {
+        if (this.hasJoined(item)) {
+          return false
+        }
         const myId = this.authUser.id || this.authUser.pk
         let isInvolved = false
         item.entrants.map(user => {
@@ -285,8 +288,36 @@
         }
         return 'Join'
       },
-      joinContest (item) {
-
+      hasJoined(item) {
+        let joined = false
+        item.joined_users && item.joined_users.map(user => {
+          if (user.id == this.authUser.id || this.authUser.pk) {
+            joined = true
+          }
+        })
+        return joined
+      },
+      joinLabel (item) {
+        if (this.hasJoined(item)) {
+          return 'Joined'
+        }
+        return 'Join'
+      },
+      async joinContest (item) {
+        let payload = {
+          game_id: item.id,
+          user_id: this.authUser.id || this.authUser.pk
+        }
+        const res = await main.joinGame(payload)
+        if (res.status == 200) {
+          this.loadGames()
+        }
+        payload = {
+          snack: true,
+          message: res.data.message,
+          status: res.status == 200 ? 'success': ''
+        }
+        this.$store.dispatch('snackbar/setSnack', payload)
       }
     }
   }
