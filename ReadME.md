@@ -100,3 +100,6 @@ server {
 
  ## psycopg2
  sudo apt install libpq-dev python3-dev gcc
+
+ # imagekit
+ sudo apt-get install wkhtmltopdf

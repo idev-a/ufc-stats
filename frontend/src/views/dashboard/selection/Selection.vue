@@ -8,14 +8,14 @@
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
       <v-card-title 
-        v-if="event" 
+        v-if="curContest" 
         class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
       >
         <div style="width: 100%">
           <div class="grab">{{ contestName }}</div>
           <div class="grab subtitle-2">
             <span>{{ contestDate }}</span>
-            <span v-if="eventStarted" class="red--text lighten-1 h6">({{(event.action || 'started').toUpperCase()}})</span>
+            <span v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</span>
             <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
           </div>
           <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
@@ -99,7 +99,7 @@
             :input-value="data.selected"
             @click="data.select"
           >
-            {{ data.item.name }}
+            {{ data.item.name }} ({{beautifyDate(data.item.date)}})
           </v-chip>
         </template>
         <template v-slot:item="data">
@@ -108,7 +108,7 @@
           </template>
           <template v-else>
             <v-list-item-content>
-              <v-list-item-title v-html="data.item.name"></v-list-item-title>
+              <v-list-item-title v-html="`${data.item.name} (${beautifyDate(data.item.date)})`"></v-list-item-title>
             </v-list-item-content>
           </template>
         </template>
@@ -141,7 +141,7 @@
       event: {
         handler(val) {
           if (val) {
-            this.startCountDown(val)
+            this.startCountDown(val.date)
           }
         },
         deep: true
@@ -197,24 +197,27 @@
           return name
         }
       },
-      contestDate () {
-        let date = ''
+      curContest () {
+        let contest = undefined
         if (this.curGame == -1) {
-          date = this.event.date
+          contest = this.event
         } else {
           this.games.map(game => {
             if (game.value == this.curGame) {
-              date = game.date
+              contest = game
             }
           })
         }
-        return beautifyDate(date)
+        return contest
+      },
+      contestDate () {
+        return beautifyDate(this.curContest.date)
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
       },
       eventStarted () {
-        return this.event && this.event.action != '' || this.countdownEnd
+        return this.curContest && this.curContest.action != '' || this.countdownEnd
       },
       countable () {
         return this.deadline2 && !this.eventStarted
@@ -253,6 +256,7 @@
       this.loading = false
     },
     methods: {
+      beautifyDate,
       onScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
         this.top = scrollTop
         this.sHeight = scrollHeight
@@ -260,7 +264,7 @@
         }
       },
       startCountDown(val) {
-        this.deadline2 = this.$moment(`${val.date}`).format(fmt)
+        this.deadline2 = this.$moment(`${val}`).format(fmt)
       },
       preselectFighters() {
         this.bouts.map(bout => {
@@ -355,21 +359,17 @@
         this.countdownEnd = true
       },
       async changeGame (item) {
-        console.log(item)
         this.loading = true
         await this.getLatestData(item)
         if (item == -1) {
           this.instructions = this.defaultInstructions
           this.rulesSet = this.defaultRulesSet
         } else {
-          this.games.map(game => {
-            if (game.value == item) {
-              this.instructions = game.instructions.split('\n')
-              this.rulesSet = game.rules_set.split('\n')
-            }
-          })
+          this.instructions = this.curContest.instructions.split('\n')
+          this.rulesSet = this.curContest.rules_set.split('\n')
           this.key++
         }
+        this.startCountDown(this.curContest.date)
         this.loading = false
       }
     }

@@ -11,6 +11,11 @@ from .managers import CustomUserManager
 
 import pdb
 
+ACTION_TYPE = [
+	('started', 'Started'),
+	('completed', 'Completed'),
+]
+
 # Customize User model
 class CustomUser(AbstractUser):
 	USERNAME_FIELD = 'username'
@@ -54,11 +59,6 @@ class Event(models.Model):
 	STATUS_TYPE = [
 		('upcoming', 'Upcoming'),
 		('old', 'Old'),
-	]
-
-	ACTION_TYPE = [
-		('started', 'Started'),
-		('completed', 'Completed'),
 	]
 
 	name = models.CharField(max_length=100)
@@ -158,9 +158,10 @@ class Game(models.Model):
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
-	instructions = models.TextField(default='', max_length=500, blank=True)
-	rules_set = models.TextField(default='', max_length=500, blank=True)
-	date_started = models.DateTimeField(null=True, blank=True)
+	instructions = models.TextField(default='', max_length=500, blank=False)
+	rules_set = models.TextField(default='', max_length=500, blank=False)
+	date_started = models.DateTimeField(null=True, blank=False)
+	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True, default='started')
 
 	def info_entrants(self):
 		return '{}'.format(len(self.entrants.all()))

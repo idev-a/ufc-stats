@@ -46,6 +46,13 @@ from contest.serializers import (
 
 import pdb
 
+def show__latest_event():
+    events = Event.objects.filter(status='upcoming')
+    event = None
+    if events:
+        event = events.latest('-date')
+    return event
+
 class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows events to be viewed or edited.
@@ -69,7 +76,8 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     name=latest_event.name,
                     group='Single',
                     date=latest_event.date,
-                    value=-1
+                    value=-1,
+                    action=latest_event.action
                 ))
                 if request.user.id:
                     game_id = request.data['game_id']
@@ -101,7 +109,8 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                                 date=_.event.date,
                                 value=_.id,
                                 instructions=_.instructions,
-                                rules_set=_.rules_set
+                                rules_set=_.rules_set,
+                                action=_.action
                             ))
                 return Response(dict(
                     bouts=_bouts,

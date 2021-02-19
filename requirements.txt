@@ -22,3 +22,4 @@ django-celery-results==2.0.0
 redis==3.5.3
 django_celery_beat==2.2.0
 drf-flex-fields==0.8.8
+tweepy==3.10.0 

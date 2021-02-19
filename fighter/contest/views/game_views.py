@@ -39,6 +39,19 @@ from contest.serializers import (
 
 import pdb
 
+def show__games():
+    for _ in Game.objects.all():
+        yield dict(
+            id=_.id,
+            event=EventSerializer(_.event).data,
+            type_of_registration=_.type_of_registration,
+            joined_users=UserSerializer(_.joined_users.all(), many=True).data,
+            entrants=UserSerializer(_.entrants.all(), many=True).data,
+            instructions=_.instructions,
+            rules_set=_.rules_set,
+            date_started=_.date_started,
+            action=_.action
+        )
 
 class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -54,17 +67,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         games = []
         status = 200
         try:
-            for _ in self.queryset:
-                games.append(dict(
-                    id=_.id,
-                    event=EventSerializer(_.event).data,
-                    type_of_registration=_.type_of_registration,
-                    joined_users=UserSerializer(_.joined_users.all(), many=True).data,
-                    entrants=UserSerializer(_.entrants.all(), many=True).data,
-                    instructions=_.instructions,
-                    rules_set=_.rules_set,
-                    date_started=_.date_started
-                ))
+            games = [_ for _ in show__games()]
         except Exception as err:
             status = 500
 
