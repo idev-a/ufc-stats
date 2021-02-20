@@ -47,12 +47,19 @@ from contest.serializers import (
     ChatMessageSerializer
 )
 
+from contest.views import (
+    event_views,
+)
+
 from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
 from rest_auth.registration.views import SocialLoginView
 from rest_auth.social_serializers import TwitterLoginSerializer
+from contest.myconfig import create_api
+from decouple import config
 
 import pdb
 
+START_KEYWORD = '@jason5001001'
 
 class CustomTwitterLoginSerializer(TwitterLoginSerializer):
 
@@ -75,13 +82,13 @@ class TwitterAuthRedirectEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         try:
             oauth = OAuth1(
-                settings.TWITTER_CONSUMER_KEY, 
-                client_secret=settings.TWITTER_CONSUMER_SECRET
+                config('TWITTER_CONSUMER_KEY'), 
+                client_secret=config('TWITTER_CONSUMER_SECRET')
             )
             #Step one: obtaining request token
             request_token_url = "https://api.twitter.com/oauth/request_token"
             data = urlencode({
-                "oauth_callback": settings.TWITTER_AUTH_CALLBACK_URL
+                "oauth_callback": config('TWITTER_AUTH_CALLBACK_URL')
             })
             response = requests.post(request_token_url, auth=oauth, data=data)
             response.raise_for_status()
@@ -107,8 +114,8 @@ class TwitterCallbackEndpoint(APIView):
             oauth_token = request.query_params.get("oauth_token")
             oauth_verifier = request.query_params.get("oauth_verifier")
             oauth = OAuth1(
-                settings.TWITTER_CONSUMER_KEY,
-                client_secret=settings.TWITTER_CONSUMER_SECRET,
+                config('TWITTER_CONSUMER_KEY'),
+                client_secret=config('TWITTER_CONSUMER_SECRET'),
                 resource_owner_key=oauth_token,
                 verifier=oauth_verifier,
             )
@@ -134,10 +141,38 @@ class TwitterCallbackEndpoint(APIView):
 
 class TwitterWebhookEndpoint(APIView):
     permission_classes = [permissions.AllowAny]
+
+    def __init__(self):
+        self.tweepy_api = create_api()
+
+    def reply(self, text, id):
+        self.tweepy_api.update_status(
+            status=text,
+            in_reply_to_status_id=id,
+        )
+
+    def upload_photo(self, text, id, path):
+        img = self.tweepy_api.media_upload(path)
+        self.tweepy_api.send_direct_message(id, text, attachment_type='media', attachment_media_id=img.media_id)
+
+    def manage_shows(self, tweet, block):
+        reply_id = tweet['id'] or tweet['in_reply_to_status_id']
+        first_command = block.split(' ')[0]
+        if first_command == 'show__all_commands':
+            self.reply('show__latest_event', reply_id)
+
+        elif first_command == 'show__latest_event':
+            event = event_views.show__latest_event()
+            self.reply(event.__str__(), reply_id)
+        elif first_command == 'show__games':
+            image_path = f"{tweet['id']}.png"
+            html2png(image_path)
+            tweet_text = 'The below shows top games'
+            status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
     
     def get(self, request, *args, **kwargs):
         try:
-            key_bytes= settings.TWITTER_CONSUMER_SECRET.encode('utf-8') # Commonly 'latin-1' or 'utf-8'
+            key_bytes= config('TWITTER_CONSUMER_SECRET').encode('utf-8') # Commonly 'latin-1' or 'utf-8'
             data_bytes = request.query_params.get('crc_token').encode('utf8') # Assumes `data` is also a string.
             # creates HMAC SHA-256 hash from incomming token and your consumer secret
             sha256_hash_digest = hmac.new(key_bytes, msg=data_bytes, digestmod=hashlib.sha256).digest()
@@ -160,5 +195,9 @@ class TwitterWebhookEndpoint(APIView):
         '''
             check @fightquake and respond based upon command
         '''
-        print(request.data)
-        pass
+        for tweet in request.data['tweet_create_events']:
+            if tweet:
+                commands_block = tweet['text'].split(START_KEYWORD)[1].strip()
+                first_command = commands_block.split(' ')[0]
+                if first_command.startswith('show__'):
+                    self.manage_shows(tweet, commands_block)

@@ -3,12 +3,8 @@ import sys
 import django
 import requests
 import argparse
-
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "."))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fighter.settings')
-django.setup()
-
-from django.conf import settings
+import json
+from decouple import config
 from typing import NoReturn
 from abc import ABC, abstractmethod
 
@@ -21,10 +17,10 @@ class Activity:
     _version: str = "1.1"
     _product: str = "account_activity"
     _auth: OAuthHandler = OAuthHandler(
-        settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET
+        config('TWITTER_CONSUMER_KEY'), config('TWITTER_CONSUMER_SECRET')
     )
     _auth.set_access_token(
-        settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET
+        config('TWITTER_ACCESS_TOKEN'), config('TWITTER_ACCESS_TOKEN_SECRET')
     )
 
     def api(self, method: str, endpoint: str, data: dict = None) -> json:
@@ -58,7 +54,7 @@ class Activity:
         try:
             return self.api(
                 method="POST",
-                endpoint=f"all/{settings.TWITTER_ENV_NAME}/webhooks.json",
+                endpoint=f"all/{config('TWITTER_ENV_NAME')}/webhooks.json",
                 data={"url": callback_url},
             ).json()
         except Exception as e:
@@ -70,7 +66,7 @@ class Activity:
         try:
             return self.api(
                 method="PUT",
-                endpoint=f"all/{settings.TWITTER_ENV_NAME}/webhooks/{webhook_id}.json",
+                endpoint=f"all/{config('TWITTER_ENV_NAME')}/webhooks/{webhook_id}.json",
             )
         except Exception as e:
             raise e
@@ -81,7 +77,7 @@ class Activity:
         try:
             return self.api(
                 method="DELETE",
-                endpoint=f"all/{settings.TWITTER_ENV_NAME}/webhooks/{webhook_id}.json",
+                endpoint=f"all/{config('TWITTER_ENV_NAME')}/webhooks/{webhook_id}.json",
             )
         except Exception as e:
             raise e
@@ -90,7 +86,7 @@ class Activity:
         try:
             return self.api(
                 method="POST",
-                endpoint=f"all/{settings.TWITTER_ENV_NAME}/subscriptions.json",
+                endpoint=f"all/{config('TWITTER_ENV_NAME')}/subscriptions.json",
             )
         except Exception:
             raise
@@ -105,14 +101,12 @@ class Activity:
             raise e
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--url', type=str, required=True, help="webhook url. e.g. https://test.fightquake.com/auth/twitter/webhook/")
-    callback_url = parser.parse_args().url
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('-u', '--url', type=str, required=True, help="webhook url. e.g. https://test.fightquake.com/auth/twitter/webhook/")
+    # callback_url = parser.parse_args().url
 
     activity = Activity()
-    print(
-        activity.register_webhook(
-            callback_url=callback_url
-        ).json()
+    activity.register_webhook(
+        callback_url=config('TWITTER_AUTH_WEBHOOK_URL')
     )
     print(activity.subscribe())
