@@ -8,6 +8,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__f
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fighter.settings')
 django.setup()
 
+from django.conf import settings
 from typing import NoReturn
 from abc import ABC, abstractmethod
 
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-u', '--url', type=str, required=True, help="webhook url. e.g. https://test.fightquake.com/auth/twitter/webhook/")
     callback_url = parser.parse_args().url
-    
+
     activity = Activity()
     print(
         activity.register_webhook(
