@@ -15,6 +15,11 @@ from urllib.parse import urlencode
 from django.conf import settings
 import requests
 from datetime import datetime
+import base64
+import hashlib
+import hmac
+import json
+import re
 
 from django.contrib.auth.models import Group
 from contest.decorators import paginate
@@ -48,6 +53,7 @@ from rest_auth.social_serializers import TwitterLoginSerializer
 
 import pdb
 
+
 class CustomTwitterLoginSerializer(TwitterLoginSerializer):
 
     def validate(self, attrs):
@@ -69,8 +75,8 @@ class TwitterAuthRedirectEndpoint(APIView):
     def get(self, request, *args, **kwargs):
         try:
             oauth = OAuth1(
-                settings.TWITTER_API_KEY, 
-                client_secret=settings.TWITTER_API_SECRET_KEY
+                settings.TWITTER_CONSUMER_KEY, 
+                client_secret=settings.TWITTER_CONSUMER_SECRET
             )
             #Step one: obtaining request token
             request_token_url = "https://api.twitter.com/oauth/request_token"
@@ -101,8 +107,8 @@ class TwitterCallbackEndpoint(APIView):
             oauth_token = request.query_params.get("oauth_token")
             oauth_verifier = request.query_params.get("oauth_verifier")
             oauth = OAuth1(
-                settings.TWITTER_API_KEY,
-                client_secret=settings.TWITTER_API_SECRET_KEY,
+                settings.TWITTER_CONSUMER_KEY,
+                client_secret=settings.TWITTER_CONSUMER_SECRET,
                 resource_owner_key=oauth_token,
                 verifier=oauth_verifier,
             )
@@ -125,3 +131,34 @@ class TwitterCallbackEndpoint(APIView):
         except Exception as err:
             print(err)
             return Response(dict(message=["Something went wrong.Try again."]), status=403)
+
+class TwitterWebhookEndpoint(APIView):
+    permission_classes = [permissions.AllowAny]
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            key_bytes= settings.TWITTER_CONSUMER_SECRET.encode('utf-8') # Commonly 'latin-1' or 'utf-8'
+            data_bytes = request.query_params.get('crc_token').encode('utf8') # Assumes `data` is also a string.
+            # creates HMAC SHA-256 hash from incomming token and your consumer secret
+            sha256_hash_digest = hmac.new(key_bytes, msg=data_bytes, digestmod=hashlib.sha256).digest()
+
+            # construct response data with base64 encoded hash
+            response = {
+                'response_token': 'sha256=' + base64.b64encode(sha256_hash_digest).decode('utf-8')
+            }
+
+            # returns properly formatted json response
+            return Response(response)
+        except ConnectionError:
+            return Response(dict(message=["You have no internet connection"]), status=403)
+        except Exception as err:
+            print(err)
+            return Response(dict(message=["Something went wrong.Try again."]), status=403)
+
+    def post(self, request, format=None):
+        # request.data
+        '''
+            check @fightquake and respond based upon command
+        '''
+        print(request.data)
+        pass

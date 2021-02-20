@@ -70,5 +70,6 @@ urlpatterns = [
     url(r'^auth/twitter/$', social_views.TwitterLogin.as_view(), name='twitter_login'),
     url(r'^auth/twitter/request_token/$', social_views.TwitterAuthRedirectEndpoint.as_view()),
     url(r'^auth/twitter/callback/$', social_views.TwitterCallbackEndpoint.as_view()),
+    url(r'^auth/twitter/webhook/$', social_views.TwitterWebhookEndpoint.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

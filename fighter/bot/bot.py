@@ -23,25 +23,29 @@ from contest.views import (
     event_views
 )
 
-START_KEYWORD = "fightquake"
+START_KEYWORD = "fqtestbot"
 session = requests.Session()
 
-def html2png(image_path):
+def html2png(body=None):
     body = """
     <html>
         <head>
-        <meta name="imgkit-format" content="png"/>
-        <meta name="imgkit-orientation" content="Landscape"/>
+        <meta content="png"/>
+        <meta content="Landscape"/>
         </head>
         Hello World!
         </html>
     """
 
-    imgkit.from_string(body, image_path)
+    options = {
+        "xvfb": ""
+    }
+    config = imgkit.config(wkhtmltoimage='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltoimage.exe')
+    imgkit.from_string(body, 'out.png', config=config)
 
 class TwitterBot:
 
-    timeout = 1
+    timeout = 10
 
     def __init__(self):
         self.tweepy_api = create_api()
@@ -76,12 +80,6 @@ class TwitterBot:
         elif first_command == 'show__latest_event':
             event = event_views.show__latest_event()
             self.reply(event.__str__(), tweet['id'])
-        elif first_command == 'show__games':
-            image_path = f"{tweet['id']}.png"
-            html2png(image_path)
-            tweet_text = 'The below shows top games'
-            status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
-
 
     def create_headers(self):
         headers = {"Authorization": "Bearer {}".format(self.bearer_token)}
@@ -142,7 +140,7 @@ class TwitterBot:
             response = session.get(
                 "https://api.twitter.com/2/tweets/search/stream?tweet.fields=created_at&expansions=author_id&user.fields=created_at", headers=self.headers, stream=True,
             )
-            logger.info(response.status_code)
+            logger.info(response)
             if response.status_code != 200:
                 logger.info("Cannot get stream (HTTP {}): {}".format(
                     response.status_code, response.text
@@ -166,9 +164,10 @@ class TwitterBot:
 
 
 if __name__ == "__main__":
-    bot = TwitterBot()
-    bot.get_stream()
+    # bot = TwitterBot()
+    # bot.get_stream()
     # html2png()
-    # api = create_api()
-    # img = api.media_upload('out.png')
-    # api.send_direct_message('1362543337438208000', 'text', attachment_type='media', attachment_media_id=img.media_id)
+    api = create_api()
+    image_path = 'out.png'
+    tweet_text = 'The below shows top games'
+    status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
