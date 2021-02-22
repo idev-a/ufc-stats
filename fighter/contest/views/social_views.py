@@ -83,6 +83,8 @@ class TwitterLogin(SocialLoginView):
 
 
 class TwitterAuthRedirectEndpoint(APIView):
+    permission_classes = [permissions.AllowAny]
+    
     def get(self, request, *args, **kwargs):
         try:
             oauth = OAuth1(
