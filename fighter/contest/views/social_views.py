@@ -20,6 +20,7 @@ import hashlib
 import hmac
 import json
 import re
+import shlex
 
 from django.contrib.auth.models import Group
 from contest.decorators import paginate
@@ -155,8 +156,44 @@ class TwitterWebhookEndpoint(APIView):
         img = self.tweepy_api.media_upload(path)
         self.tweepy_api.send_direct_message(id, text, attachment_type='media', attachment_media_id=img.media_id)
 
-    def manage_shows(self, tweet, block):
-        reply_id = tweet['id'] or tweet['in_reply_to_status_id']
+    def create_game(self, reply_id, owner_id, args, event=None, type='private'):
+        owner = None
+        message = 'Successfully created.'
+        try:
+            owner = CustomUser.objects.get(username=owner_id)
+        except:
+            message = "You are not allowed to create a game. Please register account first."
+            self.reply(message, reply_id)
+            return
+
+        entrants = []
+        for idx in range(len(args)):
+            if args[idx] == '-u':
+                entrants = args[idx+1]
+
+        game = Game.objects.create(owner=owner)
+        game.type_of_registration = type
+        if not even:
+            # choose latest event
+            game.event = show__latest_event()
+        else:
+            game.event = event
+
+        # instructions, rules_set
+        non_users = []
+        for id in entrants:
+            try:
+                user = CustomUser.objects.get(username=id)
+                game.entrants.add(user)
+            except:
+                non_users.append(id)
+
+        if non_users:
+            message += "The following users didn't have accounts yet. " + ','.join(non_users)
+
+        self.reply(message, reply_id)
+
+    def manage_shows(self, reply_id, block):
         first_command = block.split(' ')[0]
         if first_command == 'show__all_commands':
             self.reply('show__latest_event', reply_id)
@@ -165,11 +202,16 @@ class TwitterWebhookEndpoint(APIView):
             event = event_views.show__latest_event()
             self.reply(event.__str__(), reply_id)
         elif first_command == 'show__games':
-            image_path = f"{tweet['id']}.png"
+            image_path = f"{reply_id}.png"
             html2png(image_path)
             tweet_text = 'The below shows top games'
             status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
     
+    def manage_creates(self, reply_id, block, owner_id):
+        if first_command == 'create_private_game':
+            args = shlex.split(' '.join(block.split(' ')[1:]))
+            self.create_game(reply_id, owner_id, args)
+
     def get(self, request, *args, **kwargs):
         try:
             key_bytes= config('TWITTER_CONSUMER_SECRET').encode('utf-8') # Commonly 'latin-1' or 'utf-8'
@@ -199,5 +241,10 @@ class TwitterWebhookEndpoint(APIView):
             if tweet:
                 commands_block = tweet['text'].split(START_KEYWORD)[1].strip()
                 first_command = commands_block.split(' ')[0]
+                reply_id = tweet['id'] or tweet['in_reply_to_status_id']
+                print(tweet)
                 if first_command.startswith('show__'):
-                    self.manage_shows(tweet, commands_block)
+                    self.manage_shows(reply_id, commands_block)
+
+                if first_command.startswith('create__'):
+                    self.manage_creates(reply_id, commands_block, tweet['username'])

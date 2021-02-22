@@ -149,6 +149,13 @@ class Game(models.Model):
 		('public', 'Public')
 	]
 
+	owner = models.ForeignKey(
+		CustomUser,
+		on_delete=models.CASCADE,
+		related_name='game_owners',
+		default=None,
+	)
+
 	event = models.ForeignKey(
 		Event,
 		related_name='game_event', 
@@ -227,7 +234,7 @@ class Selection(models.Model):
 		default=None,
 		blank=True,
 		null=True
-	) 
+	)
 	survivor2 = models.ForeignKey(
 		Fighter,
 		on_delete=models.CASCADE,

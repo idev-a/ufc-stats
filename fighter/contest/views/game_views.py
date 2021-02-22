@@ -53,6 +53,7 @@ def show__games():
             action=_.action
         )
 
+
 class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows entries to be viewed or edited.
@@ -72,6 +73,19 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             status = 500
 
         return Response(dict(games=games), status)
+
+    @action(methods=['post'], detail=False)
+    def create_game(self, request, **kwarg):
+        status = 200
+        message = 'Successfully created'
+        try:
+            pass
+        except Exception as err:
+            print(err)
+            status = 500
+            message = 'Something went wrong.'
+
+        return Response(dict(message=message), status)
 
     @action(methods=['post'], detail=False)
     def join_game(self, request, **kwarg):
