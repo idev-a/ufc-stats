@@ -207,9 +207,11 @@ class TwitterWebhookEndpoint(APIView):
             tweet_text = 'The below shows top games'
             status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
     
-    def manage_creates(self, reply_id, block, owner_id):
+    def manage_creates(self, reply_id, owner_id, block):
+        first_command = block.split(' ')[0]
         if first_command == 'create_private_game':
-            args = shlex.split(' '.join(block.split(' ')[1:]))
+            args = shlex.split(' '.join(block.split(' ')[1:].strip()))
+            print(args)
             self.create_game(reply_id, owner_id, args)
 
     def get(self, request, *args, **kwargs):
@@ -242,9 +244,8 @@ class TwitterWebhookEndpoint(APIView):
                 commands_block = tweet['text'].split(START_KEYWORD)[1].strip()
                 first_command = commands_block.split(' ')[0]
                 reply_id = tweet['id'] or tweet['in_reply_to_status_id']
-                print(tweet)
                 if first_command.startswith('show__'):
                     self.manage_shows(reply_id, commands_block)
 
                 if first_command.startswith('create__'):
-                    self.manage_creates(reply_id, commands_block, tweet['user']['screen_name'])
+                    self.manage_creates(reply_id, tweet['user']['screen_name'], commands_block)
