@@ -21,6 +21,7 @@ import hmac
 import json
 import re
 import shlex
+import logging
 
 from django.contrib.auth.models import Group
 from contest.decorators import paginate
@@ -59,6 +60,8 @@ from contest.myconfig import create_api
 from decouple import config
 
 import pdb
+
+logger = logging.getLogger(__name__)
 
 START_KEYWORD = '@jason5001001'
 
@@ -231,7 +234,7 @@ class TwitterWebhookEndpoint(APIView):
         except ConnectionError:
             return Response(dict(message=["You have no internet connection"]), status=403)
         except Exception as err:
-            print(err)
+            logger.error(str(err))
             return Response(dict(message=["Something went wrong.Try again."]), status=403)
 
     def post(self, request, format=None):
@@ -251,4 +254,4 @@ class TwitterWebhookEndpoint(APIView):
                     if first_command.startswith('create__'):
                         self.manage_creates(reply_id, tweet['user']['screen_name'], commands_block)
                 except Exception as err:
-                    print(err)
+                    logger.error(str(err))
