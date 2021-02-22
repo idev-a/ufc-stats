@@ -241,11 +241,14 @@ class TwitterWebhookEndpoint(APIView):
         '''
         for tweet in request.data['tweet_create_events']:
             if tweet:
-                commands_block = tweet['text'].split(START_KEYWORD)[1].strip()
-                first_command = commands_block.split(' ')[0]
-                reply_id = tweet['id'] or tweet['in_reply_to_status_id']
-                if first_command.startswith('show__'):
-                    self.manage_shows(reply_id, commands_block)
+                try:
+                    commands_block = tweet['text'].split(START_KEYWORD)[1].strip()
+                    first_command = commands_block.split(' ')[0]
+                    reply_id = tweet['id'] or tweet['in_reply_to_status_id']
+                    if first_command.startswith('show__'):
+                        self.manage_shows(reply_id, commands_block)
 
-                if first_command.startswith('create__'):
-                    self.manage_creates(reply_id, tweet['user']['screen_name'], commands_block)
+                    if first_command.startswith('create__'):
+                        self.manage_creates(reply_id, tweet['user']['screen_name'], commands_block)
+                except Exception as err:
+                    print(err)
