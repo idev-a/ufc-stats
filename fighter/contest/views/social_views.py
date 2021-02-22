@@ -247,4 +247,4 @@ class TwitterWebhookEndpoint(APIView):
                     self.manage_shows(reply_id, commands_block)
 
                 if first_command.startswith('create__'):
-                    self.manage_creates(reply_id, commands_block, tweet['username'])
+                    self.manage_creates(reply_id, commands_block, tweet['user']['screen_name'])
