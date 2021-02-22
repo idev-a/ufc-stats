@@ -204,7 +204,7 @@ class Entry(models.Model):
 	game = models.ForeignKey(
 		Game,
 		on_delete=models.CASCADE,
-		related_name='games',
+		related_name='entry_games',
 		default=None,
 		blank=True,
 		null=True
