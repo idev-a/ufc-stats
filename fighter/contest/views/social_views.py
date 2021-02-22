@@ -84,7 +84,7 @@ class TwitterLogin(SocialLoginView):
 
 class TwitterAuthRedirectEndpoint(APIView):
     permission_classes = [permissions.AllowAny]
-    
+
     def get(self, request, *args, **kwargs):
         try:
             oauth = OAuth1(
@@ -221,7 +221,7 @@ class TwitterWebhookEndpoint(APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            key_bytes= config('TWITTER_CONSUMER_SECRET').encode('utf-8') # Commonly 'latin-1' or 'utf-8'
+            key_bytes= config('TWITTER_BOT_CONSUMER_SECRET').encode('utf-8') # Commonly 'latin-1' or 'utf-8'
             data_bytes = request.query_params.get('crc_token').encode('utf8') # Assumes `data` is also a string.
             # creates HMAC SHA-256 hash from incomming token and your consumer secret
             sha256_hash_digest = hmac.new(key_bytes, msg=data_bytes, digestmod=hashlib.sha256).digest()
