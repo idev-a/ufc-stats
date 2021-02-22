@@ -167,6 +167,7 @@ if __name__ == "__main__":
     # bot = TwitterBot()
     # bot.get_stream()
     # html2png()
+    
     api = create_api()
     image_path = 'out.png'
     tweet_text = 'The below shows top games'
