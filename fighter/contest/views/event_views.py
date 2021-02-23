@@ -104,7 +104,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         games.append({ 'header': 'Multiple' })
                         for _ in multi_games:
                             games.append(dict(
-                                name=_.event.name,
+                                name=_.name,
                                 group='Multiple',
                                 date=_.event.date,
                                 value=_.id,

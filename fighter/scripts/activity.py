@@ -17,10 +17,10 @@ class Activity:
     _version: str = "1.1"
     _product: str = "account_activity"
     _auth: OAuthHandler = OAuthHandler(
-        config('TWITTER_CONSUMER_KEY'), config('TWITTER_CONSUMER_SECRET')
+        config('TWITTER_BOT_CONSUMER_KEY'), config('TWITTER_BOT_CONSUMER_SECRET')
     )
     _auth.set_access_token(
-        config('TWITTER_ACCESS_TOKEN'), config('TWITTER_ACCESS_TOKEN_SECRET')
+        config('TWITTER_BOT_ACCESS_TOKEN'), config('TWITTER_BOT_ACCESS_TOKEN_SECRET')
     )
 
     def api(self, method: str, endpoint: str, data: dict = None) -> json:
@@ -101,12 +101,10 @@ class Activity:
             raise e
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('-u', '--url', type=str, required=True, help="webhook url. e.g. https://test.fightquake.com/auth/twitter/webhook/")
-    # callback_url = parser.parse_args().url
-
     activity = Activity()
-    activity.register_webhook(
+    # activity.delete('1363218664019947520')
+    # print(activity.webhooks())
+    res = activity.register_webhook(
         callback_url=config('TWITTER_AUTH_WEBHOOK_URL')
     )
     print(activity.subscribe())

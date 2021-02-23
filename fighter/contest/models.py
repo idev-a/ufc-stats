@@ -162,6 +162,7 @@ class Game(models.Model):
 		on_delete=models.CASCADE,
 	)
 
+	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')

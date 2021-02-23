@@ -240,7 +240,6 @@ class TwitterWebhookEndpoint(APIView):
             return Response(dict(message=["Something went wrong.Try again."]), status=403)
 
     def post(self, request, format=None):
-        # request.data
         '''
             check @fightquake and respond based upon command
         '''
