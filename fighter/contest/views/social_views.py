@@ -215,7 +215,7 @@ class TwitterWebhookEndpoint(APIView):
     def manage_creates(self, reply_id, owner_id, block):
         first_command = block.split(' ')[0]
         if first_command == 'challenge':
-            args = shlex.split(' '.join(block.split(' ')[1:].strip()))
+            args = shlex.split(' '.join(block.strip().split(' ')[1:]))
             print(args)
             self.create_game(reply_id, owner_id, args)
 
