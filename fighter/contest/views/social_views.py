@@ -65,6 +65,8 @@ import pdb
 logger = logging.getLogger(__name__)
 
 START_KEYWORD = '@jason5001001'
+DEFAULT_INSTRUCTIONS = 'FQ MAIN EVENT. Winner gets $100'
+DEFAULT_RULES_SET = 'Default rule'
 
 class CustomTwitterLoginSerializer(TwitterLoginSerializer):
 
@@ -164,7 +166,7 @@ class TwitterWebhookEndpoint(APIView):
 
     def create_game(self, reply_id, owner_id, args, event=None, type='private'):
         owner = None
-        message = 'Successfully created.'
+        message = 'Successfully created. Enjoy your game.'
         try:
             owner = CustomUser.objects.get(username=owner_id)
         except:
@@ -173,23 +175,33 @@ class TwitterWebhookEndpoint(APIView):
             return
 
         entrants = []
+        name = ''
         for idx in range(len(args)):
             if args[idx] == '-u':
                 entrants = args[idx+1]
+            if args[idx] == '-n':
+                name = args[idx+1]
 
         if not entrants:
             message = f'Please input entrants. e.g. @{START_KEYWORD} challenge -u "fq, joe"'
             self.reply(message, reply_id)
             return
 
+
         game = Game.objects.create(owner=owner)
         game.type_of_registration = type
+        game.instructions = DEFAULT_INSTRUCTIONS
+        game.rules_set = DEFAULT_RULES_SET
         if not event:
             # choose latest event
             game.event = event_views.show__latest_event()
         else:
             game.event = event
 
+        game.date_started = game.event.date
+        if not name:
+            name = game.event.__str__
+        game.name = name
         # instructions, rules_set
         non_users = []
         for id in entrants:
@@ -223,7 +235,6 @@ class TwitterWebhookEndpoint(APIView):
         first_command = block.split(' ')[0]
         if first_command == 'challenge':
             args = shlex.split(' '.join(block.strip().split(' ')[1:]))
-            print(args)
             self.create_game(reply_id, owner_id, args)
 
     def get(self, request, *args, **kwargs):
@@ -253,11 +264,9 @@ class TwitterWebhookEndpoint(APIView):
         for tweet in request.data['tweet_create_events']:
             if tweet:
                 try:
-                    commands_block = tweet['text'].split(START_KEYWORD)[1].strip()
+                    commands_block = tweet['text'].split(START_KEYWORD)[-1].strip()
                     first_command = commands_block.split(' ')[0]
-                    print(tweet)
                     reply_id = tweet['id'] or tweet['in_reply_to_status_id']
-                    print('============= reply_id ', reply_id)
                     if first_command.startswith('show__'):
                         self.manage_shows(reply_id, commands_block)
 
