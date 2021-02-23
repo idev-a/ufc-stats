@@ -192,7 +192,7 @@ class TwitterWebhookEndpoint(APIView):
             event = event_views.show__latest_event()
 
         if not name:
-            name = game.event.__str__
+            name = event.__str__
         
         game = Game.objects.create(
             name=name,
@@ -203,7 +203,7 @@ class TwitterWebhookEndpoint(APIView):
             instructions=DEFAULT_INSTRUCTIONS,
             rules_set=DEFAULT_RULES_SET,
         )
-        
+
         # instructions, rules_set
         non_users = []
         for id in entrants:
