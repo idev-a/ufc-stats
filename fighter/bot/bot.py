@@ -20,7 +20,8 @@ django.setup()
 from config import create_api
 
 from contest.views import (
-    event_views
+    event_views,
+    social_views
 )
 
 START_KEYWORD = "fqtestbot"
@@ -168,8 +169,9 @@ if __name__ == "__main__":
     # bot.get_stream()
     # html2png()
 
-    event = event_views.show__latest_event()
-    print(event)
+    # event = event_views.show__latest_event()
+    social_views.create_game('sdf', 'jason5001001', ['-u', 'jason5001001'])
+    # print(event)
     
     # api = create_api()
     # image_path = 'out.png'

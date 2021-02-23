@@ -178,7 +178,7 @@ class TwitterWebhookEndpoint(APIView):
         name = ''
         for idx in range(len(args)):
             if args[idx] == '-u':
-                entrants = args[idx+1]
+                entrants = [_.strip() for _ in args[idx+1].split(',')]
             if args[idx] == '-n':
                 name = args[idx+1]
 
@@ -192,7 +192,7 @@ class TwitterWebhookEndpoint(APIView):
             event = event_views.show__latest_event()
 
         if not name:
-            name = event.__str__
+            name = event.__str__()
         
         game = Game.objects.create(
             name=name,
@@ -213,7 +213,6 @@ class TwitterWebhookEndpoint(APIView):
             except:
                 non_users.append(id)
 
-        game.save()
         if non_users:
             message += "The following users didn't have accounts yet. " + ','.join(non_users)
 
@@ -269,6 +268,7 @@ class TwitterWebhookEndpoint(APIView):
                     commands_block = tweet['text'].split(START_KEYWORD)[-1].strip()
                     first_command = commands_block.split(' ')[0]
                     reply_id = tweet['id'] or tweet['in_reply_to_status_id']
+                    print('reply_id ', reply_id)
                     if first_command.startswith('show__'):
                         self.manage_shows(reply_id, commands_block)
 
