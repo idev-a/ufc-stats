@@ -214,6 +214,7 @@ class TwitterWebhookEndpoint(APIView):
                 non_users.append(id)
 
         if non_users:
+            print(non_users)
             message += "The following users didn't have accounts yet. " + ','.join(non_users)
 
         self.reply(message, reply_id)
