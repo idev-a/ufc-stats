@@ -214,7 +214,7 @@ class TwitterWebhookEndpoint(APIView):
     
     def manage_creates(self, reply_id, owner_id, block):
         first_command = block.split(' ')[0]
-        if first_command == 'create_private_game':
+        if first_command == 'challenge':
             args = shlex.split(' '.join(block.split(' ')[1:].strip()))
             print(args)
             self.create_game(reply_id, owner_id, args)
@@ -252,7 +252,7 @@ class TwitterWebhookEndpoint(APIView):
                     if first_command.startswith('show__'):
                         self.manage_shows(reply_id, commands_block)
 
-                    if first_command.startswith('create__'):
+                    if first_command.startswith('challenge'):
                         self.manage_creates(reply_id, tweet['user']['screen_name'], commands_block)
                 except Exception as err:
                     logger.error(str(err))

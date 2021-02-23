@@ -167,8 +167,11 @@ if __name__ == "__main__":
     # bot = TwitterBot()
     # bot.get_stream()
     # html2png()
+
+    event = event_views.show__latest_event()
+    print(event)
     
-    api = create_api()
-    image_path = 'out.png'
-    tweet_text = 'The below shows top games'
-    status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
+    # api = create_api()
+    # image_path = 'out.png'
+    # tweet_text = 'The below shows top games'
+    # status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
