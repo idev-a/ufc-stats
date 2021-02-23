@@ -187,21 +187,23 @@ class TwitterWebhookEndpoint(APIView):
             self.reply(message, reply_id)
             return
 
-
-        game = Game.objects.create(owner=owner)
-        game.type_of_registration = type
-        game.instructions = DEFAULT_INSTRUCTIONS
-        game.rules_set = DEFAULT_RULES_SET
         if not event:
             # choose latest event
-            game.event = event_views.show__latest_event()
-        else:
-            game.event = event
+            event = event_views.show__latest_event()
 
-        game.date_started = game.event.date
         if not name:
             name = game.event.__str__
-        game.name = name
+        
+        game = Game.objects.create(
+            name=name,
+            owner=owner,
+            event=event,
+            date_started=event.date,
+            type_of_registration=type,
+            instructions=DEFAULT_INSTRUCTIONS,
+            rules_set=DEFAULT_RULES_SET,
+        )
+        
         # instructions, rules_set
         non_users = []
         for id in entrants:
