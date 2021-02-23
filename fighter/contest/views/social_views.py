@@ -31,6 +31,7 @@ from contest.models import (
     Fighter,
     Selection,
     Entry,
+    Game,
     CustomUser,
     ChatRoom,
     ChatFile, 
@@ -180,7 +181,7 @@ class TwitterWebhookEndpoint(APIView):
         game.type_of_registration = type
         if not even:
             # choose latest event
-            game.event = show__latest_event()
+            game.event = event_views.show__latest_event()
         else:
             game.event = event
 
