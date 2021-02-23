@@ -9,7 +9,7 @@
     >
       <v-card-title 
         v-if="curContest" 
-        class="popup-header grab text-center ustify-center font-weight-medium mb-md-3"
+        class="popup-header grab text-center ustify-center font-weight-medium mb-0"
       >
         <div style="width: 100%">
           <div class="grab">{{ contestName }}</div>
@@ -21,101 +21,109 @@
           <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
         </div>
       </v-card-title>
-      <v-card-text
-        class="pb-0"
-        style="position: relative;"
-      >
-        <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
-        <div
-          id="scrollContainer"
-          style="height: 300px; overflow-y: scroll; -webkit-overflow-scrolling: touch; -webkit-overflow-scrolling: scroll; position: relative;"
-          @scroll="onScroll"
-        >
-          <template v-for="item in bouts">
-            <v-btn-toggle
-              v-model="contests[item.id]"
-              :disabled="loading"
-              :key="item.id"
-              dense
-              multiple
-              class="justify-space-between mb-2 mx-1"
-              tile
-              @change="changeContests"
-            >
-              <v-btn
-                :value="item.fighter1"
-                :disabled="eventStarted"
-                small
-                :width="152"
-              >
-                {{_fighter(item.fighter1).name}}
-              </v-btn>
-
-              <v-btn
-                :value="item.fighter2"
-                :disabled="eventStarted"
-                small
-                :width="152"
-              >
-                {{_fighter(item.fighter2).name}}
-              </v-btn>
-            </v-btn-toggle>
-          </template>
-        </div>
-        <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
-      </v-card-text>
-      <div class="d-flex justify-center mr-2">
-        <v-btn 
-          class="success my-2 mr-2" 
-          :disabled="submitDisabled"
-          :loading="loading"
-          small
-          @click="submit"
-        >
-          Submit
-        </v-btn>
-        <v-btn 
-          class="grey darken-2 my-2" 
-          :disabled="!squadSize || eventStarted" 
-          :loading="loading"
-          small 
-          @click="clearSelection"
-        >
-          <v-icon small left>mdi-cancel</v-icon>Clear
-        </v-btn>
-      </div>
-      <v-autocomplete 
-        :loading="loading"
-        v-model="curGame"
-        :items="games"
-        chips
-        label="Select Contest"
-        class="mx-5 py-0"
-        @change="changeGame"
-      >
-        <template v-slot:selection="data">
-          <v-chip
-            v-bind="data.attrs"
-            :input-value="data.selected"
-            @click="data.select"
+      <v-row dense>
+        <v-col cols=12 md=6 >
+          <v-card-text
+            class="pb-0"
+            style="position: relative;"
           >
-            {{ data.item.name }} ({{beautifyDate(data.item.date)}})
-          </v-chip>
-        </template>
-        <template v-slot:item="data">
-          <template v-if="typeof data.item !== 'object'">
-            <v-list-item-content v-text="data.item"></v-list-item-content>
-          </template>
-          <template v-else>
-            <v-list-item-content>
-              <v-list-item-title v-html="`${data.item.name} (${beautifyDate(data.item.date)})`"></v-list-item-title>
-            </v-list-item-content>
-          </template>
-        </template>
-      </v-autocomplete>
+            <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
+            <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
+            <div
+              id="scrollContainer"
+              style="height: 300px; overflow-y: scroll; -webkit-overflow-scrolling: touch; -webkit-overflow-scrolling: scroll; position: relative;"
+              @scroll="onScroll"
+            >
+              <template v-for="item in bouts">
+                <v-btn-toggle
+                  v-model="contests[item.id]"
+                  :disabled="loading"
+                  :key="item.id"
+                  dense
+                  multiple
+                  class="justify-space-between mb-2 mx-1"
+                  tile
+                  @change="changeContests"
+                >
+                  <v-btn
+                    :value="item.fighter1"
+                    :disabled="eventStarted"
+                    small
+                    :width="152"
+                  >
+                    {{_fighter(item.fighter1).name}}
+                  </v-btn>
+
+                  <v-btn
+                    :value="item.fighter2"
+                    :disabled="eventStarted"
+                    small
+                    :width="152"
+                  >
+                    {{_fighter(item.fighter2).name}}
+                  </v-btn>
+                </v-btn-toggle>
+              </template>
+            </div>
+            <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
+          </v-card-text>
+          <div class="d-flex justify-center mt-2 mr-2">
+            <v-btn 
+              class="success my-2 mr-2" 
+              :disabled="submitDisabled"
+              :loading="loading"
+              small
+              @click="submit"
+            >
+              Submit
+            </v-btn>
+            <v-btn 
+              class="grey darken-2 my-2" 
+              :disabled="!squadSize || eventStarted" 
+              :loading="loading"
+              small 
+              @click="clearSelection"
+            >
+              <v-icon small left>mdi-cancel</v-icon>Clear
+            </v-btn>
+          </div>
+          <v-autocomplete 
+            :loading="loading"
+            v-model="curGame"
+            :items="games"
+            chips
+            label="Select Contest"
+            class="mx-5 py-0"
+            @change="changeGame"
+          >
+            <template v-slot:selection="data">
+              <v-chip
+                v-bind="data.attrs"
+                :input-value="data.selected"
+                @click="data.select"
+              >
+                {{ data.item.name }} ({{beautifyDate(data.item.date)}})
+              </v-chip>
+            </template>
+            <template v-slot:item="data">
+              <template v-if="typeof data.item !== 'object'">
+                <v-list-item-content v-text="data.item"></v-list-item-content>
+              </template>
+              <template v-else>
+                <v-list-item-content>
+                  <v-list-item-title v-html="`${data.item.name} (${beautifyDate(data.item.date)})`"></v-list-item-title>
+                </v-list-item-content>
+              </template>
+            </template>
+          </v-autocomplete>
+        </v-col>
+        <v-col cols=12 md=6>
+          <instruction-body :key="key" :rulesSet="rulesSet" :instructions="instructions" v-if="needsInstruction" />
+        </v-col>
+      </v-row>
     </v-card>
 
-    <instruction-body :key="key" :rulesSet="rulesSet" :instructions="instructions" v-if="needsInstruction" />
+    
   </div>
 </template>
 
@@ -174,6 +182,7 @@
         instructions: [],
         rulesSet: [],
         key: 0,
+        side: true
       }
     },
 
@@ -226,7 +235,7 @@
         return this.bouts && this.bouts.length * 2 || 0
       },
       needsInstruction () {
-        return this.$vuetify.breakpoint.smAndDown
+        return true
       },
       height () {
         return this.$vuetify.breakpoint.smAndDown ? 'calc(100vh + 210px)' : 'inherit'
@@ -238,6 +247,12 @@
       _down() {
         return (this.top == 0 || (this.top + 300) < this.sHeight) && 
               this.$vuetify.breakpoint.mobile
+      },
+      _side() {
+        return !this.$vuetify.breakpoint.mobile && false
+      },
+      sideCollapseClass () {
+        return ''
       },
       defaultInstructions () {
         return DEFAULT_INSTRUCTIONS
@@ -371,6 +386,9 @@
         }
         this.startCountDown(this.curContest.date)
         this.loading = false
+      },
+      collapseSide () {
+        this.side = !this.side
       }
     }
   }
@@ -421,6 +439,13 @@
       position: absolute;
       top: 0;
       left: calc(50% - 11px);
+      z-index: 2;
+    }
+
+    .arrow-side {
+      position: absolute;
+      top: 50%;
+      right: 0;
       z-index: 2;
     }
   }

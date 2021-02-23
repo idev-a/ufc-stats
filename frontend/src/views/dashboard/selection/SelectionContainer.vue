@@ -16,7 +16,7 @@
         left: lastLeft,
         dragCursor: 'move',
         zIndex: 5,
-        width: _width
+        width: 800
       }"
     >
       <selection />
