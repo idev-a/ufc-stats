@@ -122,7 +122,7 @@ WSGI_APPLICATION = 'fighter.wsgi.application'
 
 
 # Logging
-LOG_PATH = STATIC_ROOT = os.path.join(BASE_DIR, 'logs/fighter.log')
+LOG_PATH = os.path.join(BASE_DIR, 'logs/fighter.log')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -163,8 +163,8 @@ LOGGING = {
         }
     },
     'loggers': {
-        'django': {
-            'handlers': [config('LOG_HANDLER')],
+        '': {
+            'handlers': ['console', 'file'],
             'propagate': True,
         },
         'django.request': {
