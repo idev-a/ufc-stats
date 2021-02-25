@@ -4,6 +4,7 @@
       min-width="50%"
       flat
       class="mt-0"
+      style="background: none;"
     >
       <v-card-title class="mb-2">
         <v-text-field

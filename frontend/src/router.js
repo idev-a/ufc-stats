@@ -53,6 +53,11 @@ let router = new Router({
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
+          name: 'Game',
+          path: '/game/:type',
+          component: () => import('@/views/dashboard/selection/SelectionContainer'),
+        },
+        {
           name: 'Contest',
           path: 'contest',
           component: () => import('@/views/dashboard/contest/ContestContainer'),
@@ -68,7 +73,13 @@ let router = new Router({
           name: 'Referral',
           path: 'rf/:id',
           component: () => import('@/views/dashboard/referral/ReferralCallback'),
-        }
+        },
+        {
+          name: 'Lobby',
+          path: 'lobby',
+          component: () => import('@/views/dashboard/lobby/LobbyContainer'),
+          beforeEnter: requireAuthenticated
+        },
       ],
     },
     {

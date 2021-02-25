@@ -1,4 +1,4 @@
-const moment = require('moment');
+const moment = require('moment-timezone');
 import Papa from "papaparse";
 
 import { companyId } from '@/api'
@@ -30,6 +30,15 @@ export const beautifyDateTime = (date) => {
     return ""
   }
 }
+
+export const beautifyDateTimeMin = (date) => {
+  if (date) {
+    return moment(date).tz('America/Los_Angeles').format('DD MMM YYYY, HH:mm z')
+  } else {
+    return ""
+  }
+}
+
 
 export const beautifyDate = (date) => {
   if (date) {
@@ -110,3 +119,7 @@ export const isSameDay = (d1, d2) => {
     d1.getDate() === d2.getDate()
   )
 }
+
+export const equals = (a, b) =>
+  a.length === b.length &&
+  a.every((v, i) => v === b[i]);

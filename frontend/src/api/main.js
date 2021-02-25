@@ -4,11 +4,11 @@ export default {
   getEntries(entries) {
     return session.post('/api/entries/get_entries/', entries);
   },
-  getLatestContest() {
-  	return session.get('api/entries/get_latestcontest/')
+  getLatestContest(game_id=-1) {
+  	return session.post('api/entries/get_latestcontest/', {game_id})
   },
-  getLatestEvent () {
-  	return session.get('api/events/get_latestevent/')
+  getLatestEvent (game_id=-1) {
+  	return session.post('api/events/get_latestevent/', {game_id})
   },
   getFighters() {
   	return session.get('api/fighters/')
@@ -19,4 +19,10 @@ export default {
   getLeaderboard () {
     return session.get('api/entries/get_leaderboard/')
   },
+  loadGames() {
+    return session.get('api/games/load_games/')
+  },
+  joinGame(payload) {
+    return session.post('api/games/join_game/', payload)
+  }
 }

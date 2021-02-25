@@ -67,21 +67,21 @@ class Scraper:
 
 	def start_requests(self):
 		# upcoming events
-		# res = self.session.get(self.upcoming_url)
-		# self.parse_event(Selector(text=res.content))
-		while True:
-			logger.info('[scraper] started')
+		res = self.session.get(self.upcoming_url)
+		self.parse_event(Selector(text=res.content))
+		# while True:
+		# 	logger.info('[scraper] started')
 
-			# scan db to get the scraped events to get the stats
-			events = Event.objects.all().filter(status='upcoming')
-			if events:
-				event = events.latest('-date')
-				res = self.session.get(event.detail_link)
-				meta = {'event_id': event.id}
+		# 	# scan db to get the scraped events to get the stats
+		# 	events = Event.objects.filter(status='upcoming')
+		# 	if events:
+		# 		event = events.latest('-date')
+		# 		res = self.session.get(event.detail_link)
+		# 		meta = {'event_id': event.id}
 
-				self.parse_bout_list(Selector(text=res.content), meta)
+		# 		self.parse_bout_list(Selector(text=res.content), meta)
 
-			time.sleep(10)
+		# 	time.sleep(10)
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
@@ -91,7 +91,7 @@ class Scraper:
 				name = _valid(tr.css('a::text').get())
 				detail_link = _valid(tr.css('a').xpath('@href').get())
 				location = _valid(tr.xpath('.//td[2]/text()').get())
-				date = _valid(tr.css('span.b-statistics__date::text').get()) + ' 09:00:00'
+				date = _valid(tr.css('span.b-statistics__date::text').get()) + ' 15:00:00'
 				item = dict(
 					name=name,
 					date=convert_date(date),
@@ -232,7 +232,7 @@ class Scraper:
 			pass
 
 	def delete_cancelled_bouts(self, event_id, new_bouts):
-		queryset = Bout.objects.all().filter(event_id=event_id).exclude(pk__in=new_bouts)
+		queryset = Bout.objects.filter(event_id=event_id).exclude(pk__in=new_bouts)
 		if queryset:
 			logger.info(f'[scraper] delete cancelled bouts {queryset.count()}')
 

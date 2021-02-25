@@ -18,3 +18,16 @@ def strip_list1(arr):
 
 def convert_date(date):
 	return datetime.strptime(date, '%B %d, %Y %H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+
+def html2png(body=None):
+	body = """
+	<html>
+		<head>
+		<meta name="imgkit-format" content="png"/>
+		<meta name="imgkit-orientation" content="Landscape"/>
+		</head>
+		Hello World!
+		</html>
+	"""
+
+	imgkit.from_string(body, 'out.png')

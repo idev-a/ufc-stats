@@ -4,8 +4,9 @@
       min-width="50%"
       flat
       class="mt-0"
+      style="background: none;"
     >
-      <div class="mb-2">
+      <v-card-title class="mb-2">
         <v-text-field
           v-model="entryViewSearch"
           append-icon="mdi-magnify"
@@ -16,7 +17,7 @@
           hide-details
         ></v-text-field>
         <v-spacer />
-      </div>
+      </v-card-title>
       <v-data-table
         :items="entryViews"
         :loading="loading"
@@ -32,6 +33,7 @@
         :expanded.sync="expanded"
         :item-class="entryItemClass"
         mobile-breakpoint="0"
+       
       > 
         <template v-slot:item.ranking="{ item }">
           <span :class="highlight(item)" class="font-weight-bold">{{item.ranking}}
@@ -50,8 +52,8 @@
           </v-tooltip>
         </template>
         <template v-slot:item.entry="{ item }">
-          <span :class="highlight(item)" class="font-weight-bold">{{item.entry}}
-          </span>
+          <v-chip  @click="showUserProfile(item)"><span :class="highlight(item)" class="font-weight-bold">{{item.entry}}
+          </span></v-chip>
         </template>
         <template v-slot:item.survived="{ item }">
           <span :class="highlight(item)" class="font-weight-bold">{{item.survived}}
@@ -224,6 +226,9 @@
           this.expanded.push(item.ranking)
           this.curFighters = item.fighters
         }
+      },
+      showUserProfile (item) {
+        this.$store.dispatch('auth/loadProfile', item.user_id)
       }
     }
   }

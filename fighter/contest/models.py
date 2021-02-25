@@ -5,10 +5,16 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
+from django.template.defaultfilters import truncatewords  # or 
 
 from .managers import CustomUserManager
 
 import pdb
+
+ACTION_TYPE = [
+	('started', 'Started'),
+	('completed', 'Completed'),
+]
 
 # Customize User model
 class CustomUser(AbstractUser):
@@ -53,11 +59,6 @@ class Event(models.Model):
 	STATUS_TYPE = [
 		('upcoming', 'Upcoming'),
 		('old', 'Old'),
-	]
-
-	ACTION_TYPE = [
-		('started', 'Started'),
-		('completed', 'Completed'),
 	]
 
 	name = models.CharField(max_length=100)
@@ -140,6 +141,56 @@ class Bout(models.Model):
 	def __str__(self):
 		return "%s vs. %s" % (self.fighter1, self.fighter2)
 
+
+# multiple games
+class Game(models.Model):
+	REGISTRATION_TYPES = [
+		('private', 'Private'),
+		('public', 'Public')
+	]
+
+	owner = models.ForeignKey(
+		CustomUser,
+		on_delete=models.CASCADE,
+		related_name='game_owners',
+		default=None,
+	)
+
+	event = models.ForeignKey(
+		Event,
+		related_name='game_event', 
+		on_delete=models.CASCADE,
+	)
+
+	name = models.CharField(max_length=100, blank=False, default='')
+	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
+	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
+	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
+	instructions = models.TextField(default='', max_length=500, blank=False)
+	rules_set = models.TextField(default='', max_length=500, blank=False)
+	date_started = models.DateTimeField(null=True, blank=False)
+	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True, default='started')
+
+	def info_entrants(self):
+		return '{}'.format(len(self.entrants.all()))
+
+	def info_joined(self):
+		return '{}'.format(len(self.joined_users.all()))
+
+	@property
+	def short_instructions(self):
+		return truncatewords(self.instructions, 50)
+
+	@property
+	def short_rules_set(self):
+		return truncatewords(self.rules_set, 50)
+
+	info_entrants.short_description  = 'Total entrants'
+	info_joined.short_description  = 'Total joined users'
+
+	def __str__(self):
+		return "%s - %s(%s)" % (self.event, self.entrants.count(), self.joined_users.count())
+
 class Entry(models.Model):
 	event = models.ForeignKey(
 		Event,
@@ -150,6 +201,14 @@ class Entry(models.Model):
 		CustomUser,
 		on_delete=models.CASCADE,
 		related_name='users',
+	)
+	game = models.ForeignKey(
+		Game,
+		on_delete=models.CASCADE,
+		related_name='entry_games',
+		default=None,
+		blank=True,
+		null=True
 	)
 
 	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -176,7 +235,7 @@ class Selection(models.Model):
 		default=None,
 		blank=True,
 		null=True
-	) 
+	)
 	survivor2 = models.ForeignKey(
 		Fighter,
 		on_delete=models.CASCADE,
@@ -190,13 +249,6 @@ class Selection(models.Model):
 		related_name="entries",
 		on_delete=models.CASCADE
 	)
-
-	# objects = SelectionManager()
-	# Indicate whether the user won the contest based upon the bout result
-	# 1: winner 0: loser
-	# status = models.BooleanField(default=False, null=True, blank=True)
-	# Indicate whether the bout has finished
-	# finished = models.BooleanField(default=False, null=True, blank=True)
 
 	def __str__(self):
 		return "%s - %s (%s)" % (self.survivor1, self.survivor2, self.bout)

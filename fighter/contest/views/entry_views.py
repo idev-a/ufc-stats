@@ -23,22 +23,18 @@ from contest.models import (
     Fighter,
     Selection,
     Entry,
+    Game,
     CustomUser,
-    ChatRoom,
-    ChatFile, 
-    ChatMessage
 )
 from contest.serializers import (
     UserSerializer,
     GroupSerializer,
     EventSerializer,
+    GameSerializer,
     BoutSerializer,
     FighterSerializer,
     SelectionSerializer,
     EntrySerializer,
-    ChatRoomSerializer,
-    ChatFileSerializer,
-    ChatMessageSerializer
 )
 
 import pdb
@@ -87,6 +83,27 @@ def update_rank(event_id):
         status = 404
 
     return Response(dict(status=status))
+
+def get_games(latest_event, game_id, user_id):
+    games = [{ 'header': 'Single' }]
+    games.append(dict(
+        name=latest_event.name,
+        group='Single',
+        date=latest_event.date,
+        value=-1
+    ))
+    multi_games = Game.objects.filter(joined_users__pk=user_id)
+    if multi_games:
+        games.append({ 'header': 'Multiple' })
+        for _ in multi_games:
+            games.append(dict(
+                name=_.event.name,
+                group='Multiple',
+                date=_.event.date,
+                value=_.id
+            ))
+
+    return games
 
 def get_entry_views(selections):
     score = {}
@@ -282,7 +299,6 @@ def get_leaderboard_view(entries):
     # leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['first_place'], x['second_place'], x['third_place'])) 
     leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['fq_points']))
 
-
     for x, _ in enumerate(leaderboard_views):
         _['ranking'] = x+1
 
@@ -304,14 +320,25 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         status = len(entries) > 0
         return Response(dict(status=status))
  
-    @action(methods=['get'], detail=False)
+    @action(methods=['post'], detail=False)
     def get_latestcontest(self, request, **kwarg):
         latest_event = Event.objects.filter(status='upcoming').latest('-date')
-        selections = Selection.objects.filter(entry__event_id=latest_event.id)
+        game_id = request.data['game_id']
+        if game_id == -1:
+            selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
+        else:
+            selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game_id=game_id)
+
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
+        games = get_games(latest_event, request.data['game_id'], request.user.id)
 
-        return Response(dict(bout_views=bout_views, entry_views=entry_views, event=EventSerializer(latest_event).data))
+        return Response(dict(
+            bout_views=bout_views,
+            entry_views=entry_views,
+            event=EventSerializer(latest_event).data,
+            games=games
+        ))
 
     @action(methods=['get'], detail=False)
     def get_leaderboard(self, request, **kwarg):
@@ -340,7 +367,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         is_exist = False
         message = 'Successfully done.'
         try:
-            entry = Entry.objects.get(event_id=data['event'], user_id=data['user'])
+            if data['game'] != -1:
+                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+            else:
+                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
         except:
             pass
         if entry:
@@ -349,6 +379,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             data['last_edited'] = datetime.now()
             entry_serializer = EntrySerializer(entry, data=data)
         else:
+            if data['game'] == -1:
+                data['game'] = None
             entry_serializer = EntrySerializer(data=data)
 
         if entry_serializer.is_valid():

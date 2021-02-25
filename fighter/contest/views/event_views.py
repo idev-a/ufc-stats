@@ -24,6 +24,7 @@ from contest.models import (
     Fighter,
     Selection,
     Entry,
+    Game,
     CustomUser,
     ChatRoom,
     ChatFile, 
@@ -34,6 +35,7 @@ from contest.serializers import (
 	GroupSerializer,
 	EventSerializer,
 	BoutSerializer,
+    GameSerializer,
 	FighterSerializer,
     SelectionSerializer,
     EntrySerializer,
@@ -44,6 +46,13 @@ from contest.serializers import (
 
 import pdb
 
+def show__latest_event():
+    events = Event.objects.filter(status='upcoming')
+    event = None
+    if events:
+        event = events.latest('-date')
+    return event
+
 class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
     API endpoint that allows events to be viewed or edited.
@@ -53,20 +62,36 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]
     # permission_classes = [permissions.IsAuthenticated]
 
-    @action(methods=['get'], detail=False)
+    @action(methods=['post'], detail=False)
     def get_latestevent(self, request, **kwarg):
         try:
             events = Event.objects.all().filter(status='upcoming')
             if events:
+                games = [{ 'header': 'Single' }]
                 latest_event = events.latest('-date')
                 bouts = Bout.objects.filter(event__id=latest_event.id)
                 _bouts = BoutSerializer(bouts, many=True).data
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
+                games.append(dict(
+                    name=latest_event.name,
+                    group='Single',
+                    date=latest_event.date,
+                    value=-1,
+                    action=latest_event.action
+                ))
                 if request.user.id:
-                    my_entry = Entry.objects.all().filter(user_id=request.user.id, event_id=latest_event.id)
+                    game_id = request.data['game_id']
+                    my_entry = None
+                    try:
+                        if game_id == -1:
+                            my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
+                        else:
+                            my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game_id=game_id)
+                    except:
+                        pass
                     for bout in _bouts:
                         if my_entry:
-                            selected = Selection.objects.all().filter(entry_id=my_entry[0].id, bout_id=bout['id'])
+                            selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
                             if selected:
                                 bout['survivors'] = []
                                 if selected[0].survivor1_id:
@@ -74,13 +99,28 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                                 if selected[0].survivor2_id:
                                     bout['survivors'].append(selected[0].survivor2_id)
 
+                    multi_games = Game.objects.filter(joined_users__pk=request.user.id)
+                    if multi_games:
+                        games.append({ 'header': 'Multiple' })
+                        for _ in multi_games:
+                            games.append(dict(
+                                name=_.name,
+                                group='Multiple',
+                                date=_.event.date,
+                                value=_.id,
+                                instructions=_.instructions,
+                                rules_set=_.rules_set,
+                                action=_.action
+                            ))
                 return Response(dict(
                     bouts=_bouts,
+                    games=games,
                     event=EventSerializer(latest_event).data
                 ))
             else:
                 return Response(dict(
                     bouts=[],
+                    games=[],
                     event=None
                 ))
         except Exception as err:
@@ -88,5 +128,6 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             return Response(dict(
                     bouts=[],
                     event=None,
+                    games=[],
                     message=str(err)
                 ), status=500)

@@ -15,6 +15,13 @@ from urllib.parse import urlencode
 from django.conf import settings
 import requests
 from datetime import datetime
+import base64
+import hashlib
+import hmac
+import json
+import re
+import shlex
+import logging
 
 from django.contrib.auth.models import Group
 from contest.decorators import paginate
@@ -24,6 +31,7 @@ from contest.models import (
     Fighter,
     Selection,
     Entry,
+    Game,
     CustomUser,
     ChatRoom,
     ChatFile, 
@@ -42,11 +50,23 @@ from contest.serializers import (
     ChatMessageSerializer
 )
 
+from contest.views import (
+    event_views,
+)
+
 from allauth.socialaccount.providers.twitter.views import TwitterOAuthAdapter
 from rest_auth.registration.views import SocialLoginView
 from rest_auth.social_serializers import TwitterLoginSerializer
+from contest.myconfig import create_api
+from decouple import config
 
 import pdb
+
+logger = logging.getLogger(__name__)
+
+START_KEYWORD = '@jason5001001'
+DEFAULT_INSTRUCTIONS = 'FQ MAIN EVENT. Winner gets $100'
+DEFAULT_RULES_SET = 'Default rule'
 
 class CustomTwitterLoginSerializer(TwitterLoginSerializer):
 
@@ -66,16 +86,18 @@ class TwitterLogin(SocialLoginView):
 
 
 class TwitterAuthRedirectEndpoint(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def get(self, request, *args, **kwargs):
         try:
             oauth = OAuth1(
-                settings.TWITTER_API_KEY, 
-                client_secret=settings.TWITTER_API_SECRET_KEY
+                config('TWITTER_CONSUMER_KEY'), 
+                client_secret=config('TWITTER_CONSUMER_SECRET')
             )
             #Step one: obtaining request token
             request_token_url = "https://api.twitter.com/oauth/request_token"
             data = urlencode({
-                "oauth_callback": settings.TWITTER_AUTH_CALLBACK_URL
+                "oauth_callback": config('TWITTER_AUTH_CALLBACK_URL')
             })
             response = requests.post(request_token_url, auth=oauth, data=data)
             response.raise_for_status()
@@ -101,8 +123,8 @@ class TwitterCallbackEndpoint(APIView):
             oauth_token = request.query_params.get("oauth_token")
             oauth_verifier = request.query_params.get("oauth_verifier")
             oauth = OAuth1(
-                settings.TWITTER_API_KEY,
-                client_secret=settings.TWITTER_API_SECRET_KEY,
+                config('TWITTER_CONSUMER_KEY'),
+                client_secret=config('TWITTER_CONSUMER_SECRET'),
                 resource_owner_key=oauth_token,
                 verifier=oauth_verifier,
             )
@@ -125,3 +147,133 @@ class TwitterCallbackEndpoint(APIView):
         except Exception as err:
             print(err)
             return Response(dict(message=["Something went wrong.Try again."]), status=403)
+
+class TwitterWebhookEndpoint(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def __init__(self):
+        self.tweepy_api = create_api()
+
+    def reply(self, text, id):
+        self.tweepy_api.update_status(
+            status=text,
+            in_reply_to_status_id=id,
+        )
+
+    def upload_photo(self, text, id, path):
+        img = self.tweepy_api.media_upload(path)
+        self.tweepy_api.send_direct_message(id, text, attachment_type='media', attachment_media_id=img.media_id)
+
+    def create_game(self, reply_id, owner_id, args, event=None, type='private'):
+        owner = None
+        message = 'Successfully created. Enjoy your game.'
+        try:
+            owner = CustomUser.objects.get(username=owner_id)
+        except:
+            message = "You are not allowed to create a game. Please register account first."
+            self.reply(message, reply_id)
+            return
+
+        entrants = []
+        name = ''
+        for idx in range(len(args)):
+            if args[idx] == '-u':
+                entrants = [_.strip() for _ in args[idx+1].split(',')]
+            if args[idx] == '-n':
+                name = args[idx+1]
+
+        if not entrants:
+            message = f'Please input entrants. e.g. @{START_KEYWORD} challenge -u "fq, joe"'
+            self.reply(message, reply_id)
+            return
+
+        if not event:
+            # choose latest event
+            event = event_views.show__latest_event()
+
+        if not name:
+            name = event.__str__()
+        
+        game = Game.objects.create(
+            name=name,
+            owner=owner,
+            event=event,
+            date_started=event.date,
+            type_of_registration=type,
+            instructions=DEFAULT_INSTRUCTIONS,
+            rules_set=DEFAULT_RULES_SET,
+        )
+
+        # instructions, rules_set
+        non_users = []
+        for id in entrants:
+            try:
+                user = CustomUser.objects.get(username=id)
+                game.entrants.add(user)
+            except:
+                non_users.append(id)
+
+        if non_users:
+            print(non_users)
+            message += "The following users didn't have accounts yet. " + ','.join(non_users)
+
+        self.reply(message, reply_id)
+
+    def manage_shows(self, reply_id, block):
+        first_command = block.split(' ')[0]
+        if first_command == 'show__all_commands':
+            self.reply('show__latest_event', reply_id)
+
+        elif first_command == 'show__latest_event':
+            event = event_views.show__latest_event()
+            self.reply(event.__str__(), reply_id)
+        elif first_command == 'show__games':
+            image_path = f"{reply_id}.png"
+            html2png(image_path)
+            tweet_text = 'The below shows top games'
+            status = api.update_with_media(image_path, tweet_text, in_reply_to_status_id='1362837934567616515')
+    
+    def manage_creates(self, reply_id, owner_id, block):
+        first_command = block.split(' ')[0]
+        if first_command == 'challenge':
+            args = shlex.split(' '.join(block.strip().split(' ')[1:]))
+            self.create_game(reply_id, owner_id, args)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            key_bytes= config('TWITTER_BOT_CONSUMER_SECRET').encode('utf-8') # Commonly 'latin-1' or 'utf-8'
+            data_bytes = request.query_params.get('crc_token').encode('utf8') # Assumes `data` is also a string.
+            # creates HMAC SHA-256 hash from incomming token and your consumer secret
+            sha256_hash_digest = hmac.new(key_bytes, msg=data_bytes, digestmod=hashlib.sha256).digest()
+
+            # construct response data with base64 encoded hash
+            response = {
+                'response_token': 'sha256=' + base64.b64encode(sha256_hash_digest).decode('utf-8')
+            }
+
+            # returns properly formatted json response
+            return Response(response)
+        except ConnectionError:
+            return Response(dict(message=["You have no internet connection"]), status=403)
+        except Exception as err:
+            logger.error(str(err))
+            return Response(dict(message=["Something went wrong.Try again."]), status=403)
+
+    def post(self, request, format=None):
+        '''
+            check @fightquake and respond based upon command
+        '''
+        for tweet in request.data['tweet_create_events']:
+            if tweet:
+                try:
+                    commands_block = tweet['text'].split(START_KEYWORD)[-1].strip()
+                    first_command = commands_block.split(' ')[0]
+                    reply_id = tweet['id'] or tweet['in_reply_to_status_id']
+                    print('reply_id ', reply_id)
+                    if first_command.startswith('show__'):
+                        self.manage_shows(reply_id, commands_block)
+
+                    if first_command.startswith('challenge'):
+                        self.manage_creates(reply_id, tweet['user']['screen_name'], commands_block)
+                except Exception as err:
+                    logger.error(str(err))

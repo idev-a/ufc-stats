@@ -3,6 +3,8 @@
     <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage, 'contest-over-bg': contestOverPage}"></span>
     <dashboard-core-app-bar :key="`key${key}`" v-model="expandOnHover" />
 
+    <dashboard-core-drawer v-if="$vuetify.breakpoint.mobile" :expand-on-hover.sync="expandOnHover" />
+
     <dashboard-core-view :key="`newKey${newKey}`"/>
 
     <snackbar @update="reloadPage"/>
@@ -22,6 +24,7 @@
     components: {
       DashboardCoreAppBar: () => import('./components/core/AppBar'),
       DashboardCoreView: () => import('./components/core/View'),
+      DashboardCoreDrawer: () => import('./components/core/Drawer'),
       LoginView: () => import('../pages/Login'),
       RegisterView: () => import('../pages/Register'),
       Snackbar: () => import('./component/Snackbar'),
@@ -169,26 +172,36 @@
     width: 100%;
   }
 
+  .stats-title {
+    margin: .2rem 0 .5rem;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .theme--dark.v-tabs-items {
+    background: none;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(0,0,0,.7) rgba(0,0,0,0.5);
   }
 
   ::-webkit-scrollbar {
-    width: 12px;
     -webkit-appearance: none;
+    width: 8px;
   }
    
   ::-webkit-scrollbar-track {
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-    border-radius: 10px;
+    border-radius: 4px;
   }
    
   ::-webkit-scrollbar-thumb {
-    border-radius: 10px;
+    border-radius: 4px;
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,1); 
   }
-
 
   ::-webkit-scrollbar-thumb:vertical
   {
@@ -203,6 +216,7 @@
 
     .v-data-table { 
       overflow-x: auto !important;
+      background: none;
 
       tr:hover {
         background: url('https://ik.imagekit.io/cuhwrvztecz/bg_A4TO7AM8_E43.jpg');

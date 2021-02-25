@@ -16,7 +16,7 @@
     </v-card-title>
     <v-card-text>
       <ul class="instruction-list">
-        <li v-for="(rule, x) in rules">{{x+1}}. {{rule}}</li>
+        <li v-for="(rule, x) in rulesSet">{{x+1}}. {{rule}}</li>
       </ul>
     </v-card-text>
   </v-card>
@@ -28,17 +28,9 @@
   export default {
     name: "InstructionBody",
 
-    data: () => ({
-      instructions: [
-        'Choose fighters',
-        'Hope they all survive'
-      ],
-      rules: [
-        'User can pick any number of fighters. If any of them get finished, user is eliminated.',
-        'Out of all surviving entries, the user with the most surviving fighters, wins the contest.',
-        'If there is a tie, the winner is the entry with the most winning fighters.',
-        'You are allowed to resubmit your team. 1 team per person.'
-      ]
+    props: ['instructions', 'rulesSet'],
+
+    data: () => ({   
     }),
   }
 </script>
