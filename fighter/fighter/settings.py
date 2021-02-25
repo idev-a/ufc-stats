@@ -136,11 +136,6 @@ LOGGING = {
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
     'handlers': {
         'console': {
             'level': 'INFO',
@@ -149,9 +144,9 @@ LOGGING = {
             'formatter': 'simple'
         },
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'filters': ['require_debug_true'],
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'class': 'logging.handlers.FileHandler',
             'filename': LOG_PATH,
             'formatter': 'simple',
             'encoding': 'utf-8'
@@ -165,7 +160,7 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console', 'file'],
-            'propagate': True,
+            'level': 'DEBUG',
         },
         'django.request': {
             'handlers': ['mail_admins'],
