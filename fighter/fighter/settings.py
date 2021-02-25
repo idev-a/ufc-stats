@@ -14,6 +14,7 @@ import os
 from decouple import config
 import dj_database_url
 from datetime import timedelta
+import logging.config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -123,7 +124,7 @@ WSGI_APPLICATION = 'fighter.wsgi.application'
 
 # Logging
 LOG_PATH = os.path.join(BASE_DIR, 'logs/fighter.log')
-LOGGING = {
+logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -144,7 +145,7 @@ LOGGING = {
         },
         'file': {
             'level': 'DEBUG',
-            'filename': 'fighter.log',
+            'filename': LOG_PATH,
             'class': 'logging.FileHandler',
             'formatter': 'simple',
             'encoding': 'utf-8'
@@ -167,7 +168,7 @@ LOGGING = {
             'propagate': False,
         },
     }
-}
+})
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
