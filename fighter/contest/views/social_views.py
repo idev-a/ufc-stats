@@ -155,6 +155,7 @@ class TwitterWebhookEndpoint(APIView):
         self.tweepy_api = create_api()
 
     def reply(self, text, id):
+        logger.info(f" to {id} with:   {text}")
         self.tweepy_api.update_status(
             status=text,
             in_reply_to_status_id=id,
@@ -270,7 +271,7 @@ class TwitterWebhookEndpoint(APIView):
                     commands_block = tweet['text'].split(START_KEYWORD)[-1].strip()
                     first_command = commands_block.split(' ')[0]
                     reply_id = tweet['id'] or tweet['in_reply_to_status_id']
-                    print('reply_id ', tweet['id'], ' ** ', tweet['in_reply_to_status_id'])
+                    logger.info(f"reply_id {tweet['id']} ** {tweet['in_reply_to_status_id']}")
                     if first_command.startswith('show__'):
                         self.manage_shows(reply_id, commands_block)
 
