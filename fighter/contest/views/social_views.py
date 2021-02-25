@@ -64,7 +64,7 @@ import pdb
 
 logger = logging.getLogger(__name__)
 
-START_KEYWORD = '@fightquake'
+START_KEYWORD = '@FIGHTQUAKE'
 DEFAULT_INSTRUCTIONS = 'FQ MAIN EVENT. Winner gets $100'
 DEFAULT_RULES_SET = 'Default rule'
 
