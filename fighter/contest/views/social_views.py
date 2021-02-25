@@ -156,10 +156,11 @@ class TwitterWebhookEndpoint(APIView):
 
     def reply(self, text, id):
         print(f" to {id} with:   {text}")
-        self.tweepy_api.update_status(
+        res = self.tweepy_api.update_status(
             status=text,
             in_reply_to_status_id=id,
         )
+        print(res)
 
     def upload_photo(self, text, id, path):
         img = self.tweepy_api.media_upload(path)
