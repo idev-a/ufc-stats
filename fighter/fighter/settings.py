@@ -144,8 +144,8 @@ LOGGING = {
         },
         'file': {
             'level': 'DEBUG',
-            'filters': ['require_debug_true'],
             'filename': 'fighter.log',
+            'class': 'logging.FileHandler',
             'formatter': 'simple',
             'encoding': 'utf-8'
         },
