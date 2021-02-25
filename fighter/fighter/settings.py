@@ -139,15 +139,13 @@ LOGGING = {
     'handlers': {
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
         'file': {
             'level': 'DEBUG',
             'filters': ['require_debug_true'],
-            'class': 'logging.handlers.FileHandler',
-            'filename': LOG_PATH,
+            'filename': 'fighter.log',
             'formatter': 'simple',
             'encoding': 'utf-8'
         },
@@ -158,9 +156,10 @@ LOGGING = {
         }
     },
     'loggers': {
-        '': {
+        'django': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
+            'propagate': True,
         },
         'django.request': {
             'handlers': ['mail_admins'],
