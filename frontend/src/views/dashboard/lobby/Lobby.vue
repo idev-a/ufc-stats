@@ -190,6 +190,11 @@
         ],
         headers: [
           {
+            text: 'Name',
+            value: 'name',
+            align: 'center',
+          },
+          {
             text: 'Event',
             value: 'event',
             align: 'center',

@@ -102,7 +102,7 @@
                 :input-value="data.selected"
                 @click="data.select"
               >
-                {{ data.item.name }} ({{beautifyDate(data.item.date)}})
+                {{ data.item.name }}
               </v-chip>
             </template>
             <template v-slot:item="data">
@@ -111,7 +111,7 @@
               </template>
               <template v-else>
                 <v-list-item-content>
-                  <v-list-item-title v-html="`${data.item.name} (${beautifyDate(data.item.date)})`"></v-list-item-title>
+                  <v-list-item-title v-html="data.item.name"></v-list-item-title>
                 </v-list-item-content>
               </template>
             </template>

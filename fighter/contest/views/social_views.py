@@ -210,6 +210,7 @@ class TwitterWebhookEndpoint(APIView):
             try:
                 user = CustomUser.objects.get(username=id)
                 game.entrants.add(user)
+                game.joined_users.add(user)
             except:
                 non_users.append(id)
 
