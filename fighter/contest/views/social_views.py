@@ -270,7 +270,7 @@ class TwitterWebhookEndpoint(APIView):
                     commands_block = tweet['text'].split(START_KEYWORD)[-1].strip()
                     first_command = commands_block.split(' ')[0]
                     reply_id = tweet['id'] or tweet['in_reply_to_status_id']
-                    print('reply_id ', reply_id)
+                    print('reply_id ', tweet['id'], ' ** ', tweet['in_reply_to_status_id'])
                     if first_command.startswith('show__'):
                         self.manage_shows(reply_id, commands_block)
 
