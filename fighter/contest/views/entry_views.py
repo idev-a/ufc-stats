@@ -350,11 +350,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 game = _.event
                 if _.game:
                     game = _.game
+                ranking = _.ranking
+                if game.action != 'completed':
+                    ranking = '-'
                 games.append(dict(
                     id=_.id,
                     name=game.name,
                     date=game.date,
-                    ranking=_.ranking
+                    ranking=ranking
                 ))
             return Response(dict(
                 games=games,
