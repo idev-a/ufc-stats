@@ -9,13 +9,14 @@
         class="font-weight-medium mb-3 ml-md-5"
       >
         <div class="text-center mr-10">
-          <div>{{ event.name }}</div>
+          <div>{{ contestName }}</div>
           <div class="subtitle-1">
-            {{ event.date | beautifyDate }}
-            <span v-if="eventStarted" class="red--text h6">({{(event.action || 'started').toUpperCase()}})</span>
+            {{ contestDate }}
+            <span v-if="eventStarted" class="red--text h6">({{curContest.action}})</span>
           </div>
         </div>
         <v-autocomplete 
+          v-if="!isHistory"
           :loading="loading"
           v-model="curGame"
           :items="games"
@@ -77,7 +78,7 @@
             </v-tab-item>
 
             <!-- Chat -->
-            <v-tab-item>
+            <v-tab-item v-if="!isHistory">
               <chat />
             </v-tab-item>
           </v-tabs-items>
@@ -99,6 +100,8 @@
 
     components: { FightTab, StandingTab, Chat },
 
+    props: ['isHistory', 'entry_id'],
+
     data () {
       return {
         loading: false,
@@ -108,7 +111,6 @@
         tabs: [
           'Fights',
           'Standings',
-          'Chat'
         ],
         games: [],
         curGame: -1,
@@ -122,16 +124,49 @@
     computed: {
       ...mapState(['event']),
 
+      contestName () {
+        return this.curContest.name
+      },
+      curContest () {
+        let contest = undefined
+        if (this.curGame == -1) {
+          contest = this.event
+        } else {
+          this.games.map(game => {
+            if (game.value == this.curGame) {
+              contest = game
+            }
+          })
+        }
+        console.log(contest.name)
+        return contest
+      },
+      contestDate () {
+        return beautifyDate(this.curContest.date)
+      },
       eventStarted () {
-        return this.event && this.event.action != ''
+        console.log(this.curContest.action)
+        return this.curContest && this.curContest.action != undefined
       },
     },
 
     mounted() {
-      this.getLatestContest()
+      if (!this.isHistory) {
+        this.getLatestContest()
+        this.tabs.push('Chat')
+      } else {
+        this.getHistoryContest()
+      }
     },
 
     methods: {
+      async getHistoryContest() {
+        this.loading = true
+        const { data } = await main.getContestHistory(this.entry_id)
+        this.boutViews = data.bout_views
+        this.entryViews = data.entry_views
+        this.loading = false
+      },
       async getLatestContest(game_id=-1) {
         this.loading = true
         const { data } = await main.getLatestContest(game_id)

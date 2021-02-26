@@ -24,5 +24,11 @@ export default {
   },
   joinGame(payload) {
     return session.post('api/games/join_game/', payload)
+  },
+  getMyContestHistory () {
+    return session.post('api/entries/get_contest_history/')
+  },
+  getContestHistoryDetail(entry_id) {
+    return session.post('api/entries/get_contest_history_detail/', {entry_id})
   }
 }

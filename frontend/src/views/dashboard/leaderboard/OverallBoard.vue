@@ -4,8 +4,8 @@
   >
     <v-card
       min-width="50%"
-      flat
-      class="my-0"
+      tile
+      class="my-0 fq-popup"
     >
       <v-card-title class="mb-2">
         <v-text-field

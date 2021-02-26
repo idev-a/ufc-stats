@@ -80,6 +80,18 @@ let router = new Router({
           component: () => import('@/views/dashboard/lobby/LobbyContainer'),
           beforeEnter: requireAuthenticated
         },
+        {
+          name: 'MyContest',
+          path: 'history/contest',
+          component: () => import('@/views/dashboard/history/ContestHistoryContainer'),
+          beforeEnter: requireAuthenticated
+        },
+        {
+          name: 'MyContestDetail',
+          path: 'history/contest/:entry_id',
+          component: () => import('@/views/dashboard/history/ContestHistoryDetailContainer'),
+          beforeEnter: requireAuthenticated
+        },
       ],
     },
     {

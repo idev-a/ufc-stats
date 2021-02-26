@@ -171,7 +171,17 @@
           <v-btn
             text
             v-if="isAuthenticated"
-            to="leaderboard"
+            to="/history/contest"
+            block
+            plain
+          >
+            My Contests
+          </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            to="/leaderboard"
             block
             plain
           >
@@ -246,7 +256,7 @@
         </v-list-item-group>
       </v-list>
     </v-menu>
-
+    
     <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
     <user-profile v-if="isProfileDlg"/>
     <your-account v-if="isAuthenticated" :value.sync="accountDlg" @update="accountDlg=false" />
@@ -322,7 +332,7 @@
       },
       isProfileDlg () {
         return this.$store.getters['auth/selectedUserId']
-      }
+      },
     },
 
     mounted() {

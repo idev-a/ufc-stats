@@ -340,6 +340,53 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             games=games
         ))
 
+    @action(methods=['post'], detail=False)
+    def get_contest_history(self, request, **kwarg):
+        try:
+            user_id = request.user.id
+            entries = Entry.objects.filter(user_id=user_id)
+            games = []
+            for _ in entries:
+                game = _.event
+                if _.game:
+                    game = _.game
+                games.append(dict(
+                    id=_.id,
+                    name=game.name,
+                    date=game.date,
+                    ranking=_.ranking
+                ))
+            return Response(dict(
+                games=games,
+            ), status=200)
+        except:
+            return Response(dict(
+                games=[],
+            ), status=400)
+
+    @action(methods=['post'], detail=False)
+    def get_contest_history_detail(self, request, **kwarg):
+        try:
+            entry_id = request.data['entry_id']
+            user_id = request.user.id
+            entry = Entry.objects.get(pk=entry_id)
+            selections = Selection.objects.filter(entry__id=entry_id)
+            bout_views = get_fight_views(selections)
+            entry_views = get_entry_views(selections)
+            event = EventSerializer(entry.event).data
+            return Response(dict(
+                bout_views=bout_views,
+                entry_views=entry_views,
+                event=event,
+            ), status=200)
+        except:
+            return Response(dict(
+                bout_views=[],
+                entry_views=[],
+                event={},
+            ), status=400)
+
+
     @action(methods=['get'], detail=False)
     def get_leaderboard(self, request, **kwarg):
         views = get_leaderboard_view(self.queryset)

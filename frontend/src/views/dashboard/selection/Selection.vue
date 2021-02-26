@@ -194,17 +194,7 @@
         return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
       },
       contestName () {
-        if (this.curGame == -1) {
-          return this.event.name
-        } else {
-          let name = ''
-          this.games.map(game => {
-            if (game.value == this.curGame) {
-              name = game.name
-            }
-          })
-          return name
-        }
+        this.curContest.name
       },
       curContest () {
         let contest = undefined
@@ -219,11 +209,11 @@
         }
         return contest
       },
-      contestDate () {
-        return beautifyDate(this.curContest.date)
-      },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
+      },
+      contestDate () {
+        return beautifyDate(this.curContest.date)
       },
       eventStarted () {
         return this.curContest && this.curContest.action != '' || this.countdownEnd

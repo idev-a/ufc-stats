@@ -104,6 +104,11 @@
           to: '/lobby',
         },
         {
+          icon: 'mdi-sofa-single-outline',
+          title: 'My Contests',
+          to: '/history/contest',
+        },
+        {
           icon: 'mdi-view-dashboard-outline',
           title: 'Leaderboard',
           to: '/leaderboard',

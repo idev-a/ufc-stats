@@ -4,6 +4,7 @@
     width="600px"
   >
     <v-card
+      tile
       class="fq-popup"
       icon="mdi-account-outline"
       :loading="loading"
@@ -42,6 +43,7 @@
         </div>
       </v-card-title>
       <v-card-text 
+        class="profile-table"
       >
         <v-divider />
         <div
@@ -93,6 +95,7 @@
           item-key="id"
           dense
           item-class="contest-history-tb-row"
+          @click:row="showHistory"
         > 
           <template v-slot:item.date="{ item }">
             {{ beautifyDate(item.date)}}
@@ -141,7 +144,7 @@
           return this.$store.getters['auth/selectedUserId']
         },
         set (val) {
-          this.$store.commit('auth/setUserId', val);
+          this.$store.commit('auth/setUserId', val)
         }
       },
       userAvatar () {
@@ -162,12 +165,20 @@
       beautifyDate,
       async updateProfile() {
         this.$store.dispatch('auth/updateUser', this.authUser)
+      },
+      showHistory (item) {
+        this.$store.commit('auth/setUserId', 0)
+        this.$router.push({path: `/history/contest/${item.id}`})
       }
     }
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  
+  .profile-table .v-data-table__wrapper td{
+    cursor: pointer;
+  }
 
   .display-box {
     text-align: left !important;

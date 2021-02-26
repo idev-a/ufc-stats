@@ -2,7 +2,7 @@
   <div>
     <v-card
       min-width="50%"
-      flat
+      tile
       class="mt-0"
       style="background: none;"
     >

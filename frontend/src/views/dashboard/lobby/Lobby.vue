@@ -1,6 +1,7 @@
 <template>
   <div id="contest-table">
     <v-card
+      tile
       max-width="100%"
       class="ma-0 pa-0 pb-3 fq-popup"
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
@@ -328,7 +329,7 @@
   }
 </script>
 <style>
-  .lobby-table .v-data-table__wrapper td{
+  .lobby-table .v-data-table__wrapper td {
     cursor: pointer;
   }
 </style>
