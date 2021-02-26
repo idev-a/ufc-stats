@@ -89,10 +89,12 @@ def update_rank(event_id):
 def get_games(latest_event, game_id, user_id):
     games = [{ 'header': 'Single' }]
     games.append(dict(
+        event_id=latest_event.id,
         name=latest_event.name,
         group='Single',
         date=latest_event.date,
         value=-1,
+        game_id=-1,
         action=latest_event.action
     ))
     multi_games = Game.objects.filter(joined_users__pk=user_id)
@@ -104,7 +106,9 @@ def get_games(latest_event, game_id, user_id):
                 group='Multiple',
                 date=_.date,
                 value=_.id,
-                action=_.action
+                game_id=_.id,
+                action=_.action,
+                event_id=_.event.id
             ))
 
     return games
@@ -332,11 +336,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_latestcontest(self, request, **kwarg):
         latest_event = Event.objects.filter(status='upcoming').latest('-date')
         game_id = request.data['game_id']
-        print(latest_event.id, game_id)
         if game_id == -1:
             selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
         else:
-            selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game_id=game_id)
+            selections = Selection.objects.filter(entry__game_id=game_id)
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
@@ -388,7 +391,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             event_id = request.data['event_id']
             game_id = request.data['game_id']
-            if game_id == -1:
+            if int(game_id) == -1:
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
             else:
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game_id)

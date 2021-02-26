@@ -207,6 +207,7 @@
             }
           })
         }
+        console.log(contest.date)
         return contest
       },
       leftMargin () {
@@ -304,11 +305,10 @@
           this.$store.commit('auth/showLoginDlg')
           return
         }
-        const event_id = this.bouts[0].event
         const payload = {
           entry: {
             game: this.curGame,
-            event: event_id,
+            event: this.curContest.event_id,
             user: this.authUser.pk || this.authUser.id,
           },
           selections: []

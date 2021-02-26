@@ -109,24 +109,22 @@ class UserViewSet(viewsets.ModelViewSet):
             # contest history
             entries = Entry.objects.filter(user_id=user.id)
             for _ in entries:
-                event = Event.objects.get(pk=_.event_id)
-                _event = EventSerializer(event).data
-                _entry = EntrySerializer(_).data
                 game_id = -1
                 if _.game and _.game.id:
                     game_id = _.game.id
+                    print(_.event)
                 ranking = _.ranking
                 if _.event.action != 'completed':
                     ranking = '-'
                 data['contest_history'].append(dict(
-                    id= _entry['id'],
-                    event_id=event_id,
+                    id= _.id,
+                    event_id=_.event.id,
                     game_id=game_id,
-                    event=_event['name'],
-                    date=_event['date'],
+                    event=_.event.name,
+                    date=_.event.date,
                     ranking=ranking,
                     status=_.event.action,
-                    last_edited=_entry['last_edited']
+                    last_edited=_.last_edited
                 ))
                 data['contest_history'] = sorted(data['contest_history'], reverse=True,  key=lambda x: x['date'])
         except Exception as err:

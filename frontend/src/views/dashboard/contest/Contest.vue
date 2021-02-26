@@ -138,7 +138,6 @@
             }
           })
         }
-        console.log(contest.name)
         return contest
       },
       contestDate () {

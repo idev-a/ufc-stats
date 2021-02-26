@@ -75,6 +75,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 games.append(dict(
                     name=latest_event.name,
                     group='Single',
+                    event_id=latest_event.id,
                     date=latest_event.date,
                     value=-1,
                     action=latest_event.action
@@ -83,14 +84,18 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     game_id = request.data['game_id']
                     my_entry = None
                     try:
-                        if game_id == -1:
+                        if int(game_id) == -1:
                             my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
                         else:
-                            my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game_id=game_id)
+                            my_entry = Entry.objects.all().get(user_id=request.user.id, game_id=game_id)
                     except:
                         pass
-                    for bout in _bouts:
-                        if my_entry:
+                    if my_entry:
+                        latest_event = my_entry.event
+                        bouts = Bout.objects.filter(event__id=latest_event.id)
+                        _bouts = BoutSerializer(bouts, many=True).data
+                        _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
+                        for bout in _bouts:
                             selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
                             if selected:
                                 bout['survivors'] = []
@@ -106,8 +111,9 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                             games.append(dict(
                                 name=_.name,
                                 group='Multiple',
-                                date=_.event.date,
+                                date=_.date,
                                 value=_.id,
+                                event_id=_.event.id,
                                 instructions=_.instructions,
                                 rules_set=_.rules_set,
                                 action=_.action
