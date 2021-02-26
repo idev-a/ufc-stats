@@ -355,6 +355,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     ranking = '-'
                 games.append(dict(
                     id=_.id,
+                    status=game.action,
                     name=game.name,
                     date=game.date,
                     ranking=ranking

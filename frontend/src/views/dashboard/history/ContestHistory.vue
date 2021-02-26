@@ -37,6 +37,9 @@
           <template v-slot:item.date="{ item }">
             {{ beautifyDate(item.date)}}
           </template>
+          <template v-slot:item.status="{ item }">
+            {{ upperFirst(item.status) }}
+          </template>
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -45,6 +48,7 @@
 
 <script>
   import main from '@/api/main'
+  import upperFirst from 'lodash/upperFirst'
   import { beautifyDate } from '@/util'
 
   export default {
@@ -60,8 +64,12 @@
           value: 'name'
         },
         {
-          text: 'Started',
+          text: 'Started At',
           value: 'date'
+        },
+        {
+          text: 'Status',
+          value: 'status'
         },
         {
           text: 'Ranking',
@@ -76,6 +84,8 @@
 
     methods: {
       beautifyDate,
+      upperFirst,
+
       async getMyContestHistory() {
         this.loading = true
         const { data } = await main.getMyContestHistory()
