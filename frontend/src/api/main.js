@@ -28,7 +28,7 @@ export default {
   getMyContestHistory () {
     return session.post('api/entries/get_contest_history/')
   },
-  getContestHistoryDetail(entry_id) {
-    return session.post('api/entries/get_contest_history_detail/', {entry_id})
+  getContestHistoryDetail(event_id, game_id) {
+    return session.post('api/entries/get_contest_history_detail/', {event_id, game_id})
   }
 }

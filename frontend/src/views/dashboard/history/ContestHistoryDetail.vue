@@ -67,7 +67,7 @@
 
     components: { FightTab, StandingTab },
 
-    props: ['entry_id'],
+    props: ['event_id', 'game_id'],
 
     data () {
       return {
@@ -113,7 +113,7 @@
       async getContestHistoryDetail() {
         this.loading = true
         try {
-          const { data } = await main.getContestHistoryDetail(this.entry_id)
+          const { data } = await main.getContestHistoryDetail(this.event_id, this.game_id)
           this.boutViews = data.bout_views
           this.entryViews = data.entry_views
           this.curContest = data.event

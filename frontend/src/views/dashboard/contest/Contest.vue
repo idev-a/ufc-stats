@@ -145,8 +145,7 @@
         return beautifyDate(this.curContest.date)
       },
       eventStarted () {
-        console.log(this.curContest.action)
-        return this.curContest && this.curContest.action != undefined
+        return this.curContest && this.curContest.action != ''
       },
     },
 

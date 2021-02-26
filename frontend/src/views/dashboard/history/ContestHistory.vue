@@ -38,7 +38,7 @@
             {{ beautifyDate(item.date)}}
           </template>
           <template v-slot:item.status="{ item }">
-            {{ upperFirst(item.status) }}
+            {{ item.status ? upperFirst(item.status) : '-' }}
           </template>
         </v-data-table>
       </v-card-text>
@@ -88,12 +88,14 @@
 
       async getMyContestHistory() {
         this.loading = true
-        const { data } = await main.getMyContestHistory()
-        this.games = data.games
+        try {
+          const { data } = await main.getMyContestHistory()
+          this.games = data.games
+        } catch (e) {}
         this.loading = false
       },
       showDetail (item) {
-        this.$router.push({path: `/history/contest/${item.id}`})
+        this.$router.push({path: `/history/contest/${item.event_id}/${item.game_id}`})
       }
     }
   }

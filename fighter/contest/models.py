@@ -168,8 +168,8 @@ class Game(models.Model):
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
 	instructions = models.TextField(default='', max_length=500, blank=False)
 	rules_set = models.TextField(default='', max_length=500, blank=False)
-	date_started = models.DateTimeField(null=True, blank=False)
-	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True, default='started')
+	date = models.DateTimeField(null=True, blank=False)
+	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
 
 	def info_entrants(self):
 		return '{}'.format(len(self.entrants.all()))

@@ -88,7 +88,7 @@ let router = new Router({
         },
         {
           name: 'MyContestDetail',
-          path: 'history/contest/:entry_id',
+          path: 'history/contest/:event_id/:game_id',
           component: () => import('@/views/dashboard/history/ContestHistoryDetailContainer'),
           beforeEnter: requireAuthenticated
         },

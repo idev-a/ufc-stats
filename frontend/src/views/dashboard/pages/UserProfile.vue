@@ -3,6 +3,7 @@
     v-model="insideValue"
     width="600px"
   >
+  <div id="contest-table">
     <v-card
       tile
       class="fq-popup"
@@ -64,7 +65,20 @@
               {{profile.total_contests}}
             </div>
             <div>
-              Contests
+              Total Contests
+            </div>
+          </v-card>
+          <v-card
+            class="well"
+            :loading="loading"
+          >
+            <div
+              class="stats-value"
+            >
+              {{profile.completed_contests}}
+            </div>
+            <div>
+              Completed Contests
             </div>
           </v-card>
           <v-card
@@ -100,9 +114,13 @@
           <template v-slot:item.date="{ item }">
             {{ beautifyDate(item.date)}}
           </template>
+          <template v-slot:item.status="{ item }">
+            {{ item.status ? upperFirst(item.status) : '-' }}
+          </template>
         </v-data-table>
       </v-card-text>
     </v-card>
+  </div>
   </v-dialog>
 </template>
 
@@ -110,6 +128,7 @@
   import { mapState } from 'vuex'
   import auth from '@/api/auth'
   import { beautifyDate } from '@/util'
+  import upperFirst from 'lodash/upperFirst'
 
   export default {
     name: "UserProfile",
@@ -122,8 +141,12 @@
           value: 'event'
         },
         {
-          text: 'Date',
+          text: 'Started at',
           value: 'date'
+        },
+        {
+          text: 'Status',
+          value: 'status'
         },
         {
           text: 'Ranking',
@@ -163,12 +186,14 @@
 
     methods: {
       beautifyDate,
+      upperFirst,
+
       async updateProfile() {
         this.$store.dispatch('auth/updateUser', this.authUser)
       },
       showHistory (item) {
         this.$store.commit('auth/setUserId', 0)
-        this.$router.push({path: `/history/contest/${item.id}`})
+        this.$router.push({path: `/history/contest/${item.event_id}/${item.game_id}`})
       }
     }
   }

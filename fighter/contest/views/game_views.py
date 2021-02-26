@@ -49,7 +49,7 @@ def show__games():
             entrants=UserSerializer(_.entrants.all(), many=True).data,
             instructions=_.instructions,
             rules_set=_.rules_set,
-            date_started=_.date_started,
+            date=_.date,
             action=_.action
         )
 

@@ -92,7 +92,8 @@ class UserViewSet(viewsets.ModelViewSet):
         data = {'contest_history': []}
         try:
             user = CustomUser.objects.get(pk=request.data['id'])
-            data['total_contests'] = Entry.objects.filter(user_id=user.id, event__action='completed').count()
+            data['total_contests'] = Entry.objects.filter(user_id=user.id).count()
+            data['completed_contests'] = Entry.objects.filter(user_id=user.id, event__action='completed').count()
             total_wins = Entry.objects.filter(user_id=user.id, ranking=1, event__action='completed').count()
             if data['total_contests']:
                 data['total_wins'] = "{:5.1f}".format(total_wins/data['total_contests'] * 100)
@@ -106,18 +107,28 @@ class UserViewSet(viewsets.ModelViewSet):
                 initials=user.initials
             )
             # contest history
-            entries = Entry.objects.filter(user_id=user.id, event__action='completed')
+            entries = Entry.objects.filter(user_id=user.id)
             for _ in entries:
                 event = Event.objects.get(pk=_.event_id)
                 _event = EventSerializer(event).data
                 _entry = EntrySerializer(_).data
+                game_id = -1
+                if _.game and _.game.id:
+                    game_id = _.game.id
+                ranking = _.ranking
+                if _.event.action != 'completed':
+                    ranking = '-'
                 data['contest_history'].append(dict(
                     id= _entry['id'],
+                    event_id=event_id,
+                    game_id=game_id,
                     event=_event['name'],
                     date=_event['date'],
-                    ranking=_.ranking,
+                    ranking=ranking,
+                    status=_.event.action,
                     last_edited=_entry['last_edited']
                 ))
+                data['contest_history'] = sorted(data['contest_history'], reverse=True,  key=lambda x: x['date'])
         except Exception as err:
             print(err)
             status = 500

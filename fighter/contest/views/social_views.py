@@ -200,7 +200,7 @@ class TwitterWebhookEndpoint(APIView):
             name=name,
             owner=owner,
             event=event,
-            date_started=event.date,
+            date=event.date,
             type_of_registration=type,
             instructions=DEFAULT_INSTRUCTIONS,
             rules_set=DEFAULT_RULES_SET,

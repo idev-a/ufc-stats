@@ -8,7 +8,7 @@
       style="width: 100%"
       v-if="$vuetify.breakpoint.mobile"
     >
-      <contest-history-detail :entry_id="entry_id" />
+      <contest-history-detail :event_id="event_id" :game_id="game_id" />
     </div>
     <dialog-drag 
       v-else
@@ -21,7 +21,7 @@
         zIndex: 5,
       }"
     >
-      <contest-history-detail :entry_id="entry_id" />
+      <contest-history-detail :event_id="event_id" :game_id="game_id"/>
     </dialog-drag>
   </v-container>
 </template>
@@ -38,8 +38,11 @@
 
     computed: {
       ...mapState(['lastLeft']),
-      entry_id () {
-        return this.$route.params.entry_id
+      event_id () {
+        return this.$route.params.event_id
+      },
+      game_id () {
+        return this.$route.params.game_id
       }
     },
 
