@@ -434,41 +434,45 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             return Response(dict(entries=[]), status=500)
 
     def create(self, request):
-        data= request.data['entry']
-        entry = None
-        entry_serializer = None
-        is_exist = False
-        message = 'Successfully done.'
         try:
-            if data['game'] != -1:
-                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+            data= request.data['entry']
+            entry = None
+            entry_serializer = None
+            is_exist = False
+            message = 'Successfully done.'
+            try:
+                if data['game'] != -1:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+                else:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
+            except:
+                pass
+            if entry:
+                is_exist = True
+                message = 'Successfully edited.'
+                data['last_edited'] = datetime.now()
+                entry_serializer = EntrySerializer(entry, data=data)
             else:
-                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
-        except:
-            pass
-        if entry:
-            is_exist = True
-            message = 'Successfully edited.'
-            data['last_edited'] = datetime.now()
-            entry_serializer = EntrySerializer(entry, data=data)
-        else:
-            if data['game'] == -1:
-                data['game'] = None
-            entry_serializer = EntrySerializer(data=data)
+                if data['game'] == -1:
+                    data['game'] = None
+                entry_serializer = EntrySerializer(data=data)
 
-        if entry_serializer.is_valid():
-            entry = entry_serializer.save()
+            if entry_serializer.is_valid():
+                entry = entry_serializer.save()
 
-        Selection.objects.filter(entry_id=entry.id).delete()
-        for selection in request.data['selections']:
-            selection['entry'] = entry.id
+            Selection.objects.filter(entry_id=entry.id).delete()
+            for selection in request.data['selections']:
+                selection['entry'] = entry.id
 
-        selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
-        if selection_serializer.is_valid():
-            selection_serializer.save()
-            return Response({'status': 'success', 'message': message})
-
-        return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+            selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
+            if selection_serializer.is_valid():
+                selection_serializer.save()
+                return Response({'status': 'success', 'message': message})
+            
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+        except Exception as err:
+            logger.warning(str(err))
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
 
     
 
