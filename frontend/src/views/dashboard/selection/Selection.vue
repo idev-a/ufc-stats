@@ -308,7 +308,7 @@
         const payload = {
           entry: {
             game: this.curGame,
-            event: this.curContest.event_id,
+            event: this.curContest.id || this.curContest.event_id,
             user: this.authUser.pk || this.authUser.id,
           },
           selections: []
