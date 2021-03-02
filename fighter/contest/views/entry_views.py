@@ -196,7 +196,7 @@ def get_entry_views(selections):
         score[username_id]['losers'].append(loser)
         
         # remainings
-        if bout.status != 'completed' or bout.status != 'drawn':
+        if bout.status == 'started' or bout.status == '':
             if selection.survivor1_id != None:
                 score[username_id]['remainings'] += 1
             if selection.survivor2_id != None:
