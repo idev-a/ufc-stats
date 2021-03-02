@@ -29,4 +29,12 @@ session.interceptors.request.use(function (config) {
     return Promise.reject(error);
   });
 
+session.interceptors.response.use(function (response) {
+    // Do something with response data
+    return response;
+  }, function (error) {
+    // Do something with response error
+    return Promise.resolve(error.response);
+  });
+
 export default session;

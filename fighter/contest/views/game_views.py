@@ -43,6 +43,7 @@ def show__games():
     for _ in Game.objects.all():
         yield dict(
             id=_.id,
+            name=_.name,
             event=EventSerializer(_.event).data,
             type_of_registration=_.type_of_registration,
             joined_users=UserSerializer(_.joined_users.all(), many=True).data,

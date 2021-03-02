@@ -59,7 +59,7 @@ let router = new Router({
         },
         {
           name: 'Contest',
-          path: 'contest',
+          path: 'contest/:game_id?',
           component: () => import('@/views/dashboard/contest/ContestContainer'),
           beforeEnter: requireAuthenticated
         },
@@ -81,7 +81,7 @@ let router = new Router({
           beforeEnter: requireAuthenticated
         },
         {
-          name: 'MyContest',
+          name: 'Old Contests',
           path: 'history/contest',
           component: () => import('@/views/dashboard/history/ContestHistoryContainer'),
           beforeEnter: requireAuthenticated

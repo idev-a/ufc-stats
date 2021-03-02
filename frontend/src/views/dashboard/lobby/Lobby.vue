@@ -55,8 +55,8 @@
           <template v-slot:item.entrants="{ item }">
             <span>{{ item.entrants.length }}</span>
           </template>
-          <template v-slot:item.date_started="{ item }">
-            <span>{{ item.date_started | beautifyDateTimeMin }}</span>
+          <template v-slot:item.date="{ item }">
+            <span>{{ item.date | beautifyDateTimeMin }}</span>
           </template>
           <template v-slot:item.actions="{ item }">
             <v-tooltip right>
@@ -97,7 +97,7 @@
 
               <v-list-item-content class="text-left">
                 <v-list-item-title class="display-2" v-html="curGame.event.name"></v-list-item-title>
-                <v-list-item-subtitle><b>Start at</b> {{ curGame.date_started | beautifyDateTimeMin }}</v-list-item-subtitle>
+                <v-list-item-subtitle><b>Start at</b> {{ curGame.date | beautifyDateTimeMin }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
                 <v-tooltip left>
@@ -212,7 +212,7 @@
           },
           {
             text: 'When',
-            value: 'date_started',
+            value: 'date',
             align: 'center',
           },
           {
@@ -276,7 +276,7 @@
             isInvolved = true
           }
         })
-        let isStarted = this.$moment(item.date_started).isBefore(this.$moment())
+        let isStarted = this.$moment(item.date).isBefore(this.$moment())
         if (isStarted) {
           return false
         }

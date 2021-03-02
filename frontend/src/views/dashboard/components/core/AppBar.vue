@@ -175,7 +175,7 @@
             block
             plain
           >
-            My Contests
+            Old Contests
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
           <v-btn

@@ -141,13 +141,13 @@ logging.config.dictConfig({
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'verbose'
         },
         'file': {
             'level': 'DEBUG',
             'filename': LOG_PATH,
             'class': 'logging.FileHandler',
-            'formatter': 'simple',
+            'formatter': 'verbose',
             'encoding': 'utf-8'
         },
         'mail_admins': {

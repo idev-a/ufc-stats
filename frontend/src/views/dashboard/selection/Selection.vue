@@ -305,10 +305,11 @@
           this.$store.commit('auth/showLoginDlg')
           return
         }
+        const event_id = this.curContest.id || this.curContest.event_id
         const payload = {
           entry: {
             game: this.curGame,
-            event: this.curContest.id || this.curContest.event_id,
+            event: event_id,
             user: this.authUser.pk || this.authUser.id,
           },
           selections: []
@@ -346,7 +347,7 @@
 
         if (data.status == 'success') {
           const self = this
-          setTimeout(function(){ self.$router.push('Contest'); }, 1200);
+          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
         }
       },
       clearSelection () {

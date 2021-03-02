@@ -76,7 +76,7 @@ class SelectionAdmin(admin.ModelAdmin):
 class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
-	search_fields = ('name', 'event__name', 'type_of_registration', 'entrants__username', 'instructions', 'rules_set', 'date', )
+	search_fields = ('name', 'event__name', 'type_of_registration', 'entrants__username', 'instructions', 'rules_set', )
 	list_display = ('name', 'event', 'type_of_registration', 'info_entrants', 'info_joined', 'short_instructions', 'short_rules_set', 'date',)
 
 	class Meta:
