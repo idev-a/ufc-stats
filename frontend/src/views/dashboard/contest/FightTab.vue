@@ -41,6 +41,7 @@
                 :isLoser="item.fighter1 == item.loser"
                 :isDied="item.died && item.died == item.fighter1"
                 :fighter="item.fighter1"
+                :isDrawn="item.draw"
                 v-bind="attrs"
                 v-on="on"
                 >
@@ -61,6 +62,7 @@
                 :isLoser="item.fighter2 == item.loser"
                 :isDied="item.died && item.died == item.fighter2"
                 :fighter="item.fighter2"
+                :isDrawn="item.draw"
                 v-bind="attrs"
                 v-on="on"
                 >
@@ -217,6 +219,9 @@
         }
         if (item.died && item.died == fighter) {
           text = 'Not survived'
+        }
+        if (item.draw) {
+          text = 'Drawn'
         }
         return text
       },

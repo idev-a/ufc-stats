@@ -163,6 +163,7 @@ def get_entry_views(selections):
                 'name': _s1.name,
                 'win': _s1.id == winner.get('id'),
                 'lose': _s1.id == loser.get('id'),
+                'draw': bout.status == 'drawn',
                 'entry_cnt': len(_count_entries(_s1 and _s1.id, selections))
             }
         survivor2 = {}
@@ -173,6 +174,7 @@ def get_entry_views(selections):
                 'name': _s2.name,
                 'win': _s2.id == winner.get('id'),
                 'lose': _s2.id == loser.get('id'),
+                'draw': bout.status == 'drawn',
                 'entry_cnt': len(_count_entries(_s2 and _s2.id, selections))  
             }
 
@@ -194,7 +196,7 @@ def get_entry_views(selections):
         score[username_id]['losers'].append(loser)
         
         # remainings
-        if bout.status != 'completed':
+        if bout.status != 'completed' or bout.status != 'drawn':
             if selection.survivor1_id != None:
                 score[username_id]['remainings'] += 1
             if selection.survivor2_id != None:
@@ -255,6 +257,7 @@ def get_fight_views(selections):
                 winner=_bout.winner and _bout.winner.name,
                 loser=_bout.loser and _bout.loser.name,
                 died=died,
+                draw=_bout.status == 'drawn',
                 status=_bout.status,
                 method=_bout.method,
                 round=_bout.round,
