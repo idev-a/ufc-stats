@@ -104,7 +104,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                                 if selected[0].survivor2_id:
                                     bout['survivors'].append(selected[0].survivor2_id)
 
-                    multi_games = Game.objects.filter(joined_users__pk=request.user.id)
+                    multi_games = Game.objects.filter(joined_users__pk=request.user.id).filter(event__action='')
                     if multi_games:
                         games.append({ 'header': 'Multiple' })
                         for _ in multi_games:
