@@ -7,22 +7,23 @@
       :loading="loading"
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
-      <v-card-title 
-        v-if="curContest" 
-        class="popup-header grab text-center ustify-center font-weight-medium mb-0"
-      >
-        <div style="width: 100%">
-          <div class="grab">{{ contestName }}</div>
-          <div class="grab subtitle-2">
-            <span>{{ contestDate }}</span>
-            <span v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</span>
-            <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
-          </div>
-          <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
-        </div>
-      </v-card-title>
+      
       <v-row dense>
         <v-col cols=12 md=6 >
+          <v-card-title 
+            v-if="curContest" 
+            class="font-weight-medium mb-0"
+          >
+            <div class="text-center w-100">
+              <div class="grab">{{ contestName }}</div>
+              <div class="grab subtitle-2">
+                <span>{{ contestDate }}</span>
+                <span v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</span>
+                <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
+              </div>
+              <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
+            </div>
+          </v-card-title>
           <v-card-text
             class="pb-0"
             style="position: relative;"
@@ -67,63 +68,91 @@
             </div>
             <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
           </v-card-text>
-          <div class="d-flex justify-center mt-2 mr-2">
-            <v-btn 
-              class="success my-2 mr-2" 
-              :disabled="submitDisabled"
-              :loading="loading"
-              small
-              @click="submit"
-            >
-              Submit
-            </v-btn>
-            <v-btn 
-              class="grey darken-2 my-2" 
-              :disabled="!squadSize || eventStarted" 
-              :loading="loading"
-              small 
-              @click="clearSelection"
-            >
-              <v-icon small left>mdi-cancel</v-icon>Clear
-            </v-btn>
+          <div class="d-flex justify-center my-2 mr-2">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="success mr-2" 
+                  :disabled="submitDisabled"
+                  :loading="loading"
+                  small
+                  v-on="on"
+                  @click="submit"
+                >
+                  Submit
+                </v-btn>
+              </template>
+              <span>Submit Selection</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="grey darken-2 mr-2" 
+                  :disabled="!squadSize || eventStarted" 
+                  :loading="loading"
+                  small 
+                  v-on="on"
+                  @click="clearSelection"
+                >
+                  <v-icon small left>mdi-cancel</v-icon>Clear
+                </v-btn>
+              </template>
+              <span>Clear Selection</span>
+            </v-tooltip>
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  small
+                  v-on="on"
+                  link
+                  target="_blank"
+                  :href="tweetShareLink"
+                >
+                  <v-icon size="24" color="twitter">mdi-twitter</v-icon>
+                </v-btn>
+              </template>
+              <span>Share with Twitter</span>
+            </v-tooltip>
           </div>
-          <v-autocomplete 
-            :loading="loading"
-            v-model="curGame"
-            :items="games"
-            chips
-            label="Select Contest"
-            class="mx-5 py-0"
-            @change="changeGame"
-          >
-            <template v-slot:selection="data">
-              <v-chip
-                v-bind="data.attrs"
-                :input-value="data.selected"
-                @click="data.select"
-              >
-                {{ data.item.name }}
-              </v-chip>
-            </template>
-            <template v-slot:item="data">
-              <template v-if="typeof data.item !== 'object'">
-                <v-list-item-content v-text="data.item"></v-list-item-content>
-              </template>
-              <template v-else>
-                <v-list-item-content>
-                  <v-list-item-title v-html="data.item.name"></v-list-item-title>
-                </v-list-item-content>
-              </template>
-            </template>
-          </v-autocomplete>
+          
         </v-col>
         <v-col cols=12 md=6>
+          <v-card-title 
+          >
+            <v-autocomplete 
+              :loading="loading"
+              v-model="curGame"
+              :items="games"
+              chips
+              label="Select Contest"
+              class="mx-5"
+              @change="changeGame"
+            >
+              <template v-slot:selection="data">
+                <v-chip
+                  v-bind="data.attrs"
+                  :input-value="data.selected"
+                  @click="data.select"
+                >
+                  {{ data.item.name }}
+                </v-chip>
+              </template>
+              <template v-slot:item="data">
+                <template v-if="typeof data.item !== 'object'">
+                  <v-list-item-content v-text="data.item"></v-list-item-content>
+                </template>
+                <template v-else>
+                  <v-list-item-content>
+                    <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                  </v-list-item-content>
+                </template>
+              </template>
+            </v-autocomplete>
+          </v-card-title>
           <instruction-body :key="key" :rulesSet="rulesSet" :instructions="instructions" v-if="needsInstruction" />
         </v-col>
       </v-row>
     </v-card>
-
-    
   </div>
 </template>
 
@@ -194,7 +223,7 @@
         return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
       },
       contestName () {
-        this.curContest.name
+        return this.curContest && this.curContest.name || ""
       },
       curContest () {
         let contest = undefined
@@ -207,7 +236,6 @@
             }
           })
         }
-        console.log(contest.date)
         return contest
       },
       leftMargin () {
@@ -250,6 +278,13 @@
       },
       defaultRulesSet () {
         return DEFAULT_RULES_SET
+      },
+      tweetShareLink () {
+        let link = `${process.env.VUE_APP_URL}/contest/${this.curGame}`
+        if (this.curGame == -1) {
+          link = `${process.env.VUE_APP_URL}/contest`
+        }
+        return encodeURI(`https://twitter.com/intent/tweet?url=${link}&via=fightquake&text=Join me on FIGHTQUAKE to play fantasy MMA!&hashtags=ufc,fightquake,survival`)
       }
     },
 

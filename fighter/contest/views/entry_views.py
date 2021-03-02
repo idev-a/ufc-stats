@@ -374,7 +374,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     id=_.id,
                     event_id=_.event.id,
                     game_id=game_id,
-                    status=game.action,
+                    status=_.event.action,
                     name=game.name,
                     date=game.date,
                     ranking=ranking
@@ -394,18 +394,40 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             event_id = request.data['event_id']
             game_id = request.data['game_id']
+            game = None
             if int(game_id) == -1:
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
+                _event = Event.objects.get(id=event_id)
+                game = dict(
+                    id=-1,
+                    name=_event.name,
+                    event=EventSerializer(_event).data,
+                    type_of_registration='public',
+                    date=_event.date,
+                    action=_event.action
+                )
             else:
+                _ = Game.objects.get(id=game_id)
+                game = dict(
+                    id=_.id,
+                    name=_.name,
+                    event=EventSerializer(_.event).data,
+                    type_of_registration=_.type_of_registration,
+                    joined_users=UserSerializer(_.joined_users.all(), many=True).data,
+                    entrants=UserSerializer(_.entrants.all(), many=True).data,
+                    instructions=_.instructions,
+                    rules_set=_.rules_set,
+                    date=_.date,
+                    action=_.action
+                )
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game_id)
 
             bout_views = get_fight_views(selections)
             entry_views = get_entry_views(selections)
-            event = EventSerializer(Event.objects.get(id=event_id)).data
             return Response(dict(
                 bout_views=bout_views,
                 entry_views=entry_views,
-                event=event,
+                game=game,
             ), status=200)
         except Exception as err:
             logger.warning(str(err))

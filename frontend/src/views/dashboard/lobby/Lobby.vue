@@ -140,7 +140,7 @@
           >
             <!-- Content Detail -->
             <v-tab-item>
-              <contest-detail :game="curGame"/>
+              <game-detail :game="curGame"/>
             </v-tab-item>
 
             <!-- Rules -->
@@ -158,13 +158,13 @@
   import { mapState } from 'vuex'
   import main from '@/api/main'
   import { beautifyDateTimeMin } from '@/util'
-  import ContestDetail from './ContestDetail'
+  import GameDetail from './GameDetail'
   import Rules from './Rules'
 
   export default {
     name: 'Contest',
 
-    components: { ContestDetail, Rules },
+    components: { GameDetail, Rules },
 
     data () {
       return {

@@ -169,11 +169,15 @@ class Game(models.Model):
 	instructions = models.TextField(default='', max_length=500, blank=False)
 	rules_set = models.TextField(default='', max_length=500, blank=False)
 	# date = models.DateTimeField(null=True, blank=False)
-	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
+	# action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
 
 	@property
 	def date(self):
 		return self.event.date
+
+	@property
+	def action(self):
+		return self.event.action
 
 	def info_entrants(self):
 		return '{}'.format(len(self.entrants.all()))

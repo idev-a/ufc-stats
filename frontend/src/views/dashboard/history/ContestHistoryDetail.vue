@@ -7,14 +7,14 @@
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
-        v-if="curContest"
+        v-if="curGame"
         class="font-weight-medium pt-3 mb-3 ml-md-5 justify-center"
       >
         <div class="text-center mr-10">
           <div>{{ contestName }}</div>
           <div class="subtitle-1">
             {{ contestDate }}
-            <span v-if="eventStarted" class="red--text h6">({{curContest.action}})</span>
+            <span v-if="eventStarted" class="red--text h6">({{curGame.action}})</span>
           </div>
         </div>
       </v-card-title>
@@ -49,6 +49,15 @@
             <standing-tab :entryViews="entryViews" :loading="loading"/>
           </v-tab-item>
 
+          <v-tab-item>
+            <game-detail :game="curGame"/>
+          </v-tab-item>
+
+          <!-- Rules -->
+          <v-tab-item>
+            <rules :game="curGame"/>
+          </v-tab-item>
+
         </v-tabs-items>
       </v-card-text>
     </v-card>
@@ -60,12 +69,14 @@
   import { beautifyDate } from '@/util'
   import FightTab from '../contest/FightTab'
   import StandingTab from '../contest/StandingTab'
+  import GameDetail from '../lobby/GameDetail'
+  import Rules from '../lobby/Rules'
   import { mapState } from 'vuex'
 
   export default {
     name: 'ContestDetail',
 
-    components: { FightTab, StandingTab },
+    components: { FightTab, StandingTab, GameDetail, Rules },
 
     props: ['event_id', 'game_id'],
 
@@ -73,15 +84,15 @@
       return {
         loading: false,
         tab: null,
-        curContest: null,
+        curGame: null,
         boutViews: [],
         entryViews: [],
         tabs: [
           'Fights',
-          'Standings'
+          'Standings',
+          'Contest Details',
+          'Rules & Scoring',
         ],
-        games: [],
-        curGame: -1,
       }
     },
 
@@ -95,13 +106,13 @@
         }
       },
       contestName () {
-        return this.curContest.name
+        return this.curGame.name
       },
       contestDate () {
-        return beautifyDate(this.curContest.date)
+        return beautifyDate(this.curGame.date)
       },
       eventStarted () {
-        return this.curContest && this.curContest.action != ''
+        return this.curGame && this.curGame.action != ''
       },
     },
 
@@ -116,7 +127,7 @@
           const { data } = await main.getContestHistoryDetail(this.event_id, this.game_id)
           this.boutViews = data.bout_views
           this.entryViews = data.entry_views
-          this.curContest = data.event
+          this.curGame = data.game
         } catch (err) {
         }
         this.loading = false

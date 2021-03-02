@@ -40,7 +40,7 @@ from contest.serializers import (
 import pdb
 
 def show__games():
-    for _ in Game.objects.all():
+    for _ in Game.objects.filter(event__action=''):
         yield dict(
             id=_.id,
             name=_.name,

@@ -183,6 +183,12 @@
     background: none;
   }
 
+  .instruction-list {
+    list-style: none;
+    font-weight: 300;
+    letter-spacing: 0;
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(0,0,0,.7) rgba(0,0,0,0.5);

@@ -90,8 +90,7 @@
         return `${process.env.VUE_APP_URL}/rf/${id}`
       },
       tweetShareLink () {
-        const url = `https://twitter.com/intent/tweet?url=${this.link}&via=fightquake&text=Join me on FIGHTQUAKE to play fantasy MMA!&hashtags=ufc,fightquake,survival`
-        return encodeURI(url)
+        return encodeURI(`https://twitter.com/intent/tweet?url=${this.link}&via=fightquake&text=Join me on FIGHTQUAKE to play fantasy MMA!&hashtags=ufc,fightquake,survival`)
       }
     },
 

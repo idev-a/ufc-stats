@@ -370,9 +370,3 @@
     },
   }
 </script>
-
-<style>
-  .instruction-list {
-    list-style: none;
-  }
-</style>
