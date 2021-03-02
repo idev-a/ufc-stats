@@ -336,7 +336,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_latestcontest(self, request, **kwarg):
         latest_event = Event.objects.filter(status='upcoming').latest('-date')
         game_id = request.data['game_id']
-        if game_id == -1:
+        if int(game_id) == -1:
             selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
         else:
             selections = Selection.objects.filter(entry__game_id=game_id)
