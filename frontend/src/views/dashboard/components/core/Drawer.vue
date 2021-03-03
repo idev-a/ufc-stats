@@ -19,7 +19,7 @@
       />
     </template>
 
-    <v-list-item two-line>
+    <v-list-item two-line to="/" class="grey--text">
       <v-list-item-content>
         <v-list-item-title class="text-uppercase font-weight-regular display-2">
           <span class="logo-mini">{{ $t('FQ') }}</span>

@@ -99,19 +99,17 @@
               </template>
               <span>Clear Selection</span>
             </v-tooltip>
-            <v-tooltip right>
+            <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn 
                   small
                   v-on="on"
-                  link
-                  target="_blank"
-                  :href="tweetShareLink"
+                  @click="copyLink"
                 >
                   <v-icon size="24" color="twitter">mdi-twitter</v-icon>
                 </v-btn>
               </template>
-              <span>Share with Twitter</span>
+              <span>COPY: {{tweetShareLink}}</span>
             </v-tooltip>
           </div>
           
@@ -153,6 +151,9 @@
         </v-col>
       </v-row>
     </v-card>
+
+    <!-- hidden -->
+    <input type="hidden" id="twitterLink" :value="tweetShareLink" name="">
   </div>
 </template>
 
@@ -197,7 +198,7 @@
         selectedItem: -1,
         contests: {},
         snackbar: {
-          snack: false,
+          snack: true,
           message: '',
           status: 'success'
         },
@@ -284,7 +285,7 @@
         if (this.curGame == -1) {
           link = `${process.env.VUE_APP_URL}/contest`
         }
-        return encodeURI(`https://twitter.com/intent/tweet?url=${link}&via=fightquake&text=Join me on FIGHTQUAKE to play fantasy MMA!&hashtags=ufc,fightquake,survival`)
+        return link
       }
     },
 
@@ -295,6 +296,8 @@
       this.instructions = this.defaultInstructions
       await this.getLatestData()
       this.loading = false
+
+      // return login
     },
     methods: {
       beautifyDate,
@@ -415,26 +418,37 @@
       },
       collapseSide () {
         this.side = !this.side
+      },
+      copyLink () {
+        let testingCodeToCopy = document.querySelector('#twitterLink')
+        testingCodeToCopy.setAttribute('type', 'text')
+        testingCodeToCopy.select()
+
+        try {
+          var successful = document.execCommand('copy');
+          this.snackbar.message = successful ? 'Copied' : 'Cannot copy';
+          this.snackbar.status = successful ? 'success' : 'warning';
+        } catch (err) {
+          this.snackbar.message = 'Oops, unable to copy';
+        }
+
+        /* unselect the range */
+        testingCodeToCopy.setAttribute('type', 'hidden')
+        window.getSelection().removeAllRanges()
+        this.$store.commit('snackbar/setSnack', this.snackbar)
       }
     }
   }
 </script>
 
-<style>
+<style lang="scss">
   .v-list .v-subheader{
     height: 15px;
     color: #008000;
   }
-</style>
 
-<style lang="scss">
   #selection {
     
-  //  .selection-card, .selection-card * {
-  //    background-color: transparent;
-  //    backdrop-filter: blur(30px) contrast(.9);
-  //  }
-
     .v-btn-toggle {
       display: flex;
 

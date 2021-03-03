@@ -1,5 +1,7 @@
 import auth from '../api/auth';
 import session from '../api/session';
+import router from '../router'
+
 import {
   LOGIN_BEGIN,
   LOGIN_FAILURE,
@@ -46,13 +48,13 @@ const actions = {
     commit(LOGIN_BEGIN);
     return auth.login(username, password)
       .then(({ data }) => {
-        dispatch('afterLogin', { data })
+        return dispatch('afterLogin', { data })
       })
       .catch((err) => commit(LOGIN_FAILURE, err));
   },
   twitterLogin({ commit }) {
     commit(LOGIN_BEGIN);
-    auth.twitterRequestToken()
+    return auth.twitterRequestToken()
       .then(({data}) => {
         commit(LOGIN_SUCCESS)
         window.location.href = data.twitter_redirect_url
@@ -75,22 +77,27 @@ const actions = {
   afterLogin ({ commit }, { data, popup }) {
     commit(SET_TOKEN, data.key)
 
-    auth.getAccountDetails()
+    return auth.getAccountDetails()
     .then(({ data }) => {
       commit(SET_AUTH_USER, data)
 
       commit(LOGIN_SUCCESS)
 
-      if (popup) {
-        if (window.opener) {
-          window.opener.location.href = '/'
-          window.close('','_parent','')
-        }
-        const return_url = localStorage.getItem('return_url')
-        window.location.href = return_url || '/'
+      commit('showLoginDlg', false)
+      // return url
+      if (localStorage.getItem('returnUrl')) {
+        router.push({path: localStorage.getItem('returnUrl')})
       }
 
-      commit('showLoginDlg', false)
+      // if (popup) {
+      //   if (window.opener) {
+      //     window.opener.location.href = '/'
+      //     window.close('','_parent','')
+      //   }
+      //   const return_url = localStorage.getItem('return_url')
+      //   window.location.href = return_url || '/'
+      // }
+
       // check if user already took part in this contest
       // auth.checkAlreadyTaken(data.pk)
       // .then(({data}) => {
@@ -108,7 +115,6 @@ const actions = {
   },
   loadProfile({ commit, state }, payload) {
     commit('setLoading', true)
-    console.log(payload)
     commit('setUserId', payload)
     auth.loadProfile(payload)
       .then(({data}) => {
@@ -117,6 +123,7 @@ const actions = {
       })
   },
   logout({ commit }) {
+    localStorage.setItem('returnUrl', '')
     return auth.logout()
       .then(() => commit(LOGOUT))
       .finally(() => commit(REMOVE_TOKEN));

@@ -9,7 +9,8 @@ const requireAuthenticated = (to, from, next) => {
     .then(() => {
       if (!self.getters['auth/isAuthenticated']) {
         if (from != to) { 
-          next('/')
+          localStorage.setItem('returnUrl', to.fullPath)
+          next({path: '/', query: {nextUrl: to.fullPath}})
           self.commit('auth/showLoginDlg')
         }
       } else {
@@ -49,7 +50,7 @@ let router = new Router({
       children: [
         {
           name: 'Selection',
-          path: '',
+          path: '/',
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
