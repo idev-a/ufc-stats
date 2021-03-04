@@ -7,7 +7,6 @@
       :loading="loading"
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
-      
       <v-row dense>
         <v-col cols=12 md=6 >
           <v-card-title 

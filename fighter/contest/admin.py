@@ -19,7 +19,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
 	search_fields = ('username', 'displayname', 'email', )
-	list_display = ('username', 'email', 'displayname', "date_joined", "fq_points", 'referred_by', 'id', )
+	list_display = ('username', 'email', 'displayname', "date_joined", "coins", 'referred_by', 'id', )
 
 	class Meta:
 		ordering = ("email", 'date_joined', )

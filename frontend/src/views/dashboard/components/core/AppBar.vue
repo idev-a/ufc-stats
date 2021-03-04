@@ -146,6 +146,7 @@
             block
             plain
           >
+            <v-icon color="white" left>mdi-account-box</v-icon>
             View Profile
           </v-btn>
           <v-btn
@@ -155,6 +156,7 @@
             block
             plain
           >
+            <v-icon color="white" left>mdi-account-circle-outline</v-icon>
             Your Account
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
@@ -165,6 +167,7 @@
             block
             plain
           >
+            <v-icon color="white" left>mdi-account-network</v-icon>
             Refer a Friend
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
@@ -175,6 +178,7 @@
             block
             plain
           >
+            <v-icon color="white" left>mdi-sofa-outline</v-icon>
             Old Contests
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
@@ -185,6 +189,7 @@
             block
             plain
           >
+            <v-icon color="white" left>mdi-view-dashboard-outline</v-icon>
             Leaderboard
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
@@ -195,6 +200,7 @@
             block
             plain
           >
+            <v-icon color="white" left>mdi-logout</v-icon>
             Logout
           </v-btn>
         </div>
@@ -365,7 +371,7 @@
         this.$router.push({ name: 'Chat' })
       },
       showProfileDlg () {
-        this.$store.dispatch('auth/loadProfile', this.authUser.pk || this.authUser.id)
+        this.$store.dispatch('auth/loadProfile')
       }
     },
   }

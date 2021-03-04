@@ -24,7 +24,7 @@ import pdb
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'username', 'displayname', 'email', 'fq_points', 'initials', 'avatar', 'referred_by', 'date_joined']
+		fields = ['id', 'username', 'displayname', 'email', 'coins', 'initials', 'avatar', 'referred_by', 'date_joined']
 
 
 class CustomRegisterSerializer(RegisterSerializer):

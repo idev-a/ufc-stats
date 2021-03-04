@@ -3,7 +3,6 @@ from rest_framework.decorators import action
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 from channels.layers import get_channel_layer

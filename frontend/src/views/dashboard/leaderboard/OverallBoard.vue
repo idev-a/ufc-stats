@@ -35,13 +35,13 @@
           @click:row="showUserProfile"
         > 
           <template v-slot:header.first_place="{ header }">
-            <v-icon color="gold">mdi-trophy-outline</v-icon>
+            <v-icon color="gold">mdi-crown</v-icon>
           </template>
           <template v-slot:header.second_place="{ header }">
-            <v-icon color="silver">mdi-trophy-outline</v-icon>
+            <v-icon color="silver">mdi-crown</v-icon>
           </template>
           <template v-slot:header.third_place="{ header }">
-            <v-icon color="bronze">mdi-trophy-outline</v-icon>
+            <v-icon color="bronze">mdi-crown</v-icon>
           </template>
 
           <template v-slot:item.ranking="{ item }">
@@ -93,8 +93,8 @@
             <span :class="highlight(item)">{{item.third_place}}
             </span>
           </template>
-          <template v-slot:item.fq_points="{ item }">
-            <span :class="highlight(item)">{{item.fq_points}}
+          <template v-slot:item.coins="{ item }">
+            <span :class="highlight(item)">{{item.coins}}
             </span>
           </template>
         </v-data-table>
@@ -137,10 +137,10 @@
             text: '3rd Place',
             value: 'third_place',
           },
-          {
-            text: 'Points',
-            value: 'fq_points',
-          }
+          // {
+          //   text: 'Coins',
+          //   value: 'coins',
+          // }
         ]
       }
     },

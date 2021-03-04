@@ -4,16 +4,16 @@
     width="600px"
   >
   <div id="contest-table">
-    <v-card
+    <v-sheet
       tile
-      class="fq-popup"
+      class="fq-popup pa-3"
       icon="mdi-account-outline"
       :loading="loading"
       id="profile-card"
     >
       <v-card-title>
         <div
-          class="d-flex align-center"
+          class="d-flex align-center w-100"
         >
           <v-avatar
             color="brown"
@@ -41,12 +41,37 @@
             <div class="displayname" v-html="userDisplayname"></div>
             <div class="subtitle">Member since {{ userJoinedDate }}</div>
           </div>
+          <div
+            class="d-flex align-baseline ml-auto ml-4"
+          >
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon size=24 v-on="on" color="gold">mdi-crown-outline</v-icon>
+              </template>
+              <span>Total Wins</span>
+            </v-tooltip>
+            <span class="ml-1 display-1">{{profile.total_wins}}</span>
+          </div>
+
+          <div
+            class="d-flex align-end ml-3"
+            v-if="mine"
+          >
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-icon size=26 color="gold">mdi-cash</v-icon>
+              </template>
+              <span>Coins</span>
+            </v-tooltip>
+            <span class="ml-1 display-1">{{profile.user.coins}}</span>
+          </div>
         </div>
       </v-card-title>
       <v-card-text 
         class="profile-table"
       >
-        <v-divider />
+      <v-divider class="my-2"/>
+          
         <div
           class="stats-title"
         >
@@ -88,10 +113,10 @@
             <div
               class="stats-value"
             >
-              {{profile.total_wins}}
+              {{profile.total_win_p}}
             </div>
             <div>
-              Win Rate %
+              Win Rate(%)
             </div>
           </v-card>
         </div>
@@ -119,7 +144,7 @@
           </template>
         </v-data-table>
       </v-card-text>
-    </v-card>
+    </v-sheet>
   </div>
   </v-dialog>
 </template>
@@ -181,6 +206,9 @@
       },
       userJoinedDate () {
         return this.profile.user && this.beautifyDate(this.profile.user.date_joined)
+      },
+      mine () {
+        return this.profile.user.id == (this.authUser.id || this.authUser.pk)
       }
     },
 
@@ -243,7 +271,7 @@
       padding: 19px 10px;
       font-size: 12px;
       text-align: center;
-      background-color: #181818;
+      background-color: #181818c0;
       height: 100%;
       border-radius: 3px;
       margin-right: 1.5rem;

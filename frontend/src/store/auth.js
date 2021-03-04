@@ -113,13 +113,16 @@ const actions = {
       })
       .catch((err) => commit(LOGIN_FAILURE, err));
   },
-  loadProfile({ commit, state }, payload) {
+  loadProfile({ commit, state }, payload=-1) {
+    if (payload == -1) {
+      payload = state.authUser.pk || state.authUser.id
+    }
     commit('setLoading', true)
     commit('setUserId', payload)
     auth.loadProfile(payload)
       .then(({data}) => {
-        commit('setProfile', data)
         commit('setLoading', false)
+        commit('setProfile', data)
       })
   },
   logout({ commit }) {

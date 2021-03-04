@@ -229,7 +229,7 @@
     },
 
     computed: {
-      ...mapState('auth', ['authUser']),
+      ...mapState('auth', ['authUser', 'profile']),
       filteredGames() {
         const temp = []
         this.games.map(game => {
@@ -267,7 +267,7 @@
       },
       canJoin (item) {
         if (this.hasJoined(item)) {
-          return false
+          return 'Already Joined'
         }
         const myId = this.authUser.id || this.authUser.pk
         let isInvolved = false
@@ -278,7 +278,7 @@
         })
         let isStarted = this.$moment(item.date).isBefore(this.$moment())
         if (isStarted) {
-          return false
+          return 'Game started'
         }
         if (item.type_of_registration == 'public') {
           return true
@@ -289,8 +289,8 @@
         return false
       },
       JoinBtnTooltip(item) {
-        if (!this.canJoin(item)) {
-          return "Can't Join"
+        if (this.canJoin(item) != true) {
+          return this.canJoin(item)
         }
         return 'Join'
       },
@@ -307,23 +307,37 @@
         if (this.hasJoined(item)) {
           return 'Joined'
         }
-        return 'Join'
+        let label = 'Join'
+        if (item.genre != 'free') {
+          label += ` | F${item.buyin}`
+        }
+        return label
       },
       async joinContest (item) {
-        let payload = {
-          game_id: item.id,
-          user_id: this.authUser.id || this.authUser.pk
+        let snackbar = {snack: true};
+        if (this.profile.user.coins || this.authUser.coins < item.buyin) {
+          snackbar = {
+            ...snackbar,
+            message: "You don't have enough coins",
+            status: 'error'
+          }
+        } else {
+          let payload = {
+            game_id: item.id,
+            user_id: this.authUser.id || this.authUser.pk
+          }
+          const res = await main.joinGame(payload)
+          if (res.status == 200) {
+            this.loadGames()
+            this.$store.dispatch('auth/loadProfile')
+          }
+          snackbar = {
+            ...snackbar,
+            message: res.data.message,
+            status: res.status == 200 ? 'success': ''
+          }
         }
-        const res = await main.joinGame(payload)
-        if (res.status == 200) {
-          this.loadGames()
-        }
-        payload = {
-          snack: true,
-          message: res.data.message,
-          status: res.status == 200 ? 'success': ''
-        }
-        this.$store.dispatch('snackbar/setSnack', payload)
+        this.$store.dispatch('snackbar/setSnack', snackbar)
       }
     }
   }

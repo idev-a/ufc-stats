@@ -46,6 +46,9 @@ def show__games():
             name=_.name,
             event=EventSerializer(_.event).data,
             type_of_registration=_.type_of_registration,
+            genre=_.genre,
+            buyin=_.buyin,
+            buyin_bonus=_.buyin_bonus,
             joined_users=UserSerializer(_.joined_users.all(), many=True).data,
             entrants=UserSerializer(_.entrants.all(), many=True).data,
             instructions=_.instructions,
@@ -95,6 +98,13 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             user = CustomUser.objects.get(pk=request.data['user_id'])
             game = Game.objects.get(pk=request.data['game_id'])
+            if game.genre != 'free':
+                if user.points < game.buyin:
+                    return Response(dict(message="You don't have enough coins."), 400)
+
+                user.points -= game.buyin
+                user.save()
+                
             game.joined_users.add(user)
             game.save()
         except Exception as err:

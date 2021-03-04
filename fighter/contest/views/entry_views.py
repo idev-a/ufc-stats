@@ -72,19 +72,38 @@ def _calc_suv_win_loss(survivor1, survivor2, winner, loser):
 
     return wins, losses
 
-def update_rank(event_id):
-    selections = Selection.objects.filter(entry__event_id=event_id)
+def _update_game_rank(selections):
     entry_views = get_entry_views(selections)
     status = 200
     try:
+        pdb.set_trace()
         for _ in entry_views:
             entry = get_object_or_404(Entry, pk=_['id'])
-            entry.rank = _['rank']
+            entry.ranking = _['ranking']
             entry.save()
+            if _['ranking'] == 1:
+                if entry.game:
+                    if entry.game.genre != 'free':
+                        # There is buyin that every user paid when joining
+                        # The sum of buyin will be winner's
+                        entry.user.coins += len(entry.game.joined_users.all()) * entry.game.buyin
+                    entry.user.coins += entry.game.buyin_bonus or 0
+                    entry.user.save()
     except Entry.DoesNotExist:
         status = 404
 
-    return Response(dict(status=status))
+def update_rank(event_id):
+    # Single Game
+    selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
+    _update_game_rank(selections)
+
+    # Mutiple games
+    games = Game.objects.filter(event_id=event_id)
+    for game in games:
+        selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game.id)
+        _update_game_rank(selections)
+
+    return Response(dict(message='ok'))
 
 def get_games(latest_event, game_id, user_id):
     games = [{ 'header': 'Single' }]
@@ -97,7 +116,7 @@ def get_games(latest_event, game_id, user_id):
         game_id=-1,
         action=latest_event.action
     ))
-    multi_games = Game.objects.filter(joined_users__pk=user_id)
+    multi_games = Game.objects.filter(joined_users__pk=user_id, event__action='')
     if multi_games:
         games.append({ 'header': 'Multiple' })
         for _ in multi_games:
@@ -287,18 +306,18 @@ def get_leaderboard_view(entries):
                 first_place=0,
                 second_place=0,
                 third_place=0,
-                fq_points=_user.fq_points # fq_points from user
+                coins=_user.coins # points from user
             ) 
             
         if entry.ranking == 1:
             view['first_place'] += 1
-            view['fq_points'] += 100 
+            # view['coins'] += 100 
         elif entry.ranking == 2:
             view['second_place'] += 1
-            view['fq_points'] += 10 
+            # view['coins'] += 10 
         elif entry.ranking == 3:
             view['third_place'] += 1
-            view['fq_points'] += 1 
+            # view['coins'] += 1 
 
             '''
                 FQ points rule
@@ -312,13 +331,12 @@ def get_leaderboard_view(entries):
 
     leaderboard_views = data.values()
     # leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['first_place'], x['second_place'], x['third_place'])) 
-    leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['fq_points']))
+    leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['coins']))
 
     for x, _ in enumerate(leaderboard_views):
         _['ranking'] = x+1
 
     return leaderboard_views
-
 
 class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -457,6 +475,13 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             return Response(dict(entries=data))
         except Exception as err:
             return Response(dict(entries=[]), status=500)
+
+    @action(methods=['get'], detail=False)
+    def test_update_rank(self, request, **kwarg):
+        event_id = request.query_params['event_id']
+        if event_id:
+            update_rank(event_id)
+        return Response(dict(message='ok'))
 
     def create(self, request):
         try:

@@ -27,7 +27,7 @@ class CustomUser(AbstractUser):
 	avatar = models.CharField(blank=True, null=True, max_length=500)
 	first_name = models.CharField(blank=True, null=True, max_length=100)
 	last_name = models.CharField(blank=True, null=True, max_length=100)
-	fq_points = models.PositiveIntegerField(blank=True, null=True, default=100)
+	coins = models.PositiveIntegerField(blank=True, null=True, default=1000)
 	referred_by = models.ForeignKey(
 		'self',
 		on_delete=models.CASCADE,
@@ -69,7 +69,7 @@ class Event(models.Model):
 	detail_link = models.URLField(max_length=500, blank=True, default='')
 
 	class Meta:
-		ordering = ['date']
+		ordering = ['-date']
 
 	def __str__(self):
 		return "%s (%s)" % (self.name, self.date.strftime('%Y-%m-%d'))
@@ -149,6 +149,11 @@ class Game(models.Model):
 		('public', 'Public')
 	]
 
+	GENRE_TYPES = [
+		('free', 'Free'),
+		('paid', 'Paid')
+	]
+
 	owner = models.ForeignKey(
 		CustomUser,
 		on_delete=models.CASCADE,
@@ -168,8 +173,21 @@ class Game(models.Model):
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
 	instructions = models.TextField(default='', max_length=500, blank=False)
 	rules_set = models.TextField(default='', max_length=500, blank=False)
-	# date = models.DateTimeField(null=True, blank=False)
-	# action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
+
+	# Determine where game is free to play or needs some coins to join.
+	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
+	
+	'''
+		the first one is kind of free game in which any one is free to join 
+		and the winner will get fixed buyin by admin.
+		On the other hands, for the paid game the user is asked to pay coin to join, 
+		but the winner will get higher coins 
+		which will be sum of all buyin of joined users plus one by admin.
+	'''
+	buyin = models.PositiveIntegerField(blank=True, null=True, default=10)
+
+	# Added by Admin
+	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=10)
 
 	@property
 	def date(self):

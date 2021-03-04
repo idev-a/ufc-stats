@@ -94,18 +94,20 @@ class UserViewSet(viewsets.ModelViewSet):
             user = CustomUser.objects.get(pk=request.data['id'])
             data['total_contests'] = Entry.objects.filter(user_id=user.id).count()
             data['completed_contests'] = Entry.objects.filter(user_id=user.id, event__action='completed').count()
-            total_wins = Entry.objects.filter(user_id=user.id, ranking=1, event__action='completed').count()
+            data['total_wins'] = Entry.objects.filter(user_id=user.id, ranking=1, event__action='completed').count()
             if data['total_contests']:
-                data['total_wins'] = "{:5.1f}".format(total_wins/data['total_contests'] * 100)
+                data['total_win_p'] = "{:5.1f}".format(data['total_wins']/data['total_contests'] * 100)
             else:
-                data['total_wins'] = "0"
+                data['total_win_p'] = "0"
             # user
             data['user'] = dict(
                 id=user.id,
                 displayname=user.displayname,
                 date_joined=user.date_joined,
-                initials=user.initials
+                initials=user.initials,
+                coins=user.coins
             )
+
             # contest history
             entries = Entry.objects.filter(user_id=user.id)
             for _ in entries:
