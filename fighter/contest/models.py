@@ -184,10 +184,10 @@ class Game(models.Model):
 		but the winner will get higher coins 
 		which will be sum of all buyin of joined users plus one by admin.
 	'''
-	buyin = models.PositiveIntegerField(blank=True, null=True, default=10)
+	buyin = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 	# Added by Admin
-	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=10)
+	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 	@property
 	def date(self):
