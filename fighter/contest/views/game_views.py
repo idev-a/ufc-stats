@@ -99,12 +99,12 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             user = CustomUser.objects.get(pk=request.data['user_id'])
             game = Game.objects.get(pk=request.data['game_id'])
             if game.genre != 'free':
-                if user.points < game.buyin:
+                if user.coins < game.buyin:
                     return Response(dict(message="You don't have enough coins."), 400)
 
-                user.points -= game.buyin
+                user.coins -= game.buyin
                 user.save()
-                
+
             game.joined_users.add(user)
             game.save()
         except Exception as err:

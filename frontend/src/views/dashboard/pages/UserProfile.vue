@@ -208,7 +208,7 @@
         return this.profile.user && this.beautifyDate(this.profile.user.date_joined)
       },
       mine () {
-        return this.profile.user.id == (this.authUser.id || this.authUser.pk)
+        return this.profile && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
       }
     },
 

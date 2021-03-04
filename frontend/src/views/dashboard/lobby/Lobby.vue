@@ -64,7 +64,7 @@
                 <div v-on="on">
                   <v-btn 
                     class="my-1" 
-                    :disabled="!canJoin(item)" 
+                    :disabled="canJoin(item) != 'ok'" 
                     @click.stop="joinContest(item)"
                   >
                     {{joinLabel(item)}}
@@ -105,7 +105,7 @@
                     <div v-on="on">
                       <v-btn 
                         class="my-1" 
-                        :disabled="!canJoin(curGame)" 
+                        :disabled="canJoin(curGame) != 'ok'" 
                         @click.stop="joinContest(curGame)"
                       >
                         {{joinLabel(curGame)}}
@@ -280,16 +280,24 @@
         if (isStarted) {
           return 'Game started'
         }
-        if (item.type_of_registration == 'public') {
-          return true
-        } else if (item.type_of_registration == 'private' && isInvolved) {
-          return true
+
+        if (item.genre != 'free') {
+          const coins = this.authUser.coins || this.authUser.fq_points || this.profile.user.coins
+          if (coins < item.buyin) {
+            return 'No enough coins'
+          }
         }
 
-        return false
+        if (item.type_of_registration == 'public') {
+          return 'ok'
+        } else if (item.type_of_registration == 'private' && isInvolved) {
+          return "ok"
+        }
+
+        return 'no'
       },
       JoinBtnTooltip(item) {
-        if (this.canJoin(item) != true) {
+        if (this.canJoin(item) != 'ok') {
           return this.canJoin(item)
         }
         return 'Join'
@@ -315,7 +323,8 @@
       },
       async joinContest (item) {
         let snackbar = {snack: true};
-        if (this.profile.user.coins || this.authUser.coins < item.buyin) {
+        const coins = this.authUser.coins || this.authUser.fq_points || this.profile.user.coins
+        if (coins < item.buyin) {
           snackbar = {
             ...snackbar,
             message: "You don't have enough coins",

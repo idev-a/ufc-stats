@@ -306,7 +306,7 @@ def get_leaderboard_view(entries):
                 first_place=0,
                 second_place=0,
                 third_place=0,
-                coins=_user.coins # points from user
+                coins=_user.coins # coins from user
             ) 
             
         if entry.ranking == 1:
