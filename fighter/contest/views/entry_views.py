@@ -76,7 +76,6 @@ def _update_game_rank(selections):
     entry_views = get_entry_views(selections)
     status = 200
     try:
-        pdb.set_trace()
         for _ in entry_views:
             entry = get_object_or_404(Entry, pk=_['id'])
             entry.ranking = _['ranking']
