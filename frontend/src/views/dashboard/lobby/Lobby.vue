@@ -25,7 +25,18 @@
             v-model="type"
             class="ml-2"
             :items="types"
+            hint="Public / Private"
+            persistent-hint
             label="Type"
+          >
+          </v-select>
+          <v-select
+            v-model="genre"
+            class="ml-2"
+            :items="genres"
+            label="Genre"
+            hint="Free / Paid"
+            persistent-hint
           >
           </v-select>
         </div>
@@ -52,8 +63,14 @@
           <template v-slot:item.event="{ item }">
             <span>{{ item.event.name }}</span>
           </template>
+          <template v-slot:item.type_of_registration="{ item }">
+            <span>{{ item.type_of_registration | upperFirst }}</span>
+          </template>
+          <template v-slot:item.genre="{ item }">
+            <span>{{ item.genre | upperFirst }}</span>
+          </template>
           <template v-slot:item.entrants="{ item }">
-            <span>{{ item.entrants.length }}</span>
+            <span>{{ item.joined_users.length }} / {{ item.entrants.length }}</span>
           </template>
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
@@ -156,6 +173,8 @@
 
 <script>
   import { mapState } from 'vuex'
+  import upperFirst from 'lodash/upperFirst'
+
   import main from '@/api/main'
   import { beautifyDateTimeMin } from '@/util'
   import GameDetail from './GameDetail'
@@ -189,6 +208,21 @@
             value: 'private'
           }
         ],
+        genre: 'all',
+        genres: [
+          {
+            text: 'All',
+            value: 'all'
+          },
+          {
+            text: 'Free',
+            value: 'free'
+          },
+          {
+            text: 'Paid',
+            value: 'paid'
+          },
+        ],
         headers: [
           {
             text: 'Name',
@@ -203,6 +237,11 @@
           {
             text: 'Type',
             value: 'type_of_registration',
+            align: 'center',
+          },
+          {
+            text: 'Genre',
+            value: 'genre',
             align: 'center',
           },
           {
@@ -232,6 +271,7 @@
       ...mapState('auth', ['authUser', 'profile']),
       filteredGames() {
         const temp = []
+        const temp1 = []
         this.games.map(game => {
           if (this.type == 'all') {
             temp.push(game)
@@ -239,7 +279,14 @@
             temp.push(game)
           } 
         })
-        return temp
+        temp.map(game => {
+          if (this.genre == 'all') {
+            temp1.push(game)
+          } else if (game.genre == this.genre) {
+            temp1.push(game)
+          } 
+        })
+        return temp1
       },
       gameAvatar () {
         return require('@/assets/logo.jpg')
@@ -247,7 +294,8 @@
     },
 
     filters: {
-      beautifyDateTimeMin
+      beautifyDateTimeMin,
+      upperFirst
     },
 
     mounted() {

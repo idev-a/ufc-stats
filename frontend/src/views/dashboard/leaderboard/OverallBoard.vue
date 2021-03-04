@@ -173,6 +173,7 @@
       },
       showUserProfile (item) {
         this.$store.dispatch('auth/loadProfile', item.id)
+        this.$store.commit('auth/showProfileDlg')
       }
     }
   }

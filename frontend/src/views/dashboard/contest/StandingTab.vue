@@ -229,6 +229,7 @@
       },
       showUserProfile (item) {
         this.$store.dispatch('auth/loadProfile', item.user_id)
+        this.$store.commit('auth/showProfileDlg')
       }
     }
   }

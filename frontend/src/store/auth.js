@@ -33,7 +33,8 @@ const initialState = {
   token: localStorage.getItem('TOKEN_STORAGE_KEY'),
   selectedUserId: null,
   loading: false,
-  profile: {}
+  profile: {},
+  launchProfile: false
 };
 
 const getters = {
@@ -41,6 +42,7 @@ const getters = {
   isAuthenticated: state => !!state.token && state.token != 'null',
   authUser: state => state.authUser,
   selectedUserId: state => state.selectedUserId,
+  launchProfile: state => state.launchProfile
 };
 
 const actions = {
@@ -187,6 +189,9 @@ const mutations = {
   },
   showLoginDlg(state, payload=true) {
     state.launchLogin = payload
+  },
+  showProfileDlg(state, payload=true) {
+    state.launchProfile = payload
   },
   setUserId(state, payload) {
     state.selectedUserId = payload

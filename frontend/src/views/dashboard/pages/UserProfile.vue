@@ -189,10 +189,10 @@
       ...mapState('auth', ['authUser', 'loading', 'profile']),
       insideValue: {
         get() {
-          return this.$store.getters['auth/selectedUserId']
+          return this.$store.getters['auth/launchProfile']
         },
         set (val) {
-          this.$store.commit('auth/setUserId', val)
+          this.$store.commit('auth/showProfileDlg', val)
         }
       },
       userAvatar () {
@@ -208,7 +208,7 @@
         return this.profile.user && this.beautifyDate(this.profile.user.date_joined)
       },
       mine () {
-        return this.profile && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
+        return this.profile.user && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
       }
     },
 

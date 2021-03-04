@@ -337,7 +337,7 @@
         return this.notifications.length < 100 ? this.notifications.length : '99+'
       },
       isProfileDlg () {
-        return this.$store.getters['auth/selectedUserId']
+        return this.$store.getters['auth/launchProfile']
       },
     },
 
@@ -372,6 +372,7 @@
       },
       showProfileDlg () {
         this.$store.dispatch('auth/loadProfile')
+        this.$store.commit('auth/showProfileDlg')
       }
     },
   }
