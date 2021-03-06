@@ -126,6 +126,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     date=_.event.date,
                     ranking=ranking,
                     status=_.event.action,
+                    prize=_.game.prize,
                     last_edited=_.last_edited
                 ))
                 data['contest_history'] = sorted(data['contest_history'], reverse=True,  key=lambda x: x['date'])

@@ -2,14 +2,17 @@
   <div id="contest-table">
     <v-card
       max-width="100%"
-      class="ma-0 pa-0 pb-3 fq-popup"
+      class="ma-0 pb-3 fq-popup"
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
         class="font-weight-medium mb-3 ml-md-5"
       >
-        <div class="text-center mr-10">
-          <div>{{ contestName }}</div>
+        <div class="text-center w-100 mr-10">
+          <div class="d-flex justify-center" style="position: relative;">
+            <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
+            <money :curContest="curContest" />
+          </div>
           <div class="subtitle-1">
             {{ contestDate }}
             <span v-if="eventStarted" class="red--text h6">({{curContest.action}})</span>
@@ -84,13 +87,19 @@
   import { beautifyDate } from '@/util'
   import FightTab from './FightTab'
   import StandingTab from './StandingTab'
+  import Money from '../selection/Money'
   import Chat from './Chat'
   import { mapState } from 'vuex'
 
   export default {
     name: 'Contest',
 
-    components: { FightTab, StandingTab, Chat },
+    components: { 
+      FightTab,
+      StandingTab,
+      Chat,
+      Money
+    },
 
     props: ['game_id'],
 

@@ -245,6 +245,21 @@
             align: 'center',
           },
           {
+            text: 'Buyin',
+            value: 'buyin',
+            align: 'center',
+          },
+          {
+            text: 'Bonus',
+            value: 'buyin_bonus',
+            align: 'center',
+          },
+          {
+            text: 'Prize',
+            value: 'prize',
+            align: 'center',
+          },
+          {
             text: 'Entrants',
             value: 'entrants',
             align: 'center',
@@ -253,9 +268,10 @@
             text: 'When',
             value: 'date',
             align: 'center',
+            width: '100'
           },
           {
-            text: '',
+            text: 'Actions',
             value: 'actions',
             align:'center'
           }

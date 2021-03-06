@@ -1,5 +1,6 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import ugettext_lazy as _
+from django.db import models
 
 class CustomUserManager(BaseUserManager):
     """
@@ -31,3 +32,46 @@ class CustomUserManager(BaseUserManager):
         if extra_fields.get('is_superuser') is not True:
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self.create_user(username, password, **extra_fields)
+
+class GameManager(models.Manager):
+
+    def get_games(self, event, user_id=None):
+        games = [{ 'header': 'Single' }]
+        games.append(dict(
+            name=event.name,
+            group='Single',
+            event_id=event.id,
+            date=event.date,
+            joined_users=0,
+            value=-1,
+            genre='free',
+            buyin=0,
+            prize=0,
+            action=event.action
+        ))
+
+        if user_id:
+            multi_games = self.filter(joined_users__pk=user_id).filter(event__action='')
+            if multi_games:
+                games.append({ 'header': 'Multiple' })
+                for _ in multi_games:
+                    prize = 0
+                    if _.genre == 'paid':
+                        prize = _.joined_users.count() * _.buyin + _.buyin_bonus
+                    games.append(dict(
+                        name=_.name,
+                        group='Multiple',
+                        date=_.date,
+                        value=_.id,
+                        event_id=_.event.id,
+                        instructions=_.instructions,
+                        rules_set=_.rules_set,
+                        action=_.action,
+                        genre=_.genre,
+                        buyin=_.buyin,
+                        prize=prize,
+                        joined_users=_.joined_users.count(),
+                        buyin_bonus=_.buyin_bonus,
+                    ))
+
+        return games

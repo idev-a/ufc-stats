@@ -66,19 +66,11 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             events = Event.objects.all().filter(status='upcoming')
             if events:
-                games = [{ 'header': 'Single' }]
                 latest_event = events.latest('-date')
                 bouts = Bout.objects.filter(event__id=latest_event.id)
                 _bouts = BoutSerializer(bouts, many=True).data
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
-                games.append(dict(
-                    name=latest_event.name,
-                    group='Single',
-                    event_id=latest_event.id,
-                    date=latest_event.date,
-                    value=-1,
-                    action=latest_event.action
-                ))
+                games = []
                 if request.user.id:
                     game_id = request.data['game_id']
                     my_entry = None
@@ -103,20 +95,9 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                                 if selected[0].survivor2_id:
                                     bout['survivors'].append(selected[0].survivor2_id)
 
-                    multi_games = Game.objects.filter(joined_users__pk=request.user.id).filter(event__action='')
-                    if multi_games:
-                        games.append({ 'header': 'Multiple' })
-                        for _ in multi_games:
-                            games.append(dict(
-                                name=_.name,
-                                group='Multiple',
-                                date=_.date,
-                                value=_.id,
-                                event_id=_.event.id,
-                                instructions=_.instructions,
-                                rules_set=_.rules_set,
-                                action=_.action
-                            ))
+                    games = Game.objects.get_games(latest_event, request.user.id)
+                else:
+                    games = Game.objects.get_games(latest_event)
                 return Response(dict(
                     bouts=_bouts,
                     games=games,

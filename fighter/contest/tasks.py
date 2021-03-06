@@ -3,6 +3,10 @@ import time
 from datetime import datetime
 
 @shared_task
+def testrun():
+	print(' x = hello')
+
+@shared_task
 def countdown():
 	from contest.models import Event
 

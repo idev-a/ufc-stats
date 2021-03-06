@@ -14,13 +14,16 @@
             class="font-weight-medium mb-0"
           >
             <div class="text-center w-100">
-              <div class="grab">{{ contestName }}</div>
-              <div class="grab subtitle-2">
-                <span>{{ contestDate }}</span>
-                <span v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</span>
-                <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
+              <div class="d-flex justify-center" style="position: relative;">
+                <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
+                <money :curContest="curContest" />
               </div>
-              <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
+              <div class="subtitle-2 ">
+                <span>{{ contestDate }}</span>
+              </div>
+              <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
+              <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
+              <div class="overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
             </div>
           </v-card-title>
           <v-card-text
@@ -163,6 +166,7 @@
   import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET } from '@/constants/constant'
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
+  import Money from "./Money";
   import InstructionBody from "../instruction/InstructionBody";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
@@ -171,7 +175,8 @@
 
     components: {
       FlipCountdown,
-      InstructionBody
+      InstructionBody,
+      Money
     },
 
     watch: {
@@ -224,6 +229,9 @@
       },
       contestName () {
         return this.curContest && this.curContest.name || ""
+      },
+      isPaidContest () {
+        return this.curContest && this.curContest.genre == 'paid'
       },
       curContest () {
         let contest = undefined

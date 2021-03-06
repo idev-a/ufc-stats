@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 
-from .managers import CustomUserManager
+from .managers import CustomUserManager, GameManager
 
 import pdb
 
@@ -167,6 +167,8 @@ class Game(models.Model):
 		on_delete=models.CASCADE,
 	)
 
+	objects = GameManager()
+
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
@@ -197,11 +199,18 @@ class Game(models.Model):
 	def action(self):
 		return self.event.action
 
+	@property
+	def prize(self):
+		_prize = 0
+		if self.genre == 'paid':
+			_prize = self.joined_users.count() * self.buyin + self.buyin_bonus
+		return _prize
+	
 	def info_entrants(self):
-		return '{}'.format(len(self.entrants.all()))
+		return '{}'.format(self.entrants.count())
 
 	def info_joined(self):
-		return '{}'.format(len(self.joined_users.all()))
+		return '{}'.format(self.joined_users.count())
 
 	@property
 	def short_instructions(self):

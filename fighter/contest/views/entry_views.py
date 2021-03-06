@@ -85,7 +85,7 @@ def _update_game_rank(selections):
                     if entry.game.genre != 'free':
                         # There is buyin that every user paid when joining
                         # The sum of buyin will be winner's
-                        entry.user.coins += len(entry.game.joined_users.all()) * entry.game.buyin
+                        entry.user.coins += entry.game.joined_users.count() * entry.game.buyin
                     entry.user.coins += entry.game.buyin_bonus or 0
                     entry.user.save()
     except Entry.DoesNotExist:
@@ -104,7 +104,7 @@ def update_rank(event_id):
 
     return Response(dict(message='ok'))
 
-def get_games(latest_event, game_id, user_id):
+def get_games(latest_event, user_id):
     games = [{ 'header': 'Single' }]
     games.append(dict(
         event_id=latest_event.id,
@@ -126,7 +126,11 @@ def get_games(latest_event, game_id, user_id):
                 value=_.id,
                 game_id=_.id,
                 action=_.action,
-                event_id=_.event.id
+                event_id=_.event.id,
+                genre=_.genre,
+                buyin=_.buyin,
+                prize=_.prize,
+                joined_users=_.joined_users.count(),
             ))
 
     return games
@@ -363,7 +367,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
-        games = get_games(latest_event, request.data['game_id'], request.user.id)
+        games = Game.objects.get_games(latest_event, request.user.id)
 
         return Response(dict(
             bout_views=bout_views,

@@ -50,7 +50,7 @@
               </template>
               <span>Total Wins</span>
             </v-tooltip>
-            <span class="ml-1 display-1">{{profile.total_wins}}</span>
+            <span class="ml-1 display-1  gold--text">{{profile.total_wins}}</span>
           </div>
 
           <div
@@ -63,7 +63,7 @@
               </template>
               <span>Coins</span>
             </v-tooltip>
-            <span class="ml-1 display-1">{{profile.user.coins}}</span>
+            <span class="ml-1 display-1 gold--text">{{profile.user.coins}}</span>
           </div>
         </div>
       </v-card-title>
@@ -163,19 +163,28 @@
       headers: [
         {
           text: 'Event',
-          value: 'event'
+          value: 'event',
+          align: 'center'
         },
         {
           text: 'Started at',
-          value: 'date'
+          value: 'date',
+          align: 'center'
         },
         {
           text: 'Status',
-          value: 'status'
+          value: 'status',
+          align: 'center'
         },
         {
           text: 'Ranking',
-          value: 'ranking'
+          value: 'ranking',
+          align: 'center'
+        },
+        {
+          text: 'Prize',
+          value: 'prize',
+          align: 'center'
         },
       ],
       rules: {

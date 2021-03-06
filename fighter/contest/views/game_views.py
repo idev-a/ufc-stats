@@ -48,6 +48,7 @@ def show__games():
             type_of_registration=_.type_of_registration,
             genre=_.genre,
             buyin=_.buyin,
+            prize=_.prize,
             buyin_bonus=_.buyin_bonus,
             joined_users=UserSerializer(_.joined_users.all(), many=True).data,
             entrants=UserSerializer(_.entrants.all(), many=True).data,
