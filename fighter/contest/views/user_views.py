@@ -114,10 +114,10 @@ class UserViewSet(viewsets.ModelViewSet):
                 game_id = -1
                 if _.game and _.game.id:
                     game_id = _.game.id
-                    print(_.event)
                 ranking = _.ranking
                 if _.event.action != 'completed':
                     ranking = '-'
+                prize = _.game and _.game.prize or 0
                 data['contest_history'].append(dict(
                     id= _.id,
                     event_id=_.event.id,
@@ -126,7 +126,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     date=_.event.date,
                     ranking=ranking,
                     status=_.event.action,
-                    prize=_.game.prize,
+                    prize=prize,
                     last_edited=_.last_edited
                 ))
                 data['contest_history'] = sorted(data['contest_history'], reverse=True,  key=lambda x: x['date'])
