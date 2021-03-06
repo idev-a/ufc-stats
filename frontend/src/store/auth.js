@@ -60,16 +60,16 @@ const actions = {
       .then(({data}) => {
         commit(LOGIN_SUCCESS)
         window.location.href = data.twitter_redirect_url
-        localStorage.setItem('return_url', window.location.href)
+        localStorage.setItem('returnUrl', window.location.href)
       })
       .catch((err) => commit(LOGIN_FAILURE, err))
   },
   twitterCallback({ commit, dispatch }, {oauth_token, oauth_verifier}) {
     commit(LOGIN_BEGIN);
     const url = `auth/twitter/callback/?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`
-    auth.twitterCallback(url)
+    return auth.twitterCallback(url)
       .then(({ data }) => {
-        dispatch('afterLogin', { data, popup:true })
+        return dispatch('afterLogin', { data, popup:true })
       })
       .catch((err) => {
         commit(LOGIN_FAILURE, err)
@@ -96,8 +96,8 @@ const actions = {
       //     window.opener.location.href = '/'
       //     window.close('','_parent','')
       //   }
-      //   const return_url = localStorage.getItem('return_url')
-      //   window.location.href = return_url || '/'
+      //   const returnUrl = localStorage.getItem('returnUrl')
+      //   window.location.href = returnUrl || '/'
       // }
 
       // check if user already took part in this contest
