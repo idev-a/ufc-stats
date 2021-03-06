@@ -104,37 +104,6 @@ def update_rank(event_id):
 
     return Response(dict(message='ok'))
 
-def get_games(latest_event, user_id):
-    games = [{ 'header': 'Single' }]
-    games.append(dict(
-        event_id=latest_event.id,
-        name=latest_event.name,
-        group='Single',
-        date=latest_event.date,
-        value=-1,
-        game_id=-1,
-        action=latest_event.action
-    ))
-    multi_games = Game.objects.filter(joined_users__pk=user_id, event__action='')
-    if multi_games:
-        games.append({ 'header': 'Multiple' })
-        for _ in multi_games:
-            games.append(dict(
-                name=_.name,
-                group='Multiple',
-                date=_.date,
-                value=_.id,
-                game_id=_.id,
-                action=_.action,
-                event_id=_.event.id,
-                genre=_.genre,
-                buyin=_.buyin,
-                prize=_.prize,
-                joined_users=_.joined_users.count(),
-            ))
-
-    return games
-
 def get_entry_views(selections):
     score = {}
     default_score = {
@@ -218,7 +187,7 @@ def get_entry_views(selections):
         score[username_id]['losers'].append(loser)
         
         # remainings
-        if bout.status == 'started' or bout.status == '':
+        if bout.status == 'started' or bout.status == 'pending':
             if selection.survivor1_id != None:
                 score[username_id]['remainings'] += 1
             if selection.survivor2_id != None:
