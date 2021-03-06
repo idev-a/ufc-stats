@@ -60,7 +60,7 @@ const actions = {
       .then(({data}) => {
         commit(LOGIN_SUCCESS)
         window.location.href = data.twitter_redirect_url
-        localStorage.setItem('returnUrl', window.location.href)
+        localStorage.setItem('twitterReturn', window.location.href)
       })
       .catch((err) => commit(LOGIN_FAILURE, err))
   },
@@ -89,6 +89,8 @@ const actions = {
       // return url
       if (localStorage.getItem('returnUrl')) {
         router.push({path: localStorage.getItem('returnUrl')})
+      } else if (localStorage.getItem('twitterReturn')) {
+        window.location.href = localStorage.getItem('twitterReturn')
       }
 
       // if (popup) {
