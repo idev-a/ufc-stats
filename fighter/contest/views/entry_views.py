@@ -223,7 +223,7 @@ def get_entry_views(selections):
         if x > 0:
             prev_entry = entry_views[x-1]
         if prev_entry:
-            if prev_entry['died'] != entry['died'] or prev_entry['wins'] != entry['wins']:
+            if prev_entry['survived'] != entry['survived'] or prev_entry['wins'] != entry['wins']:
                 ranking += 1
         entry['ranking'] = ranking
         # not sure whether entry model should be updated at this time regarding ranking
