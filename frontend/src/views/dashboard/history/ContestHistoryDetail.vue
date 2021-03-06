@@ -10,8 +10,11 @@
         v-if="curGame"
         class="font-weight-medium pt-3 mb-3 ml-md-5 justify-center"
       >
-        <div class="text-center mr-10">
-          <div>{{ contestName }}</div>
+        <div class="text-center w-100 mr-10">
+          <div class="d-flex justify-center" style="position: relative;">
+            <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
+            <money :curContest="curGame" />
+          </div>
           <div class="subtitle-1">
             {{ contestDate }}
             <span v-if="eventStarted" class="red--text h6">({{curGame.action}})</span>
@@ -70,13 +73,14 @@
   import FightTab from '../contest/FightTab'
   import StandingTab from '../contest/StandingTab'
   import GameDetail from '../lobby/GameDetail'
+  import Money from '../selection/Money'
   import Rules from '../lobby/Rules'
   import { mapState } from 'vuex'
 
   export default {
     name: 'ContestDetail',
 
-    components: { FightTab, StandingTab, GameDetail, Rules },
+    components: { FightTab, StandingTab, GameDetail, Rules, Money },
 
     props: ['event_id', 'game_id'],
 

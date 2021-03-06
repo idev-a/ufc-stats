@@ -162,6 +162,11 @@
       valid: true,
       headers: [
         {
+          text: 'Name',
+          value: 'name',
+          align: 'center'
+        },
+        {
           text: 'Event',
           value: 'event',
           align: 'center'
@@ -229,7 +234,7 @@
         this.$store.dispatch('auth/updateUser', this.authUser)
       },
       showHistory (item) {
-        this.$store.commit('auth/setUserId', 0)
+        this.$store.commit('auth/showProfileDlg', false)
         this.$router.push({path: `/history/contest/${item.event_id}/${item.game_id}`})
       }
     }

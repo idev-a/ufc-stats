@@ -401,7 +401,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     event=EventSerializer(_event).data,
                     type_of_registration='public',
                     date=_event.date,
-                    action=_event.action
+                    action=_event.action,
+                    genre='free',
+                    buyin=0,
+                    prize=0
                 )
             else:
                 _ = Game.objects.get(id=game_id)
@@ -415,7 +418,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     instructions=_.instructions,
                     rules_set=_.rules_set,
                     date=_.date,
-                    action=_.action
+                    action=_.action,
+                    genre=_.genre,
+                    buyin=_.buyin,
+                    prize=_.prize,
                 )
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game_id)
 
