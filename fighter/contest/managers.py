@@ -33,8 +33,9 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self.create_user(username, password, **extra_fields)
 
-class GameManager(models.Manager):
 
+class GameManager(models.Manager):
+ 
     def get_games(self, event, user_id=None):
         games = [{ 'header': 'Single' }]
         games.append(dict(
@@ -55,9 +56,6 @@ class GameManager(models.Manager):
             if multi_games:
                 games.append({ 'header': 'Multiple' })
                 for _ in multi_games:
-                    prize = 0
-                    if _.genre == 'paid':
-                        prize = _.joined_users.count() * _.buyin + _.buyin_bonus
                     games.append(dict(
                         name=_.name,
                         group='Multiple',
@@ -69,9 +67,19 @@ class GameManager(models.Manager):
                         action=_.action,
                         genre=_.genre,
                         buyin=_.buyin,
-                        prize=prize,
+                        prize=_.prize,
                         joined_users=_.joined_users.count(),
                         buyin_bonus=_.buyin_bonus,
                     ))
 
         return games
+
+class EntryManager(models.Manager):
+
+   def get_total_winners(self, game_id):
+        entries = self.filter(game_id=game_id)
+        total = 0
+        for _ in entries:
+            if _.ranking == 1:
+                total += 1
+        return total

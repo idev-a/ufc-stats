@@ -217,11 +217,18 @@ def get_entry_views(selections):
     entry_views = score.values()
     entry_views = sorted(entry_views, reverse=True,  key=lambda x: (len(x['died'])*-1, x['survived'], x['wins'], x['last_edited']*-1)) 
 
+    ranking = 1
+    prev_entry = {}
     for x, entry in enumerate(entry_views):
-        entry['ranking'] = x+1
+        if x > 0:
+            prev_entry = entry_views[x-1]
+        if prev_entry:
+            if prev_entry['died'] != entry['died'] or prev_entry['wins'] != entry['wins']:
+                ranking += 1
+        entry['ranking'] = ranking
         # not sure whether entry model should be updated at this time regarding ranking
         _entry = get_object_or_404(Entry, pk=entry['id'])
-        _entry.ranking = x+1
+        _entry.ranking = ranking
         _entry.save()
 
     return entry_views

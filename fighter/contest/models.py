@@ -7,7 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 
-from .managers import CustomUserManager, GameManager
+from .managers import CustomUserManager, GameManager, EntryManager
 
 import pdb
 
@@ -245,6 +245,8 @@ class Entry(models.Model):
 		blank=True,
 		null=True
 	)
+
+	objects = EntryManager()
 
 	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 	# last_edited.editable=True
