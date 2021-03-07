@@ -52,7 +52,7 @@ class GameManager(models.Manager):
         ))
 
         if user_id:
-            multi_games = self.filter(joined_users__pk=user_id).filter(event__action='')
+            multi_games = self.filter(joined_users__pk=user_id).filter(event__action!='completed')
             if multi_games:
                 games.append({ 'header': 'Multiple' })
                 for _ in multi_games:
