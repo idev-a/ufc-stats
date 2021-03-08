@@ -39,7 +39,8 @@
           v-if="$vuetify.breakpoint.smAndUp"
           v-on="on"
           min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           text
           to="/"
         >
@@ -56,8 +57,9 @@
           v-on="on"
           v-if="$vuetify.breakpoint.smAndUp"
           min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
           text
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           to="/contest"
         >
           <!-- <v-icon color="white">mdi-sofa-single-outline</v-icon> -->
@@ -73,8 +75,9 @@
           v-if="$vuetify.breakpoint.smAndUp"
           v-on="on"
           min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
           text
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           to="/lobby"
         >
           <!-- <v-icon color="white">mdi-google-controller</v-icon> -->
@@ -90,7 +93,8 @@
           v-on="on"
           min-width="0"
           text
-          style="padding: 10px 10px !important; margin: 0 1px;"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           @click.stop="showInstruction"
         >
           <!-- <v-icon color="white">mdi-information-outline</v-icon> -->
@@ -113,7 +117,8 @@
       <template v-slot:activator="{ attrs, on }">
         <v-btn
           min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           text
           v-bind="attrs"
           v-on="on"
@@ -133,6 +138,7 @@
             text
             v-if="!isAuthenticated"
             @click="launchLogin"
+            class="fq-menu-item"
             block
             plain
           >
@@ -143,6 +149,7 @@
             text
             v-if="isAuthenticated"
             @click="showProfileDlg"
+            class="fq-menu-item"
             block
             plain
           >
@@ -153,6 +160,7 @@
             text
             v-if="isAuthenticated"
             @click="accountDlg=true"
+            class="fq-menu-item"
             block
             plain
           >
@@ -163,6 +171,7 @@
           <v-btn
             text
             v-if="isAuthenticated"
+            class="fq-menu-item"
             @click="referralDlg=true"
             block
             plain
@@ -174,6 +183,7 @@
           <v-btn
             text
             v-if="isAuthenticated"
+            class="fq-menu-item"
             to="/history/contest"
             block
             plain
@@ -185,6 +195,7 @@
           <v-btn
             text
             v-if="isAuthenticated"
+            class="fq-menu-item"
             to="/leaderboard"
             block
             plain
@@ -196,6 +207,7 @@
           <v-btn
             v-if="isAuthenticated"
             text
+            class="fq-menu-item"
             @click="logout"
             block
             plain
@@ -222,6 +234,8 @@
           text
           v-bind="attrs"
           v-on="on"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           style="padding: 10px 10px !important; margin: 0 1px;"
         >
           <v-badge

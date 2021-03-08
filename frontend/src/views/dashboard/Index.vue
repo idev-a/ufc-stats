@@ -189,6 +189,7 @@
     letter-spacing: 0;
   }
 
+
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(0,0,0,.7) rgba(0,0,0,0.5);
@@ -217,6 +218,28 @@
 
 
 <style lang="scss">
+  .top-btn {
+    padding: 10px 10px !important; margin: 0 1px;
+  }
+  .fq-btn {
+    background: transparent;
+
+    &:hover {
+      box-shadow: 0 2px 15px #8df094;
+    }
+    &:active {
+      //border: 1px solid #5BBD74;
+    }
+  }
+  .fq-btn-active {
+    color: #8df094 !important;
+  }
+  .fq-menu-item {
+    &:hover, &:active {
+      color: #8df094 !important;
+    }
+
+  }
   #contest-table {
     backdrop-filter: blur(30px) contrast(1.0);
 
