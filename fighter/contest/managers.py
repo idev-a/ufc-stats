@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
+from django.db.models import Q
 
 class CustomUserManager(BaseUserManager):
     """
@@ -52,7 +53,7 @@ class GameManager(models.Manager):
         ))
 
         if user_id:
-            multi_games = self.filter(joined_users__pk=user_id).filter(event__action!='completed')
+            multi_games = self.filter(joined_users__pk=user_id).filter(~Q(event__action='completed'))
             if multi_games:
                 games.append({ 'header': 'Multiple' })
                 for _ in multi_games:
