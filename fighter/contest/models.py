@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
+from django import forms
 
 from .managers import CustomUserManager, GameManager, EntryManager
 

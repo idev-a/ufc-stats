@@ -83,7 +83,8 @@ INSTALLED_APPS = [
     'channels',
     'contest.apps.ContestConfig',
     'django_celery_results',
-    'django_celery_beat'
+    'django_celery_beat',
+    'admin_auto_filters'
 ]
 
 SITE_ID = 2
