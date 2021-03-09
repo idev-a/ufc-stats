@@ -171,7 +171,7 @@ class Game(models.Model):
 		CustomUser,
 		on_delete=models.CASCADE,
 		related_name='game_owners',
-		default=None,
+		default=1,
 	)
 
 	event = models.ForeignKey(

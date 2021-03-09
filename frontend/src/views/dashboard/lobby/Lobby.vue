@@ -424,6 +424,8 @@
           if (res.status == 200) {
             this.loadGames()
             this.$store.dispatch('auth/loadProfile')
+
+            this.$router.push({ path: `/selection/${item.id}` })
           }
           snackbar = {
             ...snackbar,
