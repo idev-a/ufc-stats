@@ -89,19 +89,19 @@
     data: () => ({
       items: [
         {
+          icon: 'mdi-google-controller',
+          title: 'Lobby',
+          to: '/',
+        },
+        {
           icon: 'mdi-pickaxe',
           title: 'Selection',
-          to: '/',
+          to: '/selection',
         },
         {
           icon: 'mdi-sofa-single-outline',
           title: 'Contest',
           to: '/contest',
-        },
-        {
-          icon: 'mdi-google-controller',
-          title: 'Lobby',
-          to: '/lobby',
         },
         {
           icon: 'mdi-sofa-single-outline',
