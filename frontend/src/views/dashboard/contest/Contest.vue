@@ -54,6 +54,8 @@
             <v-tab
               v-for="item in tabs"
               :key="item"
+              :title="item"
+              :href='`#${item}`'
             >
               {{item}}
             </v-tab>
@@ -63,17 +65,17 @@
             :touchless="$vuetify.breakpoint.mobile"
           >
             <!-- fight/bout view -->
-            <v-tab-item>
+            <v-tab-item value="fights">
               <fight-tab :boutViews="boutViews" :loading="loading"/>
             </v-tab-item>
 
             <!-- Entry view -->
-            <v-tab-item>
+            <v-tab-item value="standings">
               <standing-tab :entryViews="entryViews" :loading="loading"/>
             </v-tab-item>
 
             <!-- Chat -->
-            <v-tab-item>
+            <v-tab-item value="chat">
               <chat />
             </v-tab-item>
           </v-tabs-items>
@@ -106,13 +108,13 @@
     data () {
       return {
         loading: false,
-        tab: null,
+        tab: 'standings',
         boutViews: [],
         entryViews: [],
         tabs: [
-          'Fights',
-          'Standings',
-          'Chat'
+          'fights',
+          'standings',
+          'chat'
         ],
         games: [],
         curGame: -1,
@@ -153,6 +155,12 @@
     mounted() {
       this.curGame = +this.game_id || -1
       this.getLatestContest(this.game_id || -1)
+      
+      // preselect tab
+      const tabParam = this.$route.query.tab
+      if (this.tabs.includes(tabParam)) {
+        this.tab = tabParam
+      }
     },
 
     methods: {
@@ -169,7 +177,7 @@
         this.loading = true
         await this.getLatestContest(item)
         this.loading = false
-      }
+      },
     }
   }
 </script>

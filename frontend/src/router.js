@@ -49,13 +49,14 @@ let router = new Router({
       component: () => import('@/views/dashboard/Index'),
       children: [
         {
-          name: 'Selection',
+          name: 'Lobby',
           path: '/',
-          component: () => import('@/views/dashboard/selection/SelectionContainer'),
+          component: () => import('@/views/dashboard/lobby/LobbyContainer'),
+          beforeEnter: requireAuthenticated
         },
         {
-          name: 'Game',
-          path: '/game/:type',
+          name: 'Selection',
+          path: '/selection/:game_id?',
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
@@ -74,12 +75,6 @@ let router = new Router({
           name: 'Referral',
           path: 'rf/:id',
           component: () => import('@/views/dashboard/referral/ReferralCallback'),
-        },
-        {
-          name: 'Lobby',
-          path: 'lobby',
-          component: () => import('@/views/dashboard/lobby/LobbyContainer'),
-          beforeEnter: requireAuthenticated
         },
         {
           name: 'Old Contests',

@@ -72,15 +72,19 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                 games = []
                 if request.user.id:
-                    game_id = request.data['game_id']
+                    game_id = int(request.data['game_id'])
                     my_entry = None
+                    cur_game = None
                     try:
                         if int(game_id) == -1:
                             my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
                         else:
+                            cur_game = Game.objects.get(id=game_id)
                             my_entry = Entry.objects.all().get(user_id=request.user.id, game_id=game_id)
                     except:
                         pass
+                    if cur_game:
+                        latest_event = cur_game.event
                     if my_entry:
                         latest_event = my_entry.event
                         bouts = Bout.objects.filter(event__id=latest_event.id)

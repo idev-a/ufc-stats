@@ -33,59 +33,24 @@
 
     <div class="mx-3" />
 
-    <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-if="$vuetify.breakpoint.smAndUp"
-          v-on="on"
-          min-width="0"
-          class="fq-btn top-btn"
-          exact-active-class="fq-btn-active"
-          text
-          to="/"
-        >
-          <!-- <v-icon color="white">mdi-pickaxe</v-icon> -->
-          Selection
-        </v-btn>
-      </template>
-      <span>Selection</span>
-    </v-tooltip>
-
-    <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-on="on"
-          v-if="$vuetify.breakpoint.smAndUp"
-          min-width="0"
-          text
-          class="fq-btn top-btn"
-          exact-active-class="fq-btn-active"
-          to="/contest"
-        >
-          <!-- <v-icon color="white">mdi-sofa-single-outline</v-icon> -->
-          Contest
-        </v-btn>
-      </template>
-      <span>Contest</span>
-    </v-tooltip>
-
-    <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-if="$vuetify.breakpoint.smAndUp"
-          v-on="on"
-          min-width="0"
-          text
-          class="fq-btn top-btn"
-          exact-active-class="fq-btn-active"
-          to="/lobby"
-        >
-          <!-- <v-icon color="white">mdi-google-controller</v-icon> -->
-          Lobby
-        </v-btn>
-      </template>
-      <span>Lobby</span>
-    </v-tooltip>
+    <template v-for="top in tops">
+      <v-tooltip bottom z-index=100>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-if="$vuetify.breakpoint.smAndUp"
+            v-on="on"
+            min-width="0"
+            class="fq-btn top-btn"
+            exact-active-class="fq-btn-active"
+            text
+            :to="top.to"
+          >
+            {{top.name}}
+          </v-btn>
+        </template>
+        <span>{{top.name}}</span>
+      </v-tooltip>
+    </template>
 
     <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
@@ -97,7 +62,6 @@
           exact-active-class="fq-btn-active"
           @click.stop="showInstruction"
         >
-          <!-- <v-icon color="white">mdi-information-outline</v-icon> -->
           Instructions
         </v-btn>
         </template>
@@ -124,7 +88,7 @@
           v-on="on"
         >
           <v-icon :left="isAuthenticated" color="white">mdi-account</v-icon>
-          <span class="white--text" v-if="isAuthenticated && authUser">{{authUser.displayname}}</span>
+          <span class="white--text" v-if="isAuthenticated && authUser">{{ authBtnLabel }} | <span class="red--text lighten-1 font-weight-bold">{{myMoney}}</span></span>
         </v-btn>
       </template>
 
@@ -219,7 +183,7 @@
       </v-list>
     </v-menu>
 
-       <!-- Notifications -->
+    <!-- Notifications -->
     <v-menu
       bottom
       left
@@ -339,7 +303,12 @@
       instructionDlg: false,
       profileDlg: false,
       referralDlg: false,
-      accountDlg: false
+      accountDlg: false,
+      tops: [
+        { name: 'Lobby', to:'/'},
+        { name: 'Selection', to:'/selection'},
+        { name: 'Contest', to:'/contest'},
+      ]
     }),
 
     computed: {
@@ -353,6 +322,16 @@
       isProfileDlg () {
         return this.$store.getters['auth/launchProfile']
       },
+      authBtnLabel () {
+        return this.isAuthenticated && this.authUser.displayname
+      },
+      myMoney () {
+        let coins = this.authUser.coins
+        if (coins > 9999) {
+          coins = '9999+'
+        }
+        return this.isAuthenticated && `F${coins}`
+      }
     },
 
     mounted() {

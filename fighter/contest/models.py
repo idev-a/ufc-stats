@@ -17,6 +17,18 @@ ACTION_TYPE = [
 	('completed', 'Completed'),
 ]
 
+DEFAULT_INSTRUCTIONS = [
+  'Choose fighters',
+  'Hope they all survive'
+]
+  
+DEFAULT_RULES_SET = [
+  'User can pick any number of fighters. If any of them get finished, user is eliminated.',
+  'Out of all surviving entries, the user with the most surviving fighters, wins the contest.',
+  'If there is a tie, the winner is the entry with the most winning fighters.',
+  'You are allowed to resubmit your team. 1 team per person.'
+]
+
 # Customize User model
 class CustomUser(AbstractUser):
 	USERNAME_FIELD = 'username'
@@ -174,8 +186,8 @@ class Game(models.Model):
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
-	instructions = models.TextField(default='', max_length=500, blank=False)
-	rules_set = models.TextField(default='', max_length=500, blank=False)
+	instructions = models.TextField(max_length=500, blank=False, default='\n'.join(DEFAULT_INSTRUCTIONS))
+	rules_set = models.TextField(max_length=500, blank=False, default='\n'.join(DEFAULT_RULES_SET))
 
 	# Determine where game is free to play or needs some coins to join.
 	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')

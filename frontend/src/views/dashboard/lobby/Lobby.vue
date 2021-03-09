@@ -75,13 +75,14 @@
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
           </template>
+          <!-- :disabled="canJoin(item) != 'ok'"  -->
           <template v-slot:item.actions="{ item }">
             <v-tooltip right>
               <template  v-slot:activator="{ on }">
                 <div v-on="on">
                   <v-btn 
                     class="my-1" 
-                    :disabled="canJoin(item) != 'ok'" 
+                    :disabled="canJoin(item) == 'No enough coins'" 
                     @click.stop="joinContest(item)"
                   >
                     {{joinLabel(item)}}
@@ -122,7 +123,7 @@
                     <div v-on="on">
                       <v-btn 
                         class="my-1" 
-                        :disabled="canJoin(curGame) != 'ok'" 
+                        :disabled="canJoin(curGame) == 'No enough coins'" 
                         @click.stop="joinContest(curGame)"
                       >
                         {{joinLabel(curGame)}}
@@ -346,8 +347,7 @@
         }
 
         if (item.genre != 'free') {
-          const coins = this.authUser.coins || this.authUser.fq_points || this.profile.user.coins
-          if (coins < item.buyin) {
+          if (!this.hasEnoughCoins(item)) {
             return 'No enough coins'
           }
         }
@@ -361,10 +361,16 @@
         return 'no'
       },
       JoinBtnTooltip(item) {
-        if (this.canJoin(item) != 'ok') {
-          return this.canJoin(item)
-        }
-        return 'Join'
+        let tooltip = ''
+        const label = this.joinLabel(item)
+        if (label == 'JOIN') {
+          tooltip = 'Go to Selection'
+        } else if (label == 'EDIT') {
+          tooltip = 'Go to Selection'
+        } else if (label == 'LIVE') {
+          tooltip = 'Go to Contest'
+        } 
+        return tooltip
       },
       hasJoined(item) {
         let joined = false
@@ -375,20 +381,35 @@
         })
         return joined
       },
+      hasEnoughCoins(item) {
+        const coins = this.authUser.coins || this.authUser.fq_points || this.profile.user.coins
+        return coins >= item.buyin
+      },
       joinLabel (item) {
+        let label = 'JOIN'
         if (this.hasJoined(item)) {
-          return 'Joined'
+          label = 'EDIT'
+        } else {
+          if (item.genre != 'free') {
+            label += ` | F${item.buyin}`
+          }
         }
-        let label = 'Join'
-        if (item.genre != 'free') {
-          label += ` | F${item.buyin}`
+        let isStarted = this.$moment(item.date).isBefore(this.$moment())
+        if (isStarted && label == 'EDIT') {
+          label = 'LIVE'
         }
         return label
       },
       async joinContest (item) {
+        const label = this.joinLabel(item)
+        if (label == 'LIVE') {
+          return this.$router.push({ name: 'Contest', query: {tab: 'standings'}})
+        }
+        if (label == 'EDIT') {
+          return this.$router.push({ path: `/selection/${item.id}` })
+        }
         let snackbar = {snack: true};
-        const coins = this.authUser.coins || this.authUser.fq_points || this.profile.user.coins
-        if (coins < item.buyin) {
+        if (!this.hasEnoughCoins(item)) {
           snackbar = {
             ...snackbar,
             message: "You don't have enough coins",

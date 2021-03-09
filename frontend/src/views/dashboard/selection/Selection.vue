@@ -179,6 +179,8 @@
       Money
     },
 
+    props: ['game_id'],
+
     watch: {
       event: {
         handler(val) {
@@ -297,11 +299,13 @@
     },
 
     async mounted () {
+      this.curGame = +this.game_id || -1
+
       this.loading = true
       await this.getFighters()
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
-      await this.getLatestData()
+      await this.getLatestData(this.game_id || -1)
       this.loading = false
 
       // return login
