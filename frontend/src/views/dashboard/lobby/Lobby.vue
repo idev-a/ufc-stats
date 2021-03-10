@@ -70,7 +70,7 @@
             <span>{{ item.genre | upperFirst }}</span>
           </template>
           <template v-slot:item.entrants="{ item }">
-            <span>{{ item.joined_users.length }} / {{ item.entrants.length }}</span>
+            <span v-if="item.type_of_registration == 'private'">{{ item.joined_users.length }} / {{ item.entrants.length }}</span>
           </template>
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
@@ -250,13 +250,13 @@
             value: 'buyin',
             align: 'center',
           },
+          // {
+          //   text: 'Bonus',
+          //   value: 'buyin_bonus',
+          //   align: 'center',
+          // },
           {
-            text: 'Bonus',
-            value: 'buyin_bonus',
-            align: 'center',
-          },
-          {
-            text: 'Prize',
+            text: 'Prize Pool',
             value: 'prize',
             align: 'center',
           },
