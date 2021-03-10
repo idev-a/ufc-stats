@@ -289,7 +289,7 @@ class Scraper:
 		logger.info(f'[scraper] save_event --- {json.dumps(item)}')
 		event = None
 		try:
-			event = Event.objects.get(name=item['name'].strip())
+			event = Event.objects.get(detail_link=item['detail_link'].strip())
 		except:
 			pass
 		if not event:
@@ -298,6 +298,7 @@ class Scraper:
 			event_serializer.save()
 			return event_serializer.data['id']
 		else:
+			event.name = item['name']
 			event.date = item['date']
 			event.save()
 			return event.id

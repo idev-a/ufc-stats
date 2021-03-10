@@ -52,7 +52,7 @@ let router = new Router({
           name: 'Lobby',
           path: '/',
           component: () => import('@/views/dashboard/lobby/LobbyContainer'),
-          beforeEnter: requireAuthenticated
+          // beforeEnter: requireAuthenticated
         },
         {
           name: 'Selection',

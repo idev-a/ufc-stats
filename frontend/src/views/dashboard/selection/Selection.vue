@@ -22,7 +22,7 @@
                 <span>{{ contestDate }}</span>
               </div>
               <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
-              <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
+              <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
               <div class="overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
             </div>
           </v-card-title>
@@ -258,7 +258,8 @@
         return this.curContest && this.curContest.action != '' || this.countdownEnd
       },
       countable () {
-        return this.deadline2 && !this.eventStarted
+        const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')
+        return this.deadline2 && !this.eventStarted && diff == 0
       },
       totalFighters () {
         return this.bouts && this.bouts.length * 2 || 0

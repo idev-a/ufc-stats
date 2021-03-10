@@ -39,7 +39,7 @@ from contest.serializers import (
 
 import pdb
 
-def show__games():
+def show__games(user_id):
     events = Event.objects.all().filter(status='upcoming')
     if events:
         event = events.latest('-date')
@@ -49,31 +49,32 @@ def show__games():
             event=EventSerializer(event).data,
             type_of_registration='public',
             date=event.date,
-            joined_users=[],
-            entrants=[],
+            joined_users=None,
+            entrants=None,
             genre='free',
             buyin=0,
             buyin_bonus=0,
             prize=0,
             action=event.action
         )
-    for _ in Game.objects.filter(event__action=''):
-        yield dict(
-            id=_.id,
-            name=_.name,
-            event=EventSerializer(_.event).data,
-            type_of_registration=_.type_of_registration,
-            genre=_.genre,
-            buyin=_.buyin,
-            prize=_.prize,
-            buyin_bonus=_.buyin_bonus,
-            joined_users=UserSerializer(_.joined_users.all(), many=True).data,
-            entrants=UserSerializer(_.entrants.all(), many=True).data,
-            instructions=_.instructions,
-            rules_set=_.rules_set,
-            date=_.date,
-            action=_.action
-        )
+    if user_id:
+        for _ in Game.objects.filter(entrants__pk=user_id).filter(event__action=''):
+            yield dict(
+                id=_.id,
+                name=_.name,
+                event=EventSerializer(_.event).data,
+                type_of_registration=_.type_of_registration,
+                genre=_.genre,
+                buyin=_.buyin,
+                prize=_.prize,
+                buyin_bonus=_.buyin_bonus,
+                joined_users=UserSerializer(_.joined_users.all(), many=True).data,
+                entrants=UserSerializer(_.entrants.all(), many=True).data,
+                instructions=_.instructions,
+                rules_set=_.rules_set,
+                date=_.date,
+                action=_.action
+            )
 
 
 class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
@@ -90,7 +91,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         games = []
         status = 200
         try:
-            games = list(show__games())
+            games = list(show__games(request.user.id))
         except Exception as err:
             status = 500
 

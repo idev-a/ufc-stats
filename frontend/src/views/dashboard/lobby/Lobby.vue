@@ -60,6 +60,9 @@
           mobile-breakpoint="0"
           @click:row="loadGameDetail"
         > 
+          <template v-slot:item.name="{ item }">
+            <span>{{ item.name | upperFirst }}</span>
+          </template>
           <template v-slot:item.event="{ item }">
             <span>{{ item.event.name }}</span>
           </template>
@@ -71,6 +74,7 @@
           </template>
           <template v-slot:item.entrants="{ item }">
             <span v-if="item.type_of_registration == 'private'">{{ item.joined_users.length }} / {{ item.entrants.length }}</span>
+            <span v-else>All</span>
           </template>
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
@@ -82,6 +86,7 @@
                 <div v-on="on">
                   <v-btn 
                     class="my-1" 
+                    :class="{'success': joinLabel(item).includes('JOIN')}"
                     :disabled="canJoin(item) == 'No enough coins'" 
                     @click.stop="joinContest(item)"
                   >
@@ -240,11 +245,11 @@
             value: 'type_of_registration',
             align: 'center',
           },
-          {
-            text: 'Genre',
-            value: 'genre',
-            align: 'center',
-          },
+          // {
+          //   text: 'Genre',
+          //   value: 'genre',
+          //   align: 'center',
+          // },
           {
             text: 'Buyin',
             value: 'buyin',
@@ -308,6 +313,12 @@
       gameAvatar () {
         return require('@/assets/logo.jpg')
       },
+      myId () {
+        return this.authUser && (this.authUser.id || this.authUser.pk)
+      },
+      myCoins () {
+        return this.authUser && (this.authUser.coins || this.authUser.fq_points || this.profile.user.coins)
+      }
     },
 
     filters: {
@@ -334,10 +345,9 @@
         if (this.hasJoined(item)) {
           return 'Already Joined'
         }
-        const myId = this.authUser.id || this.authUser.pk
         let isInvolved = false
-        item.entrants.map(user => {
-          if (user.id == myId) {
+        item.entrants && item.entrants.map(user => {
+          if (user.id == this.myId) {
             isInvolved = true
           }
         })
@@ -363,7 +373,7 @@
       JoinBtnTooltip(item) {
         let tooltip = ''
         const label = this.joinLabel(item)
-        if (label == 'JOIN') {
+        if (label.includes('JOIN')) {
           tooltip = 'Go to Selection'
         } else if (label == 'EDIT') {
           tooltip = 'Go to Selection'
@@ -374,16 +384,15 @@
       },
       hasJoined(item) {
         let joined = false
-        item.joined_users && item.joined_users.map(user => {
-          if (user.id == this.authUser.id || this.authUser.pk) {
+        item.joined_users != null && item.joined_users.map(user => {
+          if (user.id == this.myId) {
             joined = true
           }
         })
         return joined
       },
       hasEnoughCoins(item) {
-        const coins = this.authUser.coins || this.authUser.fq_points || this.profile.user.coins
-        return coins >= item.buyin
+        return this.myCoins >= item.buyin
       },
       joinLabel (item) {
         let label = 'JOIN'
@@ -424,7 +433,7 @@
         } else {
           let payload = {
             game_id: item.id,
-            user_id: this.authUser.id || this.authUser.pk
+            user_id: this.myId
           }
           const res = await main.joinGame(payload)
           if (res.status == 200) {
