@@ -394,6 +394,9 @@
             label += ` | F${item.buyin}`
           }
         }
+        if (item.id == -1) {
+          label = 'EDIT'
+        }
         let isStarted = this.$moment(item.date).isBefore(this.$moment())
         if (isStarted && label == 'EDIT') {
           label = 'LIVE'
@@ -407,6 +410,9 @@
         }
         if (label == 'EDIT') {
           return this.$router.push({ path: `/selection/${item.id}` })
+        }
+        if (item.id == -1) {
+          return this.$router.push({ path: `/selection` })
         }
         let snackbar = {snack: true};
         if (!this.hasEnoughCoins(item)) {

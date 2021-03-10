@@ -48,6 +48,7 @@ class GameManager(models.Manager):
             value=-1,
             genre='free',
             buyin=0,
+            buyin_bonus=0,
             prize=0,
             action=event.action
         ))

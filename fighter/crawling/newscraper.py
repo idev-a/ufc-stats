@@ -165,6 +165,7 @@ class Scraper:
 							'message': 'All fights were completed.'
 						}
 						event.action = 'completed'
+						event.status = 'old'
 						update_rank(event.id)
 					elif not is_notified:
 						notify_data = {

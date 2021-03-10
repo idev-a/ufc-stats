@@ -40,6 +40,23 @@ from contest.serializers import (
 import pdb
 
 def show__games():
+    events = Event.objects.all().filter(status='upcoming')
+    if events:
+        event = events.latest('-date')
+        yield dict(
+            id=-1,
+            name='Main Contest',
+            event=EventSerializer(event).data,
+            type_of_registration='public',
+            date=event.date,
+            joined_users=[],
+            entrants=[],
+            genre='free',
+            buyin=0,
+            buyin_bonus=0,
+            prize=0,
+            action=event.action
+        )
     for _ in Game.objects.filter(event__action=''):
         yield dict(
             id=_.id,
@@ -73,7 +90,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         games = []
         status = 200
         try:
-            games = [_ for _ in show__games()]
+            games = list(show__games())
         except Exception as err:
             status = 500
 
