@@ -198,6 +198,7 @@
   ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 8px;
+    height: 8px;
   }
    
   ::-webkit-scrollbar-track {
@@ -212,7 +213,12 @@
 
   ::-webkit-scrollbar-thumb:vertical
   {
-      background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
+    background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
+  }
+
+  ::-webkit-scrollbar-thumb:horizontal
+  {
+    background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
   }
 </style>
 
@@ -282,14 +288,13 @@
     .v-application .survivor-header {
       text-align: center !important;
     }
+  }
+  .v-chip__content {
+    font-size: 12px;
+    font-weight: 400;
+  }
 
-    .v-chip__content {
-      font-size: 12px;
-      font-weight: 400;
-    }
-
-    .max-60 {
-      max-width: 800px;
-    }
+  .max-60 {
+    max-width: 800px;
   }
 </style>

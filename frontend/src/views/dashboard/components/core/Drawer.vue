@@ -105,7 +105,7 @@
         },
         {
           icon: 'mdi-sofa-single-outline',
-          title: 'My Contests',
+          title: 'Old Contests',
           to: '/history/contest',
         },
         {

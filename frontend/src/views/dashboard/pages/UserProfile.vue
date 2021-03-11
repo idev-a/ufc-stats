@@ -1,151 +1,153 @@
 <template>
   <v-dialog
     v-model="insideValue"
-    width="600px"
+    width=60%
   >
-  <div id="contest-table">
-    <v-sheet
-      tile
-      class="fq-popup pa-3"
-      icon="mdi-account-outline"
-      :loading="loading"
-      id="profile-card"
-    >
-      <v-card-title>
-        <div
-          class="d-flex align-center w-100"
-        >
-          <v-avatar
-            color="brown"
-            size="84"
-          >
-            <v-img 
-              v-if="userAvatar"
-              :src="userAvatar"
-            />
-            <span 
-              v-else
-              class="white--text initials"
-            >
-              {{ userInitials }}
-            </span>
-            <!-- <v-icon
-              class="lock-icon"
-            > 
-              mdi-lock
-            </v-icon> -->
-          </v-avatar>
-          <div
-            class="display-box"
-          >
-            <div class="displayname" v-html="userDisplayname"></div>
-            <div class="subtitle">Member since {{ userJoinedDate }}</div>
-          </div>
-          <div
-            class="d-flex align-baseline ml-auto ml-4"
-          >
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-icon size=24 v-on="on" color="gold">mdi-crown-outline</v-icon>
-              </template>
-              <span>Total Wins</span>
-            </v-tooltip>
-            <span class="ml-1 display-1  gold--text">{{profile.total_wins}}</span>
-          </div>
-
-          <div
-            class="d-flex align-end ml-3"
-            v-if="mine"
-          >
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-icon size=26 color="gold">mdi-cash</v-icon>
-              </template>
-              <span>Coins</span>
-            </v-tooltip>
-            <span class="ml-1 display-1 gold--text">{{profile.user.coins}}</span>
-          </div>
-        </div>
-      </v-card-title>
-      <v-card-text 
-        class="profile-table"
+    <div id="contest-table">
+      <v-sheet
+        max-width="100%"
+        tile
+        class="fq-popup pa-3"
+        icon="mdi-account-outline"
+        :loading="loading"
+        id="profile-card"
       >
-      <v-divider class="my-2"/>
+        <v-card-title>
+          <div
+            class="d-flex align-center w-100"
+          >
+            <v-avatar
+              color="brown"
+              size="84"
+            >
+              <v-img 
+                v-if="userAvatar"
+                :src="userAvatar"
+              />
+              <span 
+                v-else
+                class="white--text initials"
+              >
+                {{ userInitials }}
+              </span>
+              <!-- <v-icon
+                class="lock-icon"
+              > 
+                mdi-lock
+              </v-icon> -->
+            </v-avatar>
+            <div
+              class="display-box"
+            >
+              <div class="displayname" v-html="userDisplayname"></div>
+              <div class="subtitle">Member since {{ userJoinedDate }}</div>
+            </div>
+            <div
+              class="d-flex align-baseline ml-auto ml-4"
+            >
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-icon size=24 v-on="on" color="gold">mdi-crown-outline</v-icon>
+                </template>
+                <span>Total Wins</span>
+              </v-tooltip>
+              <span class="ml-1 display-1  gold--text">{{profile.total_wins}}</span>
+            </div>
+
+            <div
+              class="d-flex align-end ml-3"
+              v-if="mine"
+            >
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-icon size=26 color="gold">mdi-cash</v-icon>
+                </template>
+                <span>Coins</span>
+              </v-tooltip>
+              <span class="ml-1 display-1 gold--text">{{profile.user.coins}}</span>
+            </div>
+          </div>
+        </v-card-title>
+        <v-card-text 
+          class="profile-table"
+        >
+        <v-divider class="my-2"/>
+            
+          <div
+            class="stats-title"
+          >
+            Overview
+          </div>
+          <div
+            class="stats-blocks"
+          > 
+            <v-card
+              class="well"
+              :loading="loading"
+            >
+              <div
+                class="stats-value"
+              >
+                {{profile.total_contests}}
+              </div>
+              <div>
+                Total Contests
+              </div>
+            </v-card>
+            <v-card
+              class="well"
+              :loading="loading"
+            >
+              <div
+                class="stats-value"
+              >
+                {{profile.completed_contests}}
+              </div>
+              <div>
+                Completed Contests
+              </div>
+            </v-card>
+            <v-card
+              class="well"
+              :loading="loading"
+            >
+              <div
+                class="stats-value"
+              >
+                {{profile.total_win_p}}
+              </div>
+              <div>
+                Win Rate(%)
+              </div>
+            </v-card>
+          </div>
           
-        <div
-          class="stats-title"
-        >
-          Overview
-        </div>
-        <div
-          class="stats-blocks"
-        > 
-          <v-card
-            class="well"
-            :loading="loading"
+          <div
+            class="stats-title mt-5"
           >
-            <div
-              class="stats-value"
-            >
-              {{profile.total_contests}}
-            </div>
-            <div>
-              Total Contests
-            </div>
-          </v-card>
-          <v-card
-            class="well"
+            Contest History
+          </div>
+          <v-data-table
+            :items="profile.contest_history"
             :loading="loading"
-          >
-            <div
-              class="stats-value"
-            >
-              {{profile.completed_contests}}
-            </div>
-            <div>
-              Completed Contests
-            </div>
-          </v-card>
-          <v-card
-            class="well"
-            :loading="loading"
-          >
-            <div
-              class="stats-value"
-            >
-              {{profile.total_win_p}}
-            </div>
-            <div>
-              Win Rate(%)
-            </div>
-          </v-card>
-        </div>
-        
-        <div
-          class="stats-title mt-5"
-        >
-          Contest History
-        </div>
-        <v-data-table
-          :items="profile.contest_history"
-          :loading="loading"
-          :headers="headers"
-          fixed-header
-          item-key="id"
-          dense
-          item-class="contest-history-tb-row"
-          @click:row="showHistory"
-        > 
-          <template v-slot:item.date="{ item }">
-            {{ beautifyDate(item.date)}}
-          </template>
-          <template v-slot:item.status="{ item }">
-            {{ item.status ? upperFirst(item.status) : '-' }}
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-sheet>
-  </div>
+            :headers="headers"
+            fixed-header
+            item-key="id"
+            dense
+            item-class="contest-history-tb-row"
+            @click:row="showHistory"
+            mobile-breakpoint="0"
+          > 
+            <template v-slot:item.date="{ item }">
+              {{ beautifyDate(item.date)}}
+            </template>
+            <template v-slot:item.status="{ item }">
+              {{ item.status ? upperFirst(item.status) : '-' }}
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-sheet>
+    </div>
   </v-dialog>
 </template>
 
@@ -164,32 +166,38 @@
         {
           text: 'Name',
           value: 'name',
-          align: 'center'
+          align: 'center',
+          width: 200
         },
         {
           text: 'Event',
           value: 'event',
-          align: 'center'
+          align: 'center',
+          width: 260
         },
         {
           text: 'Started at',
           value: 'date',
-          align: 'center'
+          align: 'center',
+          width: 120
         },
         {
           text: 'Status',
           value: 'status',
-          align: 'center'
+          align: 'center',
+          width: 70
         },
         {
           text: 'Ranking',
           value: 'ranking',
-          align: 'center'
+          align: 'center',
+          width: 70          
         },
         {
           text: 'Prize',
           value: 'prize',
-          align: 'center'
+          align: 'center',
+          width: 70
         },
       ],
       rules: {

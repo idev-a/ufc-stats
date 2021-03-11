@@ -88,7 +88,7 @@
           v-on="on"
         >
           <v-icon :left="isAuthenticated" color="white">mdi-account</v-icon>
-          <span class="white--text" v-if="isAuthenticated && authUser">{{ authBtnLabel }} | <span class="red--text lighten-1 font-weight-bold">{{myMoney}}</span></span>
+          <span class="white--text" v-if="isAuthenticated && authUser">{{ authBtnLabel }} | <span class="gold--text lighten-1 font-weight-bold">{{myMoney}}</span></span>
         </v-btn>
       </template>
 

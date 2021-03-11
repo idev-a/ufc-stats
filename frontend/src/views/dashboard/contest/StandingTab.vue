@@ -33,7 +33,6 @@
         :expanded.sync="expanded"
         :item-class="entryItemClass"
         mobile-breakpoint="0"
-       
       > 
         <template v-slot:item.ranking="{ item }">
           <span :class="highlight(item)" class="font-weight-bold">{{item.ranking}}
