@@ -216,7 +216,8 @@ class Game(models.Model):
 	def prize(self):
 		_prize = 0
 		if self.genre == 'paid':
-			_prize = self.joined_users.count() * self.buyin + self.buyin_bonus
+			real_users = Entry.objects.filter(game_id=self.id).count()
+			_prize = real_users * self.buyin + self.buyin_bonus
 		return _prize
 	
 	def info_entrants(self):
@@ -263,6 +264,9 @@ class Entry(models.Model):
 
 	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 	# last_edited.editable=True
+	survived = models.IntegerField(blank=True, null=True, default=0)
+	wins = models.IntegerField(blank=True, null=True, default=0)
+	quaked = models.IntegerField(blank=True, null=True, default=0)
 	ranking = models.IntegerField(blank=True, null=True, default=0)
 
 	def __str__(self):

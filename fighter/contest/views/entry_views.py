@@ -76,33 +76,37 @@ def _update_game_rank(selections):
     entry_views = get_entry_views(selections)
     status = 200
     try:
+        total_quaked = 0
+        for _ in entry_views:
+            if _['died']:
+                total_quaked += 1
+
         for _ in entry_views:
             entry = get_object_or_404(Entry, pk=_['id'])
-            entry.ranking = _['ranking']
-            entry.save()
-            if _['ranking'] == 1:
-                if entry.game:
-                    if entry.game.genre != 'free':
-                        # There is buyin that every user paid when joining
-                        # The sum of buyin will be winner's
-                        entry.user.coins += entry.game.joined_users.count() * entry.game.buyin
-                    entry.user.coins += entry.game.buyin_bonus or 0
-                    entry.user.save()
+            if entry.game and entry.game.genre != 'free':
+                if total_quaked == len(entry_views):
+                    # should refund buyin
+                    entry.user.coins += entry.game.buyin
+                if _['ranking'] == 1 and len(_['died']) == 0:
+                    entry.user.coins += entry.game.prize
+
+                entry.user.save()
     except Entry.DoesNotExist:
         status = 404
+    return status
 
 def update_rank(event_id):
     # Single Game
     selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
-    _update_game_rank(selections)
+    status = _update_game_rank(selections)
 
     # Mutiple games
     games = Game.objects.filter(event_id=event_id)
     for game in games:
         selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game.id)
-        _update_game_rank(selections)
+        status = _update_game_rank(selections)
 
-    return Response(dict(message='ok'))
+    return Response(dict(message='ok', status=status))
 
 def get_entry_views(selections):
     score = {}
@@ -228,6 +232,9 @@ def get_entry_views(selections):
         entry['ranking'] = ranking
         # not sure whether entry model should be updated at this time regarding ranking
         _entry = get_object_or_404(Entry, pk=entry['id'])
+        _entry.survived = entry['survived']
+        _entry.wins = entry['wins']
+        _entry.quaked = len(entry['died'])
         _entry.ranking = ranking
         _entry.save()
 
@@ -389,10 +396,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def get_contest_history_detail(self, request, **kwarg):
         try:
-            event_id = request.data['event_id']
-            game_id = request.data['game_id']
+            event_id = int(request.data['event_id'])
+            game_id = int(request.data['game_id'])
             game = None
-            if int(game_id) == -1:
+            if game_id == -1:
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
                 _event = Event.objects.get(id=event_id)
                 game = dict(
