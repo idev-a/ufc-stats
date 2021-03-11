@@ -371,4 +371,11 @@ class ChatMessage(models.Model):
 		return f'{self.content[:cnt]} {self.timestamp}'
 
 
+# FAQ
+class Faq(models.Model):
 
+	question = models.TextField(default='')
+	answer = models.TextField(default='')
+
+	def __str__(self):
+		return self.question

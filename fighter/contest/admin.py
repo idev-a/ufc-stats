@@ -5,6 +5,7 @@ from .models import (
 	Event,
 	Fighter,
 	Bout,
+	Faq,
 	Entry,
 	Selection,
 	CustomUser,
@@ -109,5 +110,16 @@ class ChatMessgaeAdmin(admin.ModelAdmin):
 
 	class Meta:
 		ordering = ('timestamp', "sender", )
+
+# FAQ
+@admin.register(Faq)
+class FaqAdmin(admin.ModelAdmin):
+	list_per_page = 20
+
+	search_fields = ('question', 'answer', )
+	list_display = ('question', 'answer', )
+
+	class Meta:
+		ordering = ('question', )
 
 # admin.site.unregister(Group)
