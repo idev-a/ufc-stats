@@ -113,6 +113,11 @@
           title: 'Leaderboard',
           to: '/leaderboard',
         },
+        {
+          icon: 'mdi-help-circle-outline',
+          title: 'FAQ',
+          to: '/faq',
+        },
       ],
     }),
 

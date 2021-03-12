@@ -30,5 +30,8 @@ export default {
   },
   getContestHistoryDetail(event_id, game_id) {
     return session.post('api/entries/get_contest_history_detail/', {event_id, game_id})
+  },
+  getFaqs() {
+    return session.get('api/faqs/')
   }
 }

@@ -98,17 +98,7 @@
         nav
       >
         <div>
-          <v-btn
-            text
-            v-if="!isAuthenticated"
-            @click="launchLogin"
-            class="fq-menu-item"
-            block
-            plain
-          >
-            Login
-          </v-btn>
-          
+                   
           <v-btn
             text
             v-if="isAuthenticated"
@@ -166,6 +156,29 @@
           >
             <v-icon color="white" left>mdi-view-dashboard-outline</v-icon>
             Leaderboard
+          </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            class="fq-menu-item"
+            to="/faq"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-help-circle-outline</v-icon>
+            FAQ
+          </v-btn>
+          <v-divider />
+          <v-btn
+            text
+            v-if="!isAuthenticated"
+            @click="launchLogin"
+            class="fq-menu-item"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-login</v-icon>
+            Login
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
           <v-btn

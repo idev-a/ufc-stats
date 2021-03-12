@@ -88,6 +88,11 @@ let router = new Router({
           component: () => import('@/views/dashboard/history/ContestHistoryDetailContainer'),
           beforeEnter: requireAuthenticated
         },
+        {
+          name: 'FAQ',
+          path: '/faq',
+          component: () => import('@/views/dashboard/faq/Faq'),
+        },
       ],
     },
     {

@@ -9,7 +9,8 @@ from contest.models import (
 	CustomUser,
 	ChatRoom,
 	ChatFile,
-	ChatMessage
+	ChatMessage,
+	Faq
 )
 from rest_framework import serializers
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -101,3 +102,10 @@ class ChatMessageSerializer(FlexFieldsModelSerializer):
 		expandable_fields = {
           'reply_message': ('contest.ChatMessageSerializer')
         }
+
+# FAQ
+
+class FaqSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Faq
+		fields = '__all__'
