@@ -5,14 +5,15 @@ from .models import (
 	Event,
 	Fighter,
 	Bout,
-	Faq,
 	Entry,
 	Selection,
 	CustomUser,
 	Game,
 	ChatRoom,
 	ChatFile,
-	ChatMessage
+	ChatMessage,
+	Faq,
+	Ticket,
 )
 
 # Register your models here.
@@ -121,5 +122,17 @@ class FaqAdmin(admin.ModelAdmin):
 
 	class Meta:
 		ordering = ('question', )
+
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+	list_per_page = 20
+
+	search_fields = ('title', 'message', 'status', 'answer', 'creator__username')
+	list_display = ('title', 'message', 'status', 'answer', 'creator', 'delivered', 'resolved', )
+
+	readonly_fields = ["title", "message", "delivered"]
+
+	class Meta:
+		ordering = ('delivered', 'title', )
 
 # admin.site.unregister(Group)

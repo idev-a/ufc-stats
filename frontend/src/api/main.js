@@ -33,5 +33,8 @@ export default {
   },
   getFaqs() {
     return session.get('api/faqs/')
+  },
+  submitTicket(form) {
+    return session.post('api/faqs/submit_ticket/', form)
   }
 }

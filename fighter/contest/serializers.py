@@ -10,7 +10,8 @@ from contest.models import (
 	ChatRoom,
 	ChatFile,
 	ChatMessage,
-	Faq
+	Faq,
+	Ticket
 )
 from rest_framework import serializers
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -108,4 +109,9 @@ class ChatMessageSerializer(FlexFieldsModelSerializer):
 class FaqSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Faq
+		fields = '__all__'
+
+class TicketSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Ticket
 		fields = '__all__'

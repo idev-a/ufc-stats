@@ -379,3 +379,38 @@ class Faq(models.Model):
 
 	def __str__(self):
 		return self.question
+
+class Ticket(models.Model):
+	STATUS_TYPES = [
+		('delivered', 'Delivered'),
+		('resolved', 'Resolved'),
+		('failed', 'Failed'),
+	]
+
+	title = models.CharField(max_length=50)
+	message = models.TextField(default='')
+	answer = models.TextField(default='')
+	status = models.CharField(choices=STATUS_TYPES, max_length=20, blank=True, default='')
+	delivered = models.DateTimeField(null=True, blank=True)
+	resolved = models.DateTimeField(null=True, blank=True)
+
+	creator = models.ForeignKey(
+		CustomUser,
+		on_delete=models.CASCADE,
+		related_name='ticketCreators',
+		default=None,
+		blank=True,
+		null=True
+	)
+
+	agency = models.ForeignKey(
+		CustomUser,
+		on_delete=models.CASCADE,
+		related_name='agencies',
+		default=None,
+		blank=True,
+		null=True
+	)
+
+	def __str__(self):
+		return self.title
