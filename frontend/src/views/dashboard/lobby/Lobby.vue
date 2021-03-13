@@ -7,7 +7,7 @@
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
-        class="font-weight-medium mb-md-3"
+        class="font-weight-medium mb-4"
       >
         <div v-if="$vuetify.breakpoint.mobile" class="mr-5">Lobby</div>
         <div class="d-flex align-center">
@@ -85,6 +85,8 @@
               <template  v-slot:activator="{ on }">
                 <div v-on="on">
                   <v-btn 
+                    fab
+                    x-small
                     class="my-1" 
                     :class="{'success': joinLabel(item).includes('JOIN')}"
                     :disabled="canJoin(item) == 'No enough coins'" 
@@ -231,6 +233,11 @@
         ],
         headers: [
           {
+            text: 'Actions',
+            value: 'actions',
+            align:'center'
+          },
+          {
             text: 'Name',
             value: 'name',
             align: 'center',
@@ -276,11 +283,7 @@
             align: 'center',
             width: '100'
           },
-          {
-            text: 'Actions',
-            value: 'actions',
-            align:'center'
-          }
+         
         ],
         tabs: [
           'Contest Details',
