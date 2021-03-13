@@ -93,7 +93,7 @@ class Scraper:
 				meta = {'event_id': event.id}
 				espn_name, espn_date, espn_time = self.info_from_espn()
 				event_date = event.date.strftime('%B %d, %Y')
-				if event_date == espn_date and event.name == espn_name:
+				if event_date == espn_date and event.name == espn_name and espn_time != 'LIVE':
 					event.date = convert_date(f"{event_date} {espn_time}")
 					event.save()
 				self.parse_bout_list(Selector(text=res.content), meta)
@@ -118,7 +118,7 @@ class Scraper:
 				detail_link = _valid(tr.css('a').xpath('@href').get())
 				location = _valid(tr.xpath('.//td[2]/text()').get())
 				date = _valid(tr.css('span.b-statistics__date::text').get())
-				if name == espn_name and date == espn_date:
+				if name == espn_name and date == espn_date and espn_time != 'LIVE':
 					date += ' ' + espn_time
 				else:
 					date += default_time
