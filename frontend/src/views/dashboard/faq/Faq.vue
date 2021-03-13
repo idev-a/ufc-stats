@@ -56,7 +56,7 @@
         class="fq-popup"
       >
         <v-card-title
-          class="font-weight-bold"
+          class="font-weight-bold display-1"
         >
           CONTACT US
         </v-card-title>

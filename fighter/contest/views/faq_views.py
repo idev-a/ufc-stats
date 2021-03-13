@@ -38,7 +38,7 @@ class FaqViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 			if request.user:
 				data['creator'] = request.user.id
 				username = request.user.username
-			data['status'] = send_simple_email(data['title'], data['message'], username, to_email="ideveloper003@gmail.com")
+			data['status'] = send_simple_email(data['title'], data['message'], username)
 			data['delivered'] = date.now().strftime("%Y-%m-%d %H:%M:%S")
 			ticket_serializer = TicketSerializer(data=data)
 			if ticket_serializer.is_valid():

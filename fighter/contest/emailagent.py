@@ -13,8 +13,10 @@ def send_simple_email(title, text, username=None, to_email='fightquake@gmail.com
 				<p><b>Message</b>: {text}</p>
 				<br/>
 				{date.now().strftime("%Y-%m-%d %H:%M")}
-				<a target="_blank" href="https://fightquake.com">FightQuake</a>
-				<a target="_blank" href="https://twitter.com/fightquake">@FightQuake</a>
+				<br />
+				Website: <a target="_blank" href="https://fightquake.com">FightQuake</a>
+				<br />
+				Twitter: <a target="_blank" href="https://twitter.com/fightquake">@FightQuake</a>
 				'''
 	message = Mail(
 		from_email=from_email,
