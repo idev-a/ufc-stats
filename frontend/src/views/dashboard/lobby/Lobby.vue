@@ -88,7 +88,7 @@
                     fab
                     x-small
                     class="my-1" 
-                    :class="{'success': joinLabel(item).includes('JOIN')}"
+                    :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(curGame) == 'LIVE'}"
                     :disabled="canJoin(item) == 'No enough coins'" 
                     @click.stop="joinContest(item)"
                   >
@@ -112,7 +112,7 @@
         class="fq-popup"
         v-if="curGame && curGame.event"
       >
-        <v-card-title>
+        <v-card-title :class="{'pa-0': $vuetify.breakpoint.mobile}">
           <v-list three-line style="background: none;">
             <v-list-item
             >
@@ -125,20 +125,40 @@
                 <v-list-item-subtitle><b>Start at</b> {{ curGame.date | beautifyDateTimeMin }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
-                <v-tooltip left>
-                  <template  v-slot:activator="{ on }">
-                    <div v-on="on">
-                      <v-btn 
-                        class="my-1" 
-                        :disabled="canJoin(curGame) == 'No enough coins'" 
-                        @click.stop="joinContest(curGame)"
-                      >
-                        {{joinLabel(curGame)}}
-                      </v-btn>
-                    </div>
-                  </template>
-                  <span>{{ JoinBtnTooltip(curGame) }}</span>
-                </v-tooltip>
+                <div class="d-md-flex">
+                  <v-tooltip left>
+                    <template  v-slot:activator="{ on }">
+                      <div v-on="on">
+                        <v-btn 
+                          small
+                          class="my-1 mr-md-2" 
+                          :class="{'red lighten-1': joinLabel(curGame) == 'LIVE'}"
+                          :disabled="canJoin(curGame) == 'No enough coins'" 
+                          @click.stop="joinContest(curGame)"
+                        >
+                          {{joinLabel(curGame)}}
+                        </v-btn>
+                      </div>
+                    </template>
+                    <span>{{ JoinBtnTooltip(curGame) }}</span>
+                  </v-tooltip>
+                  <v-tooltip left>
+                    <template  v-slot:activator="{ on }">
+                      <div v-on="on">
+                        <v-btn 
+                          small
+                          v-if="joinLabel(curGame) != 'LIVE'"
+                          class="my-1 red lighten-1" 
+                          :disabled="canJoin(curGame) == 'No enough coins'" 
+                          @click.stop="gotoContest"
+                        >
+                          Live
+                        </v-btn>
+                      </div>
+                    </template>
+                    <span>Go to Contest</span>
+                  </v-tooltip>
+                </div>
               </v-list-item-action>
             </v-list-item>
           </v-list>
@@ -414,6 +434,9 @@
           label = 'LIVE'
         }
         return label
+      },
+      gotoContest () {
+        this.$router.push({ name: 'Contest', query: {tab: 'standings'}})
       },
       async joinContest (item) {
         const label = this.joinLabel(item)

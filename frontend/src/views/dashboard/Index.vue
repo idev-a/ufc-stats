@@ -183,6 +183,10 @@
     background: none;
   }
 
+  .v-slide-group__next, .v-slide-group__prev {
+    display: none !important;
+  }
+
   .instruction-list {
     list-style: none;
     font-weight: 300;
