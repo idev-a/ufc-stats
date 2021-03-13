@@ -105,7 +105,10 @@ class Scraper:
 		name = soup.select_one('h1.headline').text
 		date = soup.select_one('div.n6.mb2').text
 		card = soup.select('span.MMAHeaderUpsellTunein__Meta')[-1].text
-		return name, date, datetime.strptime(card, '%I:%M %p').strftime('%H:%M:%S')
+		_time = card
+		if card != 'LIVE':
+			_time = datetime.strptime(card, '%I:%M %p').strftime('%H:%M:%S')
+		return name, date, _time
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
