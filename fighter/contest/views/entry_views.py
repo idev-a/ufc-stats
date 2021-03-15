@@ -218,6 +218,14 @@ def get_entry_views(selections):
             score[username_id]['wins'] += wins
             score[username_id]['losses'] += losses
 
+        # some bouts end with no contest, so no method, round, score
+        # we consider those fighters survive, and neither wins
+        if bout.event.action == 'completed' and not bout.method:
+            if survivor1:
+                score[username_id]['survived'] += 1
+            if survivor2:
+                score[username_id]['survived'] += 1
+
     entry_views = score.values()
     entry_views = sorted(entry_views, reverse=True,  key=lambda x: (len(x['died'])*-1, x['survived'], x['wins'], x['last_edited']*-1)) 
 
