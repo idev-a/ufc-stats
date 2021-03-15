@@ -60,6 +60,7 @@ def show__games(user_id):
                 joined_users=UserSerializer(_.joined_users.all(), many=True).data,
                 entrants=UserSerializer(_.entrants.all(), many=True).data,
                 instructions=_.instructions,
+                summary=_.summary,
                 rules_set=_.rules_set,
                 date=_.date,
                 action=_.action

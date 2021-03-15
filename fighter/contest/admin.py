@@ -84,8 +84,8 @@ class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	list_filter = [GameFilter]
 
-	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'instructions', 'rules_set', )
-	list_display = ('name', 'event', 'type_of_registration', 'genre', 'info_entrants', 'info_joined', 'short_instructions', 'short_rules_set', 'date',)
+	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
+	list_display = ('name', 'event', 'type_of_registration', 'genre', 'info_entrants', 'info_joined', 'summary', 'short_rules_set', 'date',)
 
 	filter_horizontal = ("joined_users", "entrants")
 

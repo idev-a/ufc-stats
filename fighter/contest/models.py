@@ -186,8 +186,9 @@ class Game(models.Model):
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
-	instructions = models.TextField(max_length=500, blank=False, default='\n'.join(DEFAULT_INSTRUCTIONS))
-	rules_set = models.TextField(max_length=500, blank=False, default='\n'.join(DEFAULT_RULES_SET))
+	instructions = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_INSTRUCTIONS))
+	rules_set = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_RULES_SET))
+	summary = models.TextField(max_length=1000, blank=False, default='FIGHTQUAKE contest')
 
 	# Determine where game is free to play or needs some coins to join.
 	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')

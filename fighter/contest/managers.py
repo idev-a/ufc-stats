@@ -65,6 +65,7 @@ class GameManager(models.Manager):
                         value=_.id,
                         event_id=_.event.id,
                         instructions=_.instructions,
+                        summary=_.summary,
                         rules_set=_.rules_set,
                         action=_.action,
                         genre=_.genre,

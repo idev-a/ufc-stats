@@ -1,7 +1,7 @@
 <template>
   <v-dialog
     v-model="insideValue"
-    width=60%
+    :width="width"
   >
     <div id="contest-table">
       <v-sheet
@@ -14,7 +14,7 @@
       >
         <v-card-title>
           <div
-            class="d-flex align-center w-100"
+            class="d-flex flex-wrap align-center w-100"
           >
             <v-avatar
               color="brown"
@@ -231,6 +231,9 @@
       },
       mine () {
         return this.profile.user && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
+      },
+      width () {
+        return this.$vuetify.breakpoint.smAndUp ? '60%' : ''
       }
     },
 
@@ -288,8 +291,10 @@
 
   .stats-blocks {
     display: flex;
-    
+    flex-wrap: wrap;
+
     .well {
+      margin-bottom: .5rem;
       padding: 19px 10px;
       font-size: 12px;
       text-align: center;

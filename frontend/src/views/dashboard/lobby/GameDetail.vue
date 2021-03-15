@@ -3,7 +3,7 @@
     <div
       class="stats-title mt-4"
     >
-      Instructions
+      Summary
     </div>
     <v-card
       tile
@@ -13,9 +13,10 @@
       style="overflow-y: auto"
     >
       <v-card-text>
-        <ul class="instruction-list">
+        <span>{{summary}}</span>
+        <!-- <ul class="instruction-list">
           <li v-for="(ins, x) in instructions">{{x+1}}. {{ins}}</li>
-        </ul>
+        </ul> -->
       </v-card-text>
     </v-card>
 
@@ -72,7 +73,7 @@
   </div>
 </template>
 <script>
-  import { DEFAULT_INSTRUCTIONS } from '@/constants/constant'
+  import { DEFAULT_INSTRUCTIONS, DEFAULT_SUMMARY } from '@/constants/constant'
 
   export default {
     name: 'GameDetail',
@@ -89,6 +90,9 @@
       instructions () {
         return this.game.instructions && this.game.instructions.split('\n') || DEFAULT_INSTRUCTIONS
       },
+      summary () {
+        return this.game.summary || DEFAULT_SUMMARY
+      }
     },
 
     methods: {

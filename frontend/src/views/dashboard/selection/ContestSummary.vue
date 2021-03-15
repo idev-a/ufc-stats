@@ -1,14 +1,12 @@
 <template>
   <v-card
-    class="fq-popup"
+    class="fq-popup mt-0"
   >
     <v-card-title>
-      <b class="display-2">Instructions</b>
+      <b class="display-2">Summary</b>
     </v-card-title>
     <v-card-text>
-      <ul class="instruction-list">
-        <li v-for="(ins, x) in instructions">{{x+1}}. {{ins}}</li>
-      </ul>
+      <span>{{ summary }}</span>
     </v-card-text>
 
     <v-card-title>
@@ -24,9 +22,9 @@
 
 <script>
   export default {
-    name: "InstructionBody",
+    name: "ContestSummary",
 
-    props: ['instructions', 'rulesSet'],
+    props: ['summary', 'rulesSet'],
 
     data: () => ({   
     }),

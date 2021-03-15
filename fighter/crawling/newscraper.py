@@ -184,6 +184,7 @@ class Scraper:
 					if cnt_completed != len(trs[1:]) and not event.action:
 						notify_data = {
 							'type': 'live_score',
+							'refresh': True,
 							'event': {
 								'action': 'started',
 							},
@@ -193,6 +194,7 @@ class Scraper:
 					elif cnt_completed == len(trs[1:]) and event.action != 'completed':
 						notify_data = {
 							'type': 'live_score',
+							'refresh': True,
 							'event': {
 								'action': 'completed',
 							},

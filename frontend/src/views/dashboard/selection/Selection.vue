@@ -149,7 +149,7 @@
               </template>
             </v-autocomplete>
           </v-card-title>
-          <instruction-body :key="key" :rulesSet="rulesSet" :instructions="instructions" v-if="needsInstruction" />
+          <contest-summary :key="key" :rulesSet="rulesSet" :summary="summary" v-if="needsInstruction" />
         </v-col>
       </v-row>
     </v-card>
@@ -163,11 +163,11 @@
   let ROOT_PATH = 'http://localhost:8085'
   import main from '@/api/main'
   import { beautifyDate, equals } from '@/util'
-  import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET } from '@/constants/constant'
+  import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET, DEFAULT_SUMMARY } from '@/constants/constant'
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
   import Money from "./Money";
-  import InstructionBody from "../instruction/InstructionBody";
+  import ContestSummary from "./ContestSummary";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
   export default {
@@ -175,7 +175,7 @@
 
     components: {
       FlipCountdown,
-      InstructionBody,
+      ContestSummary,
       Money
     },
 
@@ -217,6 +217,7 @@
         curGame: -1,
         instructions: [],
         rulesSet: [],
+        summary: '',
         key: 0,
         side: true
       }
@@ -290,6 +291,9 @@
       defaultRulesSet () {
         return DEFAULT_RULES_SET
       },
+      defaultSummary () {
+        return DEFAULT_SUMMARY
+      },
       tweetShareLink () {
         let link = `${process.env.VUE_APP_URL}/contest/${this.curGame}`
         if (this.curGame == -1) {
@@ -306,6 +310,7 @@
       await this.getFighters()
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
+      this.summary = this.defaultSummary
       await this.getLatestData(this.game_id || -1)
       this.loading = false
 
@@ -419,10 +424,12 @@
         await this.getLatestData(item)
         if (item == -1) {
           this.instructions = this.defaultInstructions
+          this.summary = this.defaultSummary
           this.rulesSet = this.defaultRulesSet
         } else {
           this.instructions = this.curContest.instructions.split('\n')
           this.rulesSet = this.curContest.rules_set.split('\n')
+          this.summary = this.curContest.summary
           this.key++
         }
         this.startCountDown(this.curContest.date)

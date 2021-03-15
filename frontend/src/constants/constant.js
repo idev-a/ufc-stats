@@ -9,3 +9,5 @@ export const DEFAULT_RULES_SET = [
   'If there is a tie, the winner is the entry with the most winning fighters.',
   'You are allowed to resubmit your team. 1 team per person.'
 ]
+
+export const DEFAULT_SUMMARY = 'FIGHTQUAKE contest'
