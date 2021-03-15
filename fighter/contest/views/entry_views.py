@@ -218,9 +218,9 @@ def get_entry_views(selections):
             score[username_id]['wins'] += wins
             score[username_id]['losses'] += losses
 
-        # some bouts end with no contest, so no method, round, score
+        # some bouts end with no contest, UFC says CNC
         # we consider those fighters survive, and neither wins
-        if bout.event.action == 'completed' and not bout.method:
+        if bout.method == 'CNC':
             if survivor1:
                 score[username_id]['survived'] += 1
             if survivor2:
