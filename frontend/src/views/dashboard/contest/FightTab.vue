@@ -223,6 +223,9 @@
         if (item.draw) {
           text = 'Drawn'
         }
+        if (item.method == 'CNC') {
+          text = 'No Contest Codes'
+        }
         return text
       },
       customSort(items, index, isDesc) {
