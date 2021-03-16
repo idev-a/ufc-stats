@@ -24,5 +24,17 @@ export default {
   },
   joinGame(payload) {
     return session.post('api/games/join_game/', payload)
+  },
+  getMyContestHistory () {
+    return session.post('api/entries/get_contest_history/')
+  },
+  getContestHistoryDetail(event_id, game_id) {
+    return session.post('api/entries/get_contest_history_detail/', {event_id, game_id})
+  },
+  getFaqs() {
+    return session.get('api/faqs/')
+  },
+  submitTicket(form) {
+    return session.post('api/faqs/submit_ticket/', form)
   }
 }

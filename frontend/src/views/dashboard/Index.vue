@@ -103,6 +103,10 @@
     width: 100%;
   }
 
+  .w-60 {
+    width: 60%;
+  }
+
   .w-50 {
     width: 50%;
   }
@@ -183,6 +187,17 @@
     background: none;
   }
 
+  .v-slide-group__next, .v-slide-group__prev {
+    display: none !important;
+  }
+
+  .instruction-list {
+    list-style: none;
+    font-weight: 300;
+    letter-spacing: 0;
+  }
+
+
   * {
     scrollbar-width: thin;
     scrollbar-color: rgba(0,0,0,.7) rgba(0,0,0,0.5);
@@ -191,6 +206,7 @@
   ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 8px;
+    height: 8px;
   }
    
   ::-webkit-scrollbar-track {
@@ -205,12 +221,39 @@
 
   ::-webkit-scrollbar-thumb:vertical
   {
-      background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
+    background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
+  }
+
+  ::-webkit-scrollbar-thumb:horizontal
+  {
+    background:black url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
   }
 </style>
 
 
 <style lang="scss">
+  .top-btn {
+    padding: 10px 10px !important; margin: 0 1px;
+  }
+  .fq-btn {
+    background: transparent;
+
+    &:hover {
+      box-shadow: 0 2px 15px #8df094;
+    }
+    &:active {
+      //border: 1px solid #5BBD74;
+    }
+  }
+  .fq-btn-active {
+    color: #8df094 !important;
+  }
+  .fq-menu-item {
+    &:hover, &:active {
+      color: #8df094 !important;
+    }
+
+  }
   #contest-table {
     backdrop-filter: blur(30px) contrast(1.0);
 
@@ -253,14 +296,13 @@
     .v-application .survivor-header {
       text-align: center !important;
     }
+  }
+  .v-chip__content {
+    font-size: 12px;
+    font-weight: 400;
+  }
 
-    .v-chip__content {
-      font-size: 12px;
-      font-weight: 400;
-    }
-
-    .max-60 {
-      max-width: 800px;
-    }
+  .max-60 {
+    max-width: 800px;
   }
 </style>

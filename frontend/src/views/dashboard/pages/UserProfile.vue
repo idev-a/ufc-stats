@@ -1,105 +1,153 @@
 <template>
   <v-dialog
     v-model="insideValue"
-    width="600px"
+    :width="width"
   >
-    <v-card
-      class="fq-popup"
-      icon="mdi-account-outline"
-      :loading="loading"
-      id="profile-card"
-    >
-      <v-card-title>
-        <div
-          class="d-flex align-center"
-        >
-          <v-avatar
-            color="brown"
-            size="84"
-          >
-            <v-img 
-              v-if="userAvatar"
-              :src="userAvatar"
-            />
-            <span 
-              v-else
-              class="white--text initials"
-            >
-              {{ userInitials }}
-            </span>
-            <!-- <v-icon
-              class="lock-icon"
-            > 
-              mdi-lock
-            </v-icon> -->
-          </v-avatar>
-          <div
-            class="display-box"
-          >
-            <div class="displayname" v-html="userDisplayname"></div>
-            <div class="subtitle">Member since {{ userJoinedDate }}</div>
-          </div>
-        </div>
-      </v-card-title>
-      <v-card-text 
+    <div id="contest-table">
+      <v-sheet
+        max-width="100%"
+        tile
+        class="fq-popup pa-3"
+        icon="mdi-account-outline"
+        :loading="loading"
+        id="profile-card"
       >
-        <v-divider />
-        <div
-          class="stats-title"
-        >
-          Overview
-        </div>
-        <div
-          class="stats-blocks"
-        > 
-          <v-card
-            class="well"
-            :loading="loading"
+        <v-card-title>
+          <div
+            class="d-flex flex-wrap align-center w-100"
           >
-            <div
-              class="stats-value"
+            <v-avatar
+              color="brown"
+              size="84"
             >
-              {{profile.total_contests}}
-            </div>
-            <div>
-              Contests
-            </div>
-          </v-card>
-          <v-card
-            class="well"
-            :loading="loading"
-          >
+              <v-img 
+                v-if="userAvatar"
+                :src="userAvatar"
+              />
+              <span 
+                v-else
+                class="white--text initials"
+              >
+                {{ userInitials }}
+              </span>
+              <!-- <v-icon
+                class="lock-icon"
+              > 
+                mdi-lock
+              </v-icon> -->
+            </v-avatar>
             <div
-              class="stats-value"
+              class="display-box"
             >
-              {{profile.total_wins}}
+              <div class="displayname" v-html="userDisplayname"></div>
+              <div class="subtitle">Member since {{ userJoinedDate }}</div>
             </div>
-            <div>
-              Win Rate %
+            <div
+              class="d-flex align-baseline ml-auto ml-4"
+            >
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-icon size=24 v-on="on" color="gold">mdi-crown-outline</v-icon>
+                </template>
+                <span>Total Wins</span>
+              </v-tooltip>
+              <span class="ml-1 display-1  gold--text">{{profile.total_wins}}</span>
             </div>
-          </v-card>
-        </div>
-        
-        <div
-          class="stats-title mt-5"
+
+            <div
+              class="d-flex align-end ml-3"
+              v-if="mine"
+            >
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-icon size=26 color="gold">mdi-cash</v-icon>
+                </template>
+                <span>Coins</span>
+              </v-tooltip>
+              <span class="ml-1 display-1 gold--text">{{profile.user.coins}}</span>
+            </div>
+          </div>
+        </v-card-title>
+        <v-card-text 
+          class="profile-table"
         >
-          Contest History
-        </div>
-        <v-data-table
-          :items="profile.contest_history"
-          :loading="loading"
-          :headers="headers"
-          fixed-header
-          item-key="id"
-          dense
-          item-class="contest-history-tb-row"
-        > 
-          <template v-slot:item.date="{ item }">
-            {{ beautifyDate(item.date)}}
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
+        <v-divider class="my-2"/>
+            
+          <div
+            class="stats-title"
+          >
+            Overview
+          </div>
+          <div
+            class="stats-blocks"
+          > 
+            <v-card
+              class="well"
+              :loading="loading"
+            >
+              <div
+                class="stats-value"
+              >
+                {{profile.total_contests}}
+              </div>
+              <div>
+                Total Contests
+              </div>
+            </v-card>
+            <v-card
+              class="well"
+              :loading="loading"
+            >
+              <div
+                class="stats-value"
+              >
+                {{profile.completed_contests}}
+              </div>
+              <div>
+                Completed Contests
+              </div>
+            </v-card>
+            <v-card
+              class="well"
+              :loading="loading"
+            >
+              <div
+                class="stats-value"
+              >
+                {{profile.total_win_p}}
+              </div>
+              <div>
+                Win Rate(%)
+              </div>
+            </v-card>
+          </div>
+          
+          <div
+            class="stats-title mt-5"
+          >
+            Contest History
+          </div>
+          <v-data-table
+            :items="profile.contest_history"
+            :loading="loading"
+            :headers="headers"
+            fixed-header
+            item-key="id"
+            dense
+            item-class="contest-history-tb-row"
+            @click:row="showHistory"
+            mobile-breakpoint="0"
+          > 
+            <template v-slot:item.date="{ item }">
+              {{ beautifyDate(item.date)}}
+            </template>
+            <template v-slot:item.status="{ item }">
+              {{ item.status ? upperFirst(item.status) : '-' }}
+            </template>
+          </v-data-table>
+        </v-card-text>
+      </v-sheet>
+    </div>
   </v-dialog>
 </template>
 
@@ -107,6 +155,7 @@
   import { mapState } from 'vuex'
   import auth from '@/api/auth'
   import { beautifyDate } from '@/util'
+  import upperFirst from 'lodash/upperFirst'
 
   export default {
     name: "UserProfile",
@@ -115,16 +164,40 @@
       valid: true,
       headers: [
         {
-          text: 'Event',
-          value: 'event'
+          text: 'Name',
+          value: 'name',
+          align: 'center',
+          width: 200
         },
         {
-          text: 'Date',
-          value: 'date'
+          text: 'Event',
+          value: 'event',
+          align: 'center',
+          width: 260
+        },
+        {
+          text: 'Started at',
+          value: 'date',
+          align: 'center',
+          width: 120
+        },
+        {
+          text: 'Status',
+          value: 'status',
+          align: 'center',
+          width: 70
         },
         {
           text: 'Ranking',
-          value: 'ranking'
+          value: 'ranking',
+          align: 'center',
+          width: 70          
+        },
+        {
+          text: 'Prize',
+          value: 'prize',
+          align: 'center',
+          width: 70
         },
       ],
       rules: {
@@ -138,10 +211,10 @@
       ...mapState('auth', ['authUser', 'loading', 'profile']),
       insideValue: {
         get() {
-          return this.$store.getters['auth/selectedUserId']
+          return this.$store.getters['auth/launchProfile']
         },
         set (val) {
-          this.$store.commit('auth/setUserId', val);
+          this.$store.commit('auth/showProfileDlg', val)
         }
       },
       userAvatar () {
@@ -155,19 +228,35 @@
       },
       userJoinedDate () {
         return this.profile.user && this.beautifyDate(this.profile.user.date_joined)
+      },
+      mine () {
+        return this.profile.user && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
+      },
+      width () {
+        return this.$vuetify.breakpoint.smAndUp ? '60%' : ''
       }
     },
 
     methods: {
       beautifyDate,
+      upperFirst,
+
       async updateProfile() {
         this.$store.dispatch('auth/updateUser', this.authUser)
+      },
+      showHistory (item) {
+        this.$store.commit('auth/showProfileDlg', false)
+        this.$router.push({path: `/history/contest/${item.event_id}/${item.game_id}`})
       }
     }
   }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+  
+  .profile-table .v-data-table__wrapper td{
+    cursor: pointer;
+  }
 
   .display-box {
     text-align: left !important;
@@ -202,12 +291,14 @@
 
   .stats-blocks {
     display: flex;
-    
+    flex-wrap: wrap;
+
     .well {
+      margin-bottom: .5rem;
       padding: 19px 10px;
       font-size: 12px;
       text-align: center;
-      background-color: #181818;
+      background-color: #181818c0;
       height: 100%;
       border-radius: 3px;
       margin-right: 1.5rem;

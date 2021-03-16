@@ -15,6 +15,10 @@ import requests
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import time
+from lxml import html
+from bs4 import BeautifulSoup as bs
+from datetime import datetime
+import argparse
 
 from contest.models import (
 	Event,
@@ -39,9 +43,17 @@ from contest.logger import logger
 # 	format="%(asctime)s:%(levelname)s:%(message)s [in %(pathname)s:%(lineno)d]"
 # )  
 
+_headers = {
+	"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+	"accept-encoding": "gzip, deflate, br",
+	"accept-language": "en-US,en;q=0.9,ko;q=0.8",
+	"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36"
+}
+
 class Scraper:
 	upcoming_url = 'http://ufcstats.com/statistics/events/upcoming'
 	completed_url = 'http://ufcstats.com/statistics/events/completed'
+	espn_url = 'https://www.espn.com/mma/fightcenter'
 
 	def __init__(self):
 		self.session = requests.Session()
@@ -65,33 +77,55 @@ class Scraper:
 			}
 		)
 
-	def start_requests(self):
+	def start_events(self):
 		# upcoming events
 		res = self.session.get(self.upcoming_url)
 		self.parse_event(Selector(text=res.content))
-		# while True:
-		# 	logger.info('[scraper] started')
 
-		# 	# scan db to get the scraped events to get the stats
-		# 	events = Event.objects.filter(status='upcoming')
-		# 	if events:
-		# 		event = events.latest('-date')
-		# 		res = self.session.get(event.detail_link)
-		# 		meta = {'event_id': event.id}
+	def start_bouts(self):
+		while True:
+			logger.info('[scraper] started')
+			# scan db to get the scraped events to get the stats
+			events = Event.objects.filter(status='upcoming')
+			if events:
+				event = events.latest('-date')
+				res = self.session.get(event.detail_link)
+				meta = {'event_id': event.id}
+				espn_name, espn_date, espn_time = self.info_from_espn()
+				event_date = event.date.strftime('%B %d, %Y')
+				if event_date == espn_date and event.name == espn_name and espn_time != 'LIVE':
+					event.date = convert_date(f"{event_date} {espn_time}")
+					event.save()
+				self.parse_bout_list(Selector(text=res.content), meta)
 
-		# 		self.parse_bout_list(Selector(text=res.content), meta)
+			time.sleep(10)
 
-		# 	time.sleep(10)
+	def info_from_espn(self):
+		soup = bs(self.session.get(self.espn_url, headers=_headers).text, 'lxml')
+		name = soup.select_one('h1.headline').text
+		date = soup.select_one('div.n6.mb2').text
+		card = soup.select('span.MMAHeaderUpsellTunein__Meta')[-1].text
+		_time = card
+		if card != 'LIVE':
+			_time = datetime.strptime(card, '%I:%M %p').strftime('%H:%M:%S')
+		return name, date, _time
 
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
+		default_time = ' 15:00:00'
+		espn_name, espn_date, espn_time = self.info_from_espn()
 		if len(trs) > 2:
 			for tr in trs[2:]:
 				name = _valid(tr.css('a::text').get())
 				detail_link = _valid(tr.css('a').xpath('@href').get())
 				location = _valid(tr.xpath('.//td[2]/text()').get())
-				date = _valid(tr.css('span.b-statistics__date::text').get()) + ' 15:00:00'
+				date = _valid(tr.css('span.b-statistics__date::text').get())
+				if name == espn_name and date == espn_date and espn_time != 'LIVE':
+					date += ' ' + espn_time
+				else:
+					date += default_time
+
 				item = dict(
 					name=name,
 					date=convert_date(date),
@@ -150,6 +184,7 @@ class Scraper:
 					if cnt_completed != len(trs[1:]) and not event.action:
 						notify_data = {
 							'type': 'live_score',
+							'refresh': True,
 							'event': {
 								'action': 'started',
 							},
@@ -159,12 +194,14 @@ class Scraper:
 					elif cnt_completed == len(trs[1:]) and event.action != 'completed':
 						notify_data = {
 							'type': 'live_score',
+							'refresh': True,
 							'event': {
 								'action': 'completed',
 							},
 							'message': 'All fights were completed.'
 						}
 						event.action = 'completed'
+						event.status = 'old'
 						update_rank(event.id)
 					elif not is_notified:
 						notify_data = {
@@ -288,7 +325,7 @@ class Scraper:
 		logger.info(f'[scraper] save_event --- {json.dumps(item)}')
 		event = None
 		try:
-			event = Event.objects.get(name=item['name'].strip())
+			event = Event.objects.get(detail_link=item['detail_link'].strip())
 		except:
 			pass
 		if not event:
@@ -297,12 +334,20 @@ class Scraper:
 			event_serializer.save()
 			return event_serializer.data['id']
 		else:
+			event.name = item['name']
 			event.date = item['date']
 			event.save()
 			return event.id
 
 
 if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-k', '--kind', type=str, required=True, help="determine either event or bout. e.g. python3 newscraper.py -k event")
+	kind = parser.parse_args().kind
+
 	scraper = Scraper()
-	scraper.start_requests()
+	if kind == 'event':
+		scraper.start_events()
+	elif kind == 'bout':
+		scraper.start_bouts()
 

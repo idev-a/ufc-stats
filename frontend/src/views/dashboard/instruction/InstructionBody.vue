@@ -23,8 +23,6 @@
 </template> 
 
 <script>
-  import InstructionBody from './InstructionBody'
-
   export default {
     name: "InstructionBody",
 

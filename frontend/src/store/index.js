@@ -9,6 +9,7 @@ import password from './password';
 import signup from './signup';
 import snackbar from './snackbar';
 import chat from './chat';
+import game from './game';
 // import socket from './socket';
 
 const _lastLeft = () => {
@@ -101,6 +102,7 @@ export default new Vuex.Store({
     password,
     signup,
     snackbar,
-    chat
+    chat,
+    game
   },
 })

@@ -6,14 +6,27 @@ from django.dispatch import receiver
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
+from django import forms
 
-from .managers import CustomUserManager
+from .managers import CustomUserManager, GameManager, EntryManager
 
 import pdb
 
 ACTION_TYPE = [
 	('started', 'Started'),
 	('completed', 'Completed'),
+]
+
+DEFAULT_INSTRUCTIONS = [
+  'Choose fighters',
+  'Hope they all survive'
+]
+  
+DEFAULT_RULES_SET = [
+  'User can pick any number of fighters. If any of them get finished, user is eliminated.',
+  'Out of all surviving entries, the user with the most surviving fighters, wins the contest.',
+  'If there is a tie, the winner is the entry with the most winning fighters.',
+  'You are allowed to resubmit your team. 1 team per person.'
 ]
 
 # Customize User model
@@ -27,7 +40,7 @@ class CustomUser(AbstractUser):
 	avatar = models.CharField(blank=True, null=True, max_length=500)
 	first_name = models.CharField(blank=True, null=True, max_length=100)
 	last_name = models.CharField(blank=True, null=True, max_length=100)
-	fq_points = models.PositiveIntegerField(blank=True, null=True, default=100)
+	coins = models.PositiveIntegerField(blank=True, null=True, default=1000)
 	referred_by = models.ForeignKey(
 		'self',
 		on_delete=models.CASCADE,
@@ -69,7 +82,7 @@ class Event(models.Model):
 	detail_link = models.URLField(max_length=500, blank=True, default='')
 
 	class Meta:
-		ordering = ['date']
+		ordering = ['-date']
 
 	def __str__(self):
 		return "%s (%s)" % (self.name, self.date.strftime('%Y-%m-%d'))
@@ -149,11 +162,16 @@ class Game(models.Model):
 		('public', 'Public')
 	]
 
+	GENRE_TYPES = [
+		('free', 'Free'),
+		('paid', 'Paid')
+	]
+
 	owner = models.ForeignKey(
 		CustomUser,
 		on_delete=models.CASCADE,
 		related_name='game_owners',
-		default=None,
+		default=1,
 	)
 
 	event = models.ForeignKey(
@@ -162,20 +180,52 @@ class Game(models.Model):
 		on_delete=models.CASCADE,
 	)
 
+	objects = GameManager()
+
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
 	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
-	instructions = models.TextField(default='', max_length=500, blank=False)
-	rules_set = models.TextField(default='', max_length=500, blank=False)
-	date_started = models.DateTimeField(null=True, blank=False)
-	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True, default='started')
+	instructions = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_INSTRUCTIONS))
+	rules_set = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_RULES_SET))
+	summary = models.TextField(max_length=1000, blank=False, default='FIGHTQUAKE contest')
 
+	# Determine where game is free to play or needs some coins to join.
+	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
+	
+	'''
+		the first one is kind of free game in which any one is free to join 
+		and the winner will get fixed buyin by admin.
+		On the other hands, for the paid game the user is asked to pay coin to join, 
+		but the winner will get higher coins 
+		which will be sum of all buyin of joined users plus one by admin.
+	'''
+	buyin = models.PositiveIntegerField(blank=True, null=True, default=0)
+
+	# Added by Admin
+	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=0)
+
+	@property
+	def date(self):
+		return self.event.date
+
+	@property
+	def action(self):
+		return self.event.action
+
+	@property
+	def prize(self):
+		_prize = 0
+		if self.genre == 'paid':
+			real_users = Entry.objects.filter(game_id=self.id).count()
+			_prize = real_users * self.buyin + self.buyin_bonus
+		return _prize
+	
 	def info_entrants(self):
-		return '{}'.format(len(self.entrants.all()))
+		return '{}'.format(self.entrants.count())
 
 	def info_joined(self):
-		return '{}'.format(len(self.joined_users.all()))
+		return '{}'.format(self.joined_users.count())
 
 	@property
 	def short_instructions(self):
@@ -211,8 +261,13 @@ class Entry(models.Model):
 		null=True
 	)
 
+	objects = EntryManager()
+
 	last_edited = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 	# last_edited.editable=True
+	survived = models.IntegerField(blank=True, null=True, default=0)
+	wins = models.IntegerField(blank=True, null=True, default=0)
+	quaked = models.IntegerField(blank=True, null=True, default=0)
 	ranking = models.IntegerField(blank=True, null=True, default=0)
 
 	def __str__(self):
@@ -317,4 +372,46 @@ class ChatMessage(models.Model):
 		return f'{self.content[:cnt]} {self.timestamp}'
 
 
+# FAQ
+class Faq(models.Model):
 
+	question = models.TextField(default='')
+	answer = models.TextField(default='')
+
+	def __str__(self):
+		return self.question
+
+class Ticket(models.Model):
+	STATUS_TYPES = [
+		('delivered', 'Delivered'),
+		('resolved', 'Resolved'),
+		('failed', 'Failed'),
+	]
+
+	title = models.CharField(max_length=50)
+	message = models.TextField(default='')
+	answer = models.TextField(default='')
+	status = models.CharField(choices=STATUS_TYPES, max_length=20, blank=True, default='')
+	delivered = models.DateTimeField(null=True, blank=True)
+	resolved = models.DateTimeField(null=True, blank=True)
+
+	creator = models.ForeignKey(
+		CustomUser,
+		on_delete=models.CASCADE,
+		related_name='ticketCreators',
+		default=None,
+		blank=True,
+		null=True
+	)
+
+	agency = models.ForeignKey(
+		CustomUser,
+		on_delete=models.CASCADE,
+		related_name='agencies',
+		default=None,
+		blank=True,
+		null=True
+	)
+
+	def __str__(self):
+		return self.title

@@ -13,7 +13,7 @@
   export default {
     name: "WinChip",
 
-    props: ['isWinner', 'isLoser', 'isDied', 'fighter'],
+    props: ['isWinner', 'isLoser', 'isDied', 'fighter', 'isDrawn'],
 
     computed: {
       icon () {
@@ -26,6 +26,9 @@
         }
         if (this.isWinner) {
           icon = 'mdi-trophy-outline'
+        }
+        if (this.isDrawn) {
+          icon = 'mdi-octagon-outline'
         }
         return icon
       }

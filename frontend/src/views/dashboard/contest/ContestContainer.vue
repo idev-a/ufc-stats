@@ -8,7 +8,7 @@
       style="width: 100%"
       v-if="$vuetify.breakpoint.mobile"
     >
-      <contest />
+      <contest :game_id="game_id" />
     </div>
     <dialog-drag 
       v-else
@@ -21,7 +21,7 @@
         zIndex: 5,
       }"
     >
-      <contest />
+      <contest :game_id="game_id" />
     </dialog-drag>
   </v-container>
 </template>
@@ -37,7 +37,10 @@
     components: { DialogDrag, Contest },
 
     computed: {
-      ...mapState(['lastLeft'])
+      ...mapState(['lastLeft']),
+      game_id () {
+        return this.$route.params.game_id
+      }
     },
 
     methods: {

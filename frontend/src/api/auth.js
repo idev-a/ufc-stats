@@ -8,7 +8,6 @@ export default {
     return session.get(url);
   },
   login(username, password) {
-    console.log(session.defaults.headers)
     return session.post('/auth/login/', { username, password });
   },
   logout() {

@@ -19,7 +19,7 @@
       />
     </template>
 
-    <v-list-item two-line>
+    <v-list-item two-line to="/" class="grey--text">
       <v-list-item-content>
         <v-list-item-title class="text-uppercase font-weight-regular display-2">
           <span class="logo-mini">{{ $t('FQ') }}</span>
@@ -89,9 +89,14 @@
     data: () => ({
       items: [
         {
+          icon: 'mdi-google-controller',
+          title: 'Lobby',
+          to: '/',
+        },
+        {
           icon: 'mdi-pickaxe',
           title: 'Selection',
-          to: '/',
+          to: '/selection',
         },
         {
           icon: 'mdi-sofa-single-outline',
@@ -99,14 +104,19 @@
           to: '/contest',
         },
         {
-          icon: 'mdi-google-controller',
-          title: 'Lobby',
-          to: '/lobby',
+          icon: 'mdi-sofa-single-outline',
+          title: 'Old Contests',
+          to: '/history/contest',
         },
         {
           icon: 'mdi-view-dashboard-outline',
           title: 'Leaderboard',
           to: '/leaderboard',
+        },
+        {
+          icon: 'mdi-help-circle-outline',
+          title: 'FAQ',
+          to: '/faq',
         },
       ],
     }),

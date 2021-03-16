@@ -209,12 +209,12 @@
         localStorage.setItem('user', JSON.stringify(user))
         this.$store.commit('signup/showRegisterDlg', false)
       },
-      submit () {
+      async submit () {
         this.$refs.form.validate()
 
         if (this.valid) {
           this.form.username = this.form.email
-          this.$store.dispatch('auth/login', this.form)
+          await this.$store.dispatch('auth/login', this.form)
         }
       },
       twitterLogin() {

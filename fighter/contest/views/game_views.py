@@ -3,20 +3,9 @@ from rest_framework.decorators import action
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
-import copy
-from requests_oauthlib import OAuth1
-from urllib.parse import urlencode
 from django.conf import settings
-import requests
-from datetime import datetime
 
-from contest.decorators import paginate
 from contest.models import (
     Event,
     Bout,
@@ -39,19 +28,43 @@ from contest.serializers import (
 
 import pdb
 
-def show__games():
-    for _ in Game.objects.all():
+def show__games(user_id):
+    events = Event.objects.all().filter(status='upcoming')
+    if events:
+        event = events.latest('-date')
         yield dict(
-            id=_.id,
-            event=EventSerializer(_.event).data,
-            type_of_registration=_.type_of_registration,
-            joined_users=UserSerializer(_.joined_users.all(), many=True).data,
-            entrants=UserSerializer(_.entrants.all(), many=True).data,
-            instructions=_.instructions,
-            rules_set=_.rules_set,
-            date_started=_.date_started,
-            action=_.action
+            id=-1,
+            name='Main Contest',
+            event=EventSerializer(event).data,
+            type_of_registration='public',
+            date=event.date,
+            joined_users=None,
+            entrants=None,
+            genre='free',
+            buyin=0,
+            buyin_bonus=0,
+            prize=0,
+            action=event.action
         )
+    if user_id:
+        for _ in Game.objects.filter(entrants__pk=user_id).filter(event__action=''):
+            yield dict(
+                id=_.id,
+                name=_.name,
+                event=EventSerializer(_.event).data,
+                type_of_registration=_.type_of_registration,
+                genre=_.genre,
+                buyin=_.buyin,
+                prize=_.prize,
+                buyin_bonus=_.buyin_bonus,
+                joined_users=UserSerializer(_.joined_users.all(), many=True).data,
+                entrants=UserSerializer(_.entrants.all(), many=True).data,
+                instructions=_.instructions,
+                summary=_.summary,
+                rules_set=_.rules_set,
+                date=_.date,
+                action=_.action
+            )
 
 
 class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
@@ -68,7 +81,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         games = []
         status = 200
         try:
-            games = [_ for _ in show__games()]
+            games = list(show__games(request.user.id))
         except Exception as err:
             status = 500
 
@@ -94,6 +107,13 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             user = CustomUser.objects.get(pk=request.data['user_id'])
             game = Game.objects.get(pk=request.data['game_id'])
+            if game.genre != 'free':
+                if user.coins < game.buyin:
+                    return Response(dict(message="You don't have enough coins."), 400)
+
+                user.coins -= game.buyin
+                user.save()
+
             game.joined_users.add(user)
             game.save()
         except Exception as err:

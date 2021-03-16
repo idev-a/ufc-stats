@@ -33,56 +33,24 @@
 
     <div class="mx-3" />
 
-    <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-if="$vuetify.breakpoint.smAndUp"
-          v-on="on"
-          min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
-          text
-          to="/"
-        >
-          <!-- <v-icon color="white">mdi-pickaxe</v-icon> -->
-          Selection
-        </v-btn>
-      </template>
-      <span>Selection</span>
-    </v-tooltip>
-
-    <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-on="on"
-          v-if="$vuetify.breakpoint.smAndUp"
-          min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
-          text
-          to="/contest"
-        >
-          <!-- <v-icon color="white">mdi-sofa-single-outline</v-icon> -->
-          Contest
-        </v-btn>
-      </template>
-      <span>Contest</span>
-    </v-tooltip>
-
-    <v-tooltip bottom z-index=100>
-      <template v-slot:activator="{ on }">
-        <v-btn
-          v-if="$vuetify.breakpoint.smAndUp"
-          v-on="on"
-          min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
-          text
-          to="/lobby"
-        >
-          <!-- <v-icon color="white">mdi-google-controller</v-icon> -->
-          Lobby
-        </v-btn>
-      </template>
-      <span>Lobby</span>
-    </v-tooltip>
+    <template v-for="top in tops">
+      <v-tooltip bottom z-index=100>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-if="$vuetify.breakpoint.smAndUp"
+            v-on="on"
+            min-width="0"
+            class="fq-btn top-btn"
+            exact-active-class="fq-btn-active"
+            text
+            :to="top.to"
+          >
+            {{top.name}}
+          </v-btn>
+        </template>
+        <span>{{top.name}}</span>
+      </v-tooltip>
+    </template>
 
     <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
@@ -90,10 +58,10 @@
           v-on="on"
           min-width="0"
           text
-          style="padding: 10px 10px !important; margin: 0 1px;"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           @click.stop="showInstruction"
         >
-          <!-- <v-icon color="white">mdi-information-outline</v-icon> -->
           Instructions
         </v-btn>
         </template>
@@ -113,13 +81,14 @@
       <template v-slot:activator="{ attrs, on }">
         <v-btn
           min-width="0"
-          style="padding: 10px 10px !important; margin: 0 1px;"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           text
           v-bind="attrs"
           v-on="on"
         >
           <v-icon :left="isAuthenticated" color="white">mdi-account</v-icon>
-          <span class="white--text" v-if="isAuthenticated && authUser">{{authUser.displayname}}</span>
+          <span class="white--text" v-if="isAuthenticated && authUser">{{ authBtnLabel }} | <span class="gold--text lighten-1 font-weight-bold">{{myMoney}}</span></span>
         </v-btn>
       </template>
 
@@ -129,69 +98,105 @@
         nav
       >
         <div>
-          <v-btn
-            text
-            v-if="!isAuthenticated"
-            @click="launchLogin"
-            block
-            plain
-          >
-            Login
-          </v-btn>
-          
+                   
           <v-btn
             text
             v-if="isAuthenticated"
             @click="showProfileDlg"
+            class="fq-menu-item"
             block
             plain
           >
+            <v-icon color="white" left>mdi-account-box</v-icon>
             View Profile
           </v-btn>
           <v-btn
             text
             v-if="isAuthenticated"
             @click="accountDlg=true"
+            class="fq-menu-item"
             block
             plain
           >
+            <v-icon color="white" left>mdi-account-circle-outline</v-icon>
             Your Account
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
           <v-btn
             text
             v-if="isAuthenticated"
+            class="fq-menu-item"
             @click="referralDlg=true"
             block
             plain
           >
+            <v-icon color="white" left>mdi-account-network</v-icon>
             Refer a Friend
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
           <v-btn
             text
             v-if="isAuthenticated"
-            to="leaderboard"
+            class="fq-menu-item"
+            to="/history/contest"
             block
             plain
           >
+            <v-icon color="white" left>mdi-sofa-outline</v-icon>
+            Old Contests
+          </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            class="fq-menu-item"
+            to="/leaderboard"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-view-dashboard-outline</v-icon>
             Leaderboard
+          </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            class="fq-menu-item"
+            to="/faq"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-help-circle-outline</v-icon>
+            FAQ
+          </v-btn>
+          <v-divider />
+          <v-btn
+            text
+            v-if="!isAuthenticated"
+            @click="launchLogin"
+            class="fq-menu-item"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-login</v-icon>
+            Login
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
           <v-btn
             v-if="isAuthenticated"
             text
+            class="fq-menu-item"
             @click="logout"
             block
             plain
           >
+            <v-icon color="white" left>mdi-logout</v-icon>
             Logout
           </v-btn>
         </div>
       </v-list>
     </v-menu>
 
-       <!-- Notifications -->
+    <!-- Notifications -->
     <v-menu
       bottom
       left
@@ -206,6 +211,8 @@
           text
           v-bind="attrs"
           v-on="on"
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
           style="padding: 10px 10px !important; margin: 0 1px;"
         >
           <v-badge
@@ -246,7 +253,7 @@
         </v-list-item-group>
       </v-list>
     </v-menu>
-
+    
     <instruction :value.sync="instructionDlg" @update="instructionDlg=false" />
     <user-profile v-if="isProfileDlg"/>
     <your-account v-if="isAuthenticated" :value.sync="accountDlg" @update="accountDlg=false" />
@@ -309,7 +316,12 @@
       instructionDlg: false,
       profileDlg: false,
       referralDlg: false,
-      accountDlg: false
+      accountDlg: false,
+      tops: [
+        { name: 'Lobby', to:'/'},
+        { name: 'Selection', to:'/selection'},
+        { name: 'Contest', to:'/contest'},
+      ]
     }),
 
     computed: {
@@ -321,7 +333,17 @@
         return this.notifications.length < 100 ? this.notifications.length : '99+'
       },
       isProfileDlg () {
-        return this.$store.getters['auth/selectedUserId']
+        return this.$store.getters['auth/launchProfile']
+      },
+      authBtnLabel () {
+        return this.isAuthenticated && this.authUser.displayname
+      },
+      myMoney () {
+        let coins = this.authUser.coins
+        if (coins > 9999) {
+          coins = '9999+'
+        }
+        return this.isAuthenticated && `F${coins}`
       }
     },
 
@@ -355,14 +377,9 @@
         this.$router.push({ name: 'Chat' })
       },
       showProfileDlg () {
-        this.$store.dispatch('auth/loadProfile', this.authUser.pk || this.authUser.id)
+        this.$store.dispatch('auth/loadProfile')
+        this.$store.commit('auth/showProfileDlg')
       }
     },
   }
 </script>
-
-<style>
-  .instruction-list {
-    list-style: none;
-  }
-</style>

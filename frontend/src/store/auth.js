@@ -1,5 +1,7 @@
 import auth from '../api/auth';
 import session from '../api/session';
+import router from '../router'
+
 import {
   LOGIN_BEGIN,
   LOGIN_FAILURE,
@@ -31,7 +33,8 @@ const initialState = {
   token: localStorage.getItem('TOKEN_STORAGE_KEY'),
   selectedUserId: null,
   loading: false,
-  profile: {}
+  profile: {},
+  launchProfile: false
 };
 
 const getters = {
@@ -39,6 +42,7 @@ const getters = {
   isAuthenticated: state => !!state.token && state.token != 'null',
   authUser: state => state.authUser,
   selectedUserId: state => state.selectedUserId,
+  launchProfile: state => state.launchProfile
 };
 
 const actions = {
@@ -46,26 +50,26 @@ const actions = {
     commit(LOGIN_BEGIN);
     return auth.login(username, password)
       .then(({ data }) => {
-        dispatch('afterLogin', { data })
+        return dispatch('afterLogin', { data })
       })
       .catch((err) => commit(LOGIN_FAILURE, err));
   },
   twitterLogin({ commit }) {
     commit(LOGIN_BEGIN);
-    auth.twitterRequestToken()
+    return auth.twitterRequestToken()
       .then(({data}) => {
         commit(LOGIN_SUCCESS)
         window.location.href = data.twitter_redirect_url
-        localStorage.setItem('return_url', window.location.href)
+        localStorage.setItem('twitterReturn', window.location.href)
       })
       .catch((err) => commit(LOGIN_FAILURE, err))
   },
   twitterCallback({ commit, dispatch }, {oauth_token, oauth_verifier}) {
     commit(LOGIN_BEGIN);
     const url = `auth/twitter/callback/?oauth_token=${oauth_token}&oauth_verifier=${oauth_verifier}`
-    auth.twitterCallback(url)
+    return auth.twitterCallback(url)
       .then(({ data }) => {
-        dispatch('afterLogin', { data, popup:true })
+        return dispatch('afterLogin', { data, popup:true })
       })
       .catch((err) => {
         commit(LOGIN_FAILURE, err)
@@ -75,22 +79,29 @@ const actions = {
   afterLogin ({ commit }, { data, popup }) {
     commit(SET_TOKEN, data.key)
 
-    auth.getAccountDetails()
+    return auth.getAccountDetails()
     .then(({ data }) => {
       commit(SET_AUTH_USER, data)
 
       commit(LOGIN_SUCCESS)
 
-      if (popup) {
-        if (window.opener) {
-          window.opener.location.href = '/'
-          window.close('','_parent','')
-        }
-        const return_url = localStorage.getItem('return_url')
-        window.location.href = return_url || '/'
+      commit('showLoginDlg', false)
+      // return url
+      if (localStorage.getItem('returnUrl')) {
+        router.push({path: localStorage.getItem('returnUrl')})
+      } else if (localStorage.getItem('twitterReturn')) {
+        window.location.href = localStorage.getItem('twitterReturn')
       }
 
-      commit('showLoginDlg', false)
+      // if (popup) {
+      //   if (window.opener) {
+      //     window.opener.location.href = '/'
+      //     window.close('','_parent','')
+      //   }
+      //   const returnUrl = localStorage.getItem('returnUrl')
+      //   window.location.href = returnUrl || '/'
+      // }
+
       // check if user already took part in this contest
       // auth.checkAlreadyTaken(data.pk)
       // .then(({data}) => {
@@ -106,17 +117,20 @@ const actions = {
       })
       .catch((err) => commit(LOGIN_FAILURE, err));
   },
-  loadProfile({ commit, state }, payload) {
+  loadProfile({ commit, state }, payload=-1) {
+    if (payload == -1) {
+      payload = state.authUser.pk || state.authUser.id
+    }
     commit('setLoading', true)
-    console.log(payload)
     commit('setUserId', payload)
     auth.loadProfile(payload)
       .then(({data}) => {
-        commit('setProfile', data)
         commit('setLoading', false)
+        commit('setProfile', data)
       })
   },
   logout({ commit }) {
+    localStorage.setItem('returnUrl', '')
     return auth.logout()
       .then(() => commit(LOGOUT))
       .finally(() => commit(REMOVE_TOKEN));
@@ -177,6 +191,9 @@ const mutations = {
   },
   showLoginDlg(state, payload=true) {
     state.launchLogin = payload
+  },
+  showProfileDlg(state, payload=true) {
+    state.launchProfile = payload
   },
   setUserId(state, payload) {
     state.selectedUserId = payload

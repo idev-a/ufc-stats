@@ -9,7 +9,8 @@ const requireAuthenticated = (to, from, next) => {
     .then(() => {
       if (!self.getters['auth/isAuthenticated']) {
         if (from != to) { 
-          next('/')
+          localStorage.setItem('returnUrl', to.fullPath)
+          next({path: '/', query: {nextUrl: to.fullPath}})
           self.commit('auth/showLoginDlg')
         }
       } else {
@@ -48,18 +49,19 @@ let router = new Router({
       component: () => import('@/views/dashboard/Index'),
       children: [
         {
-          name: 'Selection',
-          path: '',
-          component: () => import('@/views/dashboard/selection/SelectionContainer'),
+          name: 'Lobby',
+          path: '/',
+          component: () => import('@/views/dashboard/lobby/LobbyContainer'),
+          // beforeEnter: requireAuthenticated
         },
         {
-          name: 'Game',
-          path: '/game/:type',
+          name: 'Selection',
+          path: '/selection/:game_id?',
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
           name: 'Contest',
-          path: 'contest',
+          path: 'contest/:game_id?',
           component: () => import('@/views/dashboard/contest/ContestContainer'),
           beforeEnter: requireAuthenticated
         },
@@ -75,10 +77,21 @@ let router = new Router({
           component: () => import('@/views/dashboard/referral/ReferralCallback'),
         },
         {
-          name: 'Lobby',
-          path: 'lobby',
-          component: () => import('@/views/dashboard/lobby/LobbyContainer'),
+          name: 'Old Contests',
+          path: 'history/contest',
+          component: () => import('@/views/dashboard/history/ContestHistoryContainer'),
           beforeEnter: requireAuthenticated
+        },
+        {
+          name: 'MyContestDetail',
+          path: 'history/contest/:event_id/:game_id',
+          component: () => import('@/views/dashboard/history/ContestHistoryDetailContainer'),
+          beforeEnter: requireAuthenticated
+        },
+        {
+          name: 'FAQ',
+          path: '/faq',
+          component: () => import('@/views/dashboard/faq/Faq'),
         },
       ],
     },

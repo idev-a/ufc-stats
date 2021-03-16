@@ -1,4 +1,5 @@
 from django.contrib import admin
+from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib.auth.models import Group
 from .models import (
 	Event,
@@ -10,7 +11,9 @@ from .models import (
 	Game,
 	ChatRoom,
 	ChatFile,
-	ChatMessage
+	ChatMessage,
+	Faq,
+	Ticket,
 )
 
 # Register your models here.
@@ -19,7 +22,7 @@ class CustomUserAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
 	search_fields = ('username', 'displayname', 'email', )
-	list_display = ('username', 'email', 'displayname', "date_joined", "fq_points", 'referred_by', 'id', )
+	list_display = ('username', 'email', 'displayname', "date_joined", "coins", 'referred_by', 'id', )
 
 	class Meta:
 		ordering = ("email", 'date_joined', )
@@ -72,15 +75,22 @@ class SelectionAdmin(admin.ModelAdmin):
 	class Meta:
 		ordering = ('entry', "bout", )
 
+class GameFilter(AutocompleteFilter):
+    title = 'Event' # display title
+    field_name = 'event' # name of the foreign key field
+
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
+	list_filter = [GameFilter]
 
-	search_fields = ('name', 'event__name', 'type_of_registration', 'entrants__username', 'instructions', 'rules_set', 'date_started', )
-	list_display = ('name', 'event', 'type_of_registration', 'info_entrants', 'info_joined', 'short_instructions', 'short_rules_set', 'date_started',)
+	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
+	list_display = ('name', 'event', 'type_of_registration', 'genre', 'info_entrants', 'info_joined', 'summary', 'short_rules_set', 'date',)
+
+	filter_horizontal = ("joined_users", "entrants")
 
 	class Meta:
-		ordering = ('event', 'date_started', )
+		ordering = ('event', 'date', )
 
 # Chat
 
@@ -101,5 +111,28 @@ class ChatMessgaeAdmin(admin.ModelAdmin):
 
 	class Meta:
 		ordering = ('timestamp', "sender", )
+
+# FAQ
+@admin.register(Faq)
+class FaqAdmin(admin.ModelAdmin):
+	list_per_page = 20
+
+	search_fields = ('question', 'answer', )
+	list_display = ('question', 'answer', )
+
+	class Meta:
+		ordering = ('question', )
+
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+	list_per_page = 20
+
+	search_fields = ('title', 'message', 'status', 'answer', 'creator__username')
+	list_display = ('title', 'message', 'status', 'answer', 'creator', 'delivered', 'resolved', )
+
+	readonly_fields = ["title", "message", "delivered"]
+
+	class Meta:
+		ordering = ('delivered', 'title', )
 
 # admin.site.unregister(Group)

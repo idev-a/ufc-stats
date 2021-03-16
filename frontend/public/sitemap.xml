@@ -19,14 +19,26 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://fightquake.com/lobby</loc>
-    <lastmod>2021-02-03</lastmod>
+    <loc>https://fightquake.com/selection</loc>
+    <lastmod>2021-02-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://fightquake.com/rf/</loc>
     <lastmod>2021-02-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fightquake.com/history/contest/</loc>
+    <lastmod>2021-02-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://fightquake.com/faq</loc>
+    <lastmod>2021-03-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>

@@ -14,6 +14,7 @@ import os
 from decouple import config
 import dj_database_url
 from datetime import timedelta
+import logging.config
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -82,7 +83,8 @@ INSTALLED_APPS = [
     'channels',
     'contest.apps.ContestConfig',
     'django_celery_results',
-    'django_celery_beat'
+    'django_celery_beat',
+    'admin_auto_filters'
 ]
 
 SITE_ID = 2
@@ -122,8 +124,8 @@ WSGI_APPLICATION = 'fighter.wsgi.application'
 
 
 # Logging
-LOG_PATH = STATIC_ROOT = os.path.join(BASE_DIR, 'logs/fighter.log')
-LOGGING = {
+LOG_PATH = os.path.join(BASE_DIR, 'logs/fighter.log')
+logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
@@ -136,24 +138,17 @@ LOGGING = {
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
     'handlers': {
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'simple'
+            'formatter': 'verbose'
         },
         'file': {
-            'level': 'INFO',
-            'filters': ['require_debug_true'],
-            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'level': 'DEBUG',
             'filename': LOG_PATH,
-            'formatter': 'simple',
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
             'encoding': 'utf-8'
         },
         'mail_admins': {
@@ -164,7 +159,8 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': [config('LOG_HANDLER')],
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
             'propagate': True,
         },
         'django.request': {
@@ -173,7 +169,7 @@ LOGGING = {
             'propagate': False,
         },
     }
-}
+})
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

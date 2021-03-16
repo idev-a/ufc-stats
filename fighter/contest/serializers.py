@@ -9,7 +9,9 @@ from contest.models import (
 	CustomUser,
 	ChatRoom,
 	ChatFile,
-	ChatMessage
+	ChatMessage,
+	Faq,
+	Ticket
 )
 from rest_framework import serializers
 from rest_flex_fields import FlexFieldsModelSerializer
@@ -24,7 +26,7 @@ import pdb
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'username', 'displayname', 'email', 'fq_points', 'initials', 'avatar', 'referred_by', 'date_joined']
+		fields = ['id', 'username', 'displayname', 'email', 'coins', 'initials', 'avatar', 'referred_by', 'date_joined']
 
 
 class CustomRegisterSerializer(RegisterSerializer):
@@ -101,3 +103,15 @@ class ChatMessageSerializer(FlexFieldsModelSerializer):
 		expandable_fields = {
           'reply_message': ('contest.ChatMessageSerializer')
         }
+
+# FAQ
+
+class FaqSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Faq
+		fields = '__all__'
+
+class TicketSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = Ticket
+		fields = '__all__'

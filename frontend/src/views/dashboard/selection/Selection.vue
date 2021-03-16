@@ -7,22 +7,25 @@
       :loading="loading"
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
-      <v-card-title 
-        v-if="curContest" 
-        class="popup-header grab text-center ustify-center font-weight-medium mb-0"
-      >
-        <div style="width: 100%">
-          <div class="grab">{{ contestName }}</div>
-          <div class="grab subtitle-2">
-            <span>{{ contestDate }}</span>
-            <span v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</span>
-            <flip-countdown @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
-          </div>
-          <div class="grab overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
-        </div>
-      </v-card-title>
       <v-row dense>
         <v-col cols=12 md=6 >
+          <v-card-title 
+            v-if="curContest" 
+            class="font-weight-medium mb-0"
+          >
+            <div class="text-center w-100">
+              <div class="d-flex justify-center" style="position: relative;">
+                <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
+                <money :curContest="curContest" />
+              </div>
+              <div class="subtitle-2 ">
+                <span>{{ contestDate }}</span>
+              </div>
+              <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
+              <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
+              <div class="overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
+            </div>
+          </v-card-title>
           <v-card-text
             class="pb-0"
             style="position: relative;"
@@ -67,63 +70,92 @@
             </div>
             <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
           </v-card-text>
-          <div class="d-flex justify-center mt-2 mr-2">
-            <v-btn 
-              class="success my-2 mr-2" 
-              :disabled="submitDisabled"
-              :loading="loading"
-              small
-              @click="submit"
-            >
-              Submit
-            </v-btn>
-            <v-btn 
-              class="grey darken-2 my-2" 
-              :disabled="!squadSize || eventStarted" 
-              :loading="loading"
-              small 
-              @click="clearSelection"
-            >
-              <v-icon small left>mdi-cancel</v-icon>Clear
-            </v-btn>
+          <div class="d-flex justify-center my-2 mr-2">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="success mr-2" 
+                  :disabled="submitDisabled"
+                  :loading="loading"
+                  small
+                  v-on="on"
+                  @click="submit"
+                >
+                  Submit
+                </v-btn>
+              </template>
+              <span>Submit Selection</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="grey darken-2 mr-2" 
+                  :disabled="!squadSize || eventStarted" 
+                  :loading="loading"
+                  small 
+                  v-on="on"
+                  @click="clearSelection"
+                >
+                  <v-icon small left>mdi-cancel</v-icon>Clear
+                </v-btn>
+              </template>
+              <span>Clear Selection</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  small
+                  v-on="on"
+                  @click="copyLink"
+                >
+                  <v-icon size="24" color="twitter">mdi-twitter</v-icon>
+                </v-btn>
+              </template>
+              <span>COPY: {{tweetShareLink}}</span>
+            </v-tooltip>
           </div>
-          <v-autocomplete 
-            :loading="loading"
-            v-model="curGame"
-            :items="games"
-            chips
-            label="Select Contest"
-            class="mx-5 py-0"
-            @change="changeGame"
-          >
-            <template v-slot:selection="data">
-              <v-chip
-                v-bind="data.attrs"
-                :input-value="data.selected"
-                @click="data.select"
-              >
-                {{ data.item.name }}
-              </v-chip>
-            </template>
-            <template v-slot:item="data">
-              <template v-if="typeof data.item !== 'object'">
-                <v-list-item-content v-text="data.item"></v-list-item-content>
-              </template>
-              <template v-else>
-                <v-list-item-content>
-                  <v-list-item-title v-html="data.item.name"></v-list-item-title>
-                </v-list-item-content>
-              </template>
-            </template>
-          </v-autocomplete>
+          
         </v-col>
         <v-col cols=12 md=6>
-          <instruction-body :key="key" :rulesSet="rulesSet" :instructions="instructions" v-if="needsInstruction" />
+          <v-card-title 
+          >
+            <v-autocomplete 
+              :loading="loading"
+              v-model="curGame"
+              :items="games"
+              chips
+              label="Select Contest"
+              class="mx-5"
+              @change="changeGame"
+            >
+              <template v-slot:selection="data">
+                <v-chip
+                  v-bind="data.attrs"
+                  :input-value="data.selected"
+                  @click="data.select"
+                >
+                  {{ data.item.name }}
+                </v-chip>
+              </template>
+              <template v-slot:item="data">
+                <template v-if="typeof data.item !== 'object'">
+                  <v-list-item-content v-text="data.item"></v-list-item-content>
+                </template>
+                <template v-else>
+                  <v-list-item-content>
+                    <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                  </v-list-item-content>
+                </template>
+              </template>
+            </v-autocomplete>
+          </v-card-title>
+          <contest-summary :key="key" :rulesSet="rulesSet" :summary="summary" v-if="needsInstruction" />
         </v-col>
       </v-row>
     </v-card>
 
-    
+    <!-- hidden -->
+    <input type="hidden" id="twitterLink" :value="tweetShareLink" name="">
   </div>
 </template>
 
@@ -131,10 +163,11 @@
   let ROOT_PATH = 'http://localhost:8085'
   import main from '@/api/main'
   import { beautifyDate, equals } from '@/util'
-  import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET } from '@/constants/constant'
+  import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET, DEFAULT_SUMMARY } from '@/constants/constant'
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
-  import InstructionBody from "../instruction/InstructionBody";
+  import Money from "./Money";
+  import ContestSummary from "./ContestSummary";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
   export default {
@@ -142,8 +175,11 @@
 
     components: {
       FlipCountdown,
-      InstructionBody
+      ContestSummary,
+      Money
     },
+
+    props: ['game_id'],
 
     watch: {
       event: {
@@ -168,7 +204,7 @@
         selectedItem: -1,
         contests: {},
         snackbar: {
-          snack: false,
+          snack: true,
           message: '',
           status: 'success'
         },
@@ -181,6 +217,7 @@
         curGame: -1,
         instructions: [],
         rulesSet: [],
+        summary: '',
         key: 0,
         side: true
       }
@@ -194,17 +231,10 @@
         return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
       },
       contestName () {
-        if (this.curGame == -1) {
-          return this.event.name
-        } else {
-          let name = ''
-          this.games.map(game => {
-            if (game.value == this.curGame) {
-              name = game.name
-            }
-          })
-          return name
-        }
+        return this.curContest && this.curContest.name || ""
+      },
+      isPaidContest () {
+        return this.curContest && this.curContest.genre == 'paid'
       },
       curContest () {
         let contest = undefined
@@ -219,17 +249,18 @@
         }
         return contest
       },
-      contestDate () {
-        return beautifyDate(this.curContest.date)
-      },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
+      },
+      contestDate () {
+        return beautifyDate(this.curContest.date)
       },
       eventStarted () {
         return this.curContest && this.curContest.action != '' || this.countdownEnd
       },
       countable () {
-        return this.deadline2 && !this.eventStarted
+        const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')
+        return this.deadline2 && !this.eventStarted && diff == 0
       },
       totalFighters () {
         return this.bouts && this.bouts.length * 2 || 0
@@ -259,16 +290,31 @@
       },
       defaultRulesSet () {
         return DEFAULT_RULES_SET
+      },
+      defaultSummary () {
+        return DEFAULT_SUMMARY
+      },
+      tweetShareLink () {
+        let link = `${process.env.VUE_APP_URL}/contest/${this.curGame}`
+        if (this.curGame == -1) {
+          link = `${process.env.VUE_APP_URL}/contest`
+        }
+        return link
       }
     },
 
     async mounted () {
+      this.curGame = +this.game_id || -1
+
       this.loading = true
       await this.getFighters()
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
-      await this.getLatestData()
+      this.summary = this.defaultSummary
+      await this.getLatestData(this.game_id || -1)
       this.loading = false
+
+      // return login
     },
     methods: {
       beautifyDate,
@@ -314,7 +360,7 @@
           this.$store.commit('auth/showLoginDlg')
           return
         }
-        const event_id = this.bouts[0].event
+        const event_id = this.curContest.id || this.curContest.event_id
         const payload = {
           entry: {
             game: this.curGame,
@@ -356,7 +402,7 @@
 
         if (data.status == 'success') {
           const self = this
-          setTimeout(function(){ self.$router.push('Contest'); }, 1200);
+          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
         }
       },
       clearSelection () {
@@ -378,10 +424,12 @@
         await this.getLatestData(item)
         if (item == -1) {
           this.instructions = this.defaultInstructions
+          this.summary = this.defaultSummary
           this.rulesSet = this.defaultRulesSet
         } else {
           this.instructions = this.curContest.instructions.split('\n')
           this.rulesSet = this.curContest.rules_set.split('\n')
+          this.summary = this.curContest.summary
           this.key++
         }
         this.startCountDown(this.curContest.date)
@@ -389,26 +437,37 @@
       },
       collapseSide () {
         this.side = !this.side
+      },
+      copyLink () {
+        let testingCodeToCopy = document.querySelector('#twitterLink')
+        testingCodeToCopy.setAttribute('type', 'text')
+        testingCodeToCopy.select()
+
+        try {
+          var successful = document.execCommand('copy');
+          this.snackbar.message = successful ? 'Copied' : 'Cannot copy';
+          this.snackbar.status = successful ? 'success' : 'warning';
+        } catch (err) {
+          this.snackbar.message = 'Oops, unable to copy';
+        }
+
+        /* unselect the range */
+        testingCodeToCopy.setAttribute('type', 'hidden')
+        window.getSelection().removeAllRanges()
+        this.$store.commit('snackbar/setSnack', this.snackbar)
       }
     }
   }
 </script>
 
-<style>
+<style lang="scss">
   .v-list .v-subheader{
     height: 15px;
     color: #008000;
   }
-</style>
 
-<style lang="scss">
   #selection {
     
-  //  .selection-card, .selection-card * {
-  //    background-color: transparent;
-  //    backdrop-filter: blur(30px) contrast(.9);
-  //  }
-
     .v-btn-toggle {
       display: flex;
 

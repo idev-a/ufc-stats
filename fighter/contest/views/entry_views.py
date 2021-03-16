@@ -15,6 +15,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 import requests
 from datetime import datetime
+import logging
 
 from contest.decorators import paginate
 from contest.models import (
@@ -38,6 +39,7 @@ from contest.serializers import (
 )
 
 import pdb
+logger = logging.getLogger(__name__)
 
 def _exist(item, arr):
     is_exist = False
@@ -70,45 +72,47 @@ def _calc_suv_win_loss(survivor1, survivor2, winner, loser):
 
     return wins, losses
 
-def update_rank(event_id):
-    selections = Selection.objects.filter(entry__event_id=event_id)
+def _update_game_rank(selections):
     entry_views = get_entry_views(selections)
     status = 200
     try:
+        total_quaked = 0
+        for _ in entry_views:
+            if _['died']:
+                total_quaked += 1
+
         for _ in entry_views:
             entry = get_object_or_404(Entry, pk=_['id'])
-            entry.rank = _['rank']
-            entry.save()
+            if entry.game and entry.game.genre != 'free':
+                if total_quaked == len(entry_views):
+                    # should refund buyin
+                    entry.user.coins += entry.game.buyin
+                if _['ranking'] == 1 and len(_['died']) == 0:
+                    entry.user.coins += entry.game.prize
+
+                entry.user.save()
     except Entry.DoesNotExist:
         status = 404
+    return status
 
-    return Response(dict(status=status))
+def update_rank(event_id):
+    # Single Game
+    selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
+    status = _update_game_rank(selections)
 
-def get_games(latest_event, game_id, user_id):
-    games = [{ 'header': 'Single' }]
-    games.append(dict(
-        name=latest_event.name,
-        group='Single',
-        date=latest_event.date,
-        value=-1
-    ))
-    multi_games = Game.objects.filter(joined_users__pk=user_id)
-    if multi_games:
-        games.append({ 'header': 'Multiple' })
-        for _ in multi_games:
-            games.append(dict(
-                name=_.event.name,
-                group='Multiple',
-                date=_.event.date,
-                value=_.id
-            ))
+    # Mutiple games
+    games = Game.objects.filter(event_id=event_id)
+    for game in games:
+        selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game.id)
+        status = _update_game_rank(selections)
 
-    return games
+    return Response(dict(message='ok', status=status))
 
 def get_entry_views(selections):
     score = {}
     default_score = {
         'id': '',
+        'game_id': -1,
         'entry': '',
         'method': '', 
         'survived': 0,
@@ -131,6 +135,9 @@ def get_entry_views(selections):
         winner_id = bout.winner and bout.winner.id # winner from bout
         score[username_id] = score.get(username_id, copy.deepcopy(default_score))
         score[username_id]['id'] = username_id
+        score[username_id]['game_id'] = -1
+        if selection.entry.game and selection.entry.game.id:
+            score[username_id]['game_id'] = selection.entry.game.id
         score[username_id]['entry'] = selection.entry.user.displayname
         score[username_id]['user_id'] = selection.entry.user.id
         score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
@@ -151,6 +158,7 @@ def get_entry_views(selections):
                 'name': _s1.name,
                 'win': _s1.id == winner.get('id'),
                 'lose': _s1.id == loser.get('id'),
+                'draw': bout.status == 'drawn',
                 'entry_cnt': len(_count_entries(_s1 and _s1.id, selections))
             }
         survivor2 = {}
@@ -161,6 +169,7 @@ def get_entry_views(selections):
                 'name': _s2.name,
                 'win': _s2.id == winner.get('id'),
                 'lose': _s2.id == loser.get('id'),
+                'draw': bout.status == 'drawn',
                 'entry_cnt': len(_count_entries(_s2 and _s2.id, selections))  
             }
 
@@ -182,7 +191,7 @@ def get_entry_views(selections):
         score[username_id]['losers'].append(loser)
         
         # remainings
-        if bout.status != 'completed':
+        if bout.status == 'started' or bout.status == 'pending':
             if selection.survivor1_id != None:
                 score[username_id]['remainings'] += 1
             if selection.survivor2_id != None:
@@ -209,14 +218,32 @@ def get_entry_views(selections):
             score[username_id]['wins'] += wins
             score[username_id]['losses'] += losses
 
+        # some bouts end with no contest, UFC says CNC
+        # we consider those fighters survive, and neither wins
+        if bout.method == 'CNC':
+            if survivor1:
+                score[username_id]['survived'] += 1
+            if survivor2:
+                score[username_id]['survived'] += 1
+
     entry_views = score.values()
     entry_views = sorted(entry_views, reverse=True,  key=lambda x: (len(x['died'])*-1, x['survived'], x['wins'], x['last_edited']*-1)) 
 
+    ranking = 1
+    prev_entry = {}
     for x, entry in enumerate(entry_views):
-        entry['ranking'] = x+1
+        if x > 0:
+            prev_entry = entry_views[x-1]
+        if prev_entry:
+            if prev_entry['survived'] != entry['survived'] or prev_entry['wins'] != entry['wins']:
+                ranking += 1
+        entry['ranking'] = ranking
         # not sure whether entry model should be updated at this time regarding ranking
         _entry = get_object_or_404(Entry, pk=entry['id'])
-        _entry.ranking = x+1
+        _entry.survived = entry['survived']
+        _entry.wins = entry['wins']
+        _entry.quaked = len(entry['died'])
+        _entry.ranking = ranking
         _entry.save()
 
     return entry_views
@@ -243,6 +270,7 @@ def get_fight_views(selections):
                 winner=_bout.winner and _bout.winner.name,
                 loser=_bout.loser and _bout.loser.name,
                 died=died,
+                draw=_bout.status == 'drawn',
                 status=_bout.status,
                 method=_bout.method,
                 round=_bout.round,
@@ -272,18 +300,18 @@ def get_leaderboard_view(entries):
                 first_place=0,
                 second_place=0,
                 third_place=0,
-                fq_points=_user.fq_points # fq_points from user
+                coins=_user.coins # coins from user
             ) 
             
         if entry.ranking == 1:
             view['first_place'] += 1
-            view['fq_points'] += 100 
+            # view['coins'] += 100 
         elif entry.ranking == 2:
             view['second_place'] += 1
-            view['fq_points'] += 10 
+            # view['coins'] += 10 
         elif entry.ranking == 3:
             view['third_place'] += 1
-            view['fq_points'] += 1 
+            # view['coins'] += 1 
 
             '''
                 FQ points rule
@@ -297,13 +325,12 @@ def get_leaderboard_view(entries):
 
     leaderboard_views = data.values()
     # leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['first_place'], x['second_place'], x['third_place'])) 
-    leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['fq_points']))
+    leaderboard_views = sorted(leaderboard_views, reverse=True,  key=lambda x: (x['coins']))
 
     for x, _ in enumerate(leaderboard_views):
         _['ranking'] = x+1
 
     return leaderboard_views
-
 
 class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -324,14 +351,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def get_latestcontest(self, request, **kwarg):
         latest_event = Event.objects.filter(status='upcoming').latest('-date')
         game_id = request.data['game_id']
-        if game_id == -1:
+        if int(game_id) == -1:
             selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
         else:
-            selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game_id=game_id)
+            selections = Selection.objects.filter(entry__game_id=game_id)
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
-        games = get_games(latest_event, request.data['game_id'], request.user.id)
+        games = Game.objects.get_games(latest_event, request.user.id)
 
         return Response(dict(
             bout_views=bout_views,
@@ -339,6 +366,95 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             event=EventSerializer(latest_event).data,
             games=games
         ))
+
+    @action(methods=['post'], detail=False)
+    def get_contest_history(self, request, **kwarg):
+        try:
+            user_id = request.user.id
+            entries = Entry.objects.filter(user_id=user_id)
+            games = []
+            for _ in entries:
+                game = _.event
+                game_id = -1
+                if _.game:
+                    game_id = _.game.id
+                    game = _.game
+                ranking = _.ranking
+                if _.event.action != 'completed':
+                    ranking = '-'
+                games.append(dict(
+                    id=_.id,
+                    event_id=_.event.id,
+                    game_id=game_id,
+                    status=_.event.action,
+                    name=game.name,
+                    date=game.date,
+                    ranking=ranking
+                ))
+                games = sorted(games, reverse=True, key=lambda x: (x['date']))
+            return Response(dict(
+                games=games,
+            ), status=200)
+        except Exception as err:
+            logger.warning(str(err))
+            return Response(dict(
+                games=[],
+            ), status=400)
+
+    @action(methods=['post'], detail=False)
+    def get_contest_history_detail(self, request, **kwarg):
+        try:
+            event_id = int(request.data['event_id'])
+            game_id = int(request.data['game_id'])
+            game = None
+            if game_id == -1:
+                selections = Selection.objects.filter(entry__event_id=event_id, entry__game__isnull=True)
+                _event = Event.objects.get(id=event_id)
+                game = dict(
+                    id=-1,
+                    name=_event.name,
+                    event=EventSerializer(_event).data,
+                    type_of_registration='public',
+                    date=_event.date,
+                    action=_event.action,
+                    genre='free',
+                    buyin=0,
+                    prize=0
+                )
+            else:
+                _ = Game.objects.get(id=game_id)
+                game = dict(
+                    id=_.id,
+                    name=_.name,
+                    event=EventSerializer(_.event).data,
+                    type_of_registration=_.type_of_registration,
+                    joined_users=UserSerializer(_.joined_users.all(), many=True).data,
+                    entrants=UserSerializer(_.entrants.all(), many=True).data,
+                    instructions=_.instructions,
+                    rules_set=_.rules_set,
+                    date=_.date,
+                    action=_.action,
+                    genre=_.genre,
+                    buyin=_.buyin,
+                    prize=_.prize,
+                )
+                selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game_id)
+
+            bout_views = get_fight_views(selections)
+            entry_views = get_entry_views(selections)
+            return Response(dict(
+                bout_views=bout_views,
+                entry_views=entry_views,
+                game=game,
+            ), status=200)
+        except Exception as err:
+            logger.warning(str(err))
+            return Response(dict(
+                bout_views=[],
+                entry_views=[],
+                event={},
+            ), status=400)
+
 
     @action(methods=['get'], detail=False)
     def get_leaderboard(self, request, **kwarg):
@@ -360,42 +476,53 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         except Exception as err:
             return Response(dict(entries=[]), status=500)
 
+    @action(methods=['get'], detail=False)
+    def test_update_rank(self, request, **kwarg):
+        event_id = request.query_params['event_id']
+        if event_id:
+            update_rank(event_id)
+        return Response(dict(message='ok'))
+
     def create(self, request):
-        data= request.data['entry']
-        entry = None
-        entry_serializer = None
-        is_exist = False
-        message = 'Successfully done.'
         try:
-            if data['game'] != -1:
-                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+            data= request.data['entry']
+            entry = None
+            entry_serializer = None
+            is_exist = False
+            message = 'Successfully done.'
+            try:
+                if data['game'] != -1:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+                else:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
+            except:
+                pass
+            if entry:
+                is_exist = True
+                message = 'Successfully edited.'
+                data['last_edited'] = datetime.now()
+                entry_serializer = EntrySerializer(entry, data=data)
             else:
-                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
-        except:
-            pass
-        if entry:
-            is_exist = True
-            message = 'Successfully edited.'
-            data['last_edited'] = datetime.now()
-            entry_serializer = EntrySerializer(entry, data=data)
-        else:
-            if data['game'] == -1:
-                data['game'] = None
-            entry_serializer = EntrySerializer(data=data)
+                if data['game'] == -1:
+                    data['game'] = None
+                entry_serializer = EntrySerializer(data=data)
 
-        if entry_serializer.is_valid():
-            entry = entry_serializer.save()
+            if entry_serializer.is_valid():
+                entry = entry_serializer.save()
 
-        Selection.objects.filter(entry_id=entry.id).delete()
-        for selection in request.data['selections']:
-            selection['entry'] = entry.id
+            Selection.objects.filter(entry_id=entry.id).delete()
+            for selection in request.data['selections']:
+                selection['entry'] = entry.id
 
-        selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
-        if selection_serializer.is_valid():
-            selection_serializer.save()
-            return Response({'status': 'success', 'message': message})
-
-        return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+            selection_serializer = SelectionSerializer(data=request.data['selections'], many=True)
+            if selection_serializer.is_valid():
+                selection_serializer.save()
+                return Response({'status': 'success', 'message': message})
+            
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+        except Exception as err:
+            logger.warning(str(err))
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
 
     
 

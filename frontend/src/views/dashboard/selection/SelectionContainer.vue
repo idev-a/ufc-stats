@@ -5,7 +5,7 @@
     class="d-flex justify-center pa-1"
   >
     <div style="width: 100%" v-if="$vuetify.breakpoint.mobile">
-      <selection />
+      <selection :game_id="game_id"/>
     </div>
     <dialog-drag
       v-else
@@ -19,7 +19,7 @@
         width: 800
       }"
     >
-      <selection />
+      <selection :game_id="game_id"/>
     </dialog-drag>
   </v-container>
 </template>
@@ -42,6 +42,9 @@
       _width () {
         return this.$vuetify.breakpoint.mobile ? 340 : 370
       },
+      game_id () {
+        return this.$route.params.game_id
+      }
     },
 
     methods: {

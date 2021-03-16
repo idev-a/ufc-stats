@@ -2,7 +2,7 @@
   <div>
     <v-card
       min-width="50%"
-      flat
+      tile
       class="mt-0"
       style="background: none;"
     >
@@ -33,7 +33,6 @@
         :expanded.sync="expanded"
         :item-class="entryItemClass"
         mobile-breakpoint="0"
-       
       > 
         <template v-slot:item.ranking="{ item }">
           <span :class="highlight(item)" class="font-weight-bold">{{item.ranking}}
@@ -229,6 +228,7 @@
       },
       showUserProfile (item) {
         this.$store.dispatch('auth/loadProfile', item.user_id)
+        this.$store.commit('auth/showProfileDlg')
       }
     }
   }

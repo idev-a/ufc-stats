@@ -24,7 +24,8 @@ from contest.views import (
     user_views,
     chat_views,
     social_views,
-    game_views
+    game_views,
+    faq_views
 )
 from rest_framework_extensions.routers import ExtendedSimpleRouter
 from rest_framework.routers import DefaultRouter
@@ -44,6 +45,7 @@ router.register(r'^entries', entry_views.EntryViewSet)
 router.register(r'^games', game_views.GameViewSet)
 router.register(r'^users', user_views.UserViewSet)
 router.register(r'^groups', general_views.GroupViewSet)
+router.register(r'^faqs', faq_views.FaqViewSet)
 
 # chat
 router.register(r'^chat/rooms', chat_views.ChatRoomViewSet)
