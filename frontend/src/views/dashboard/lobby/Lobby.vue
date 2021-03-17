@@ -88,7 +88,7 @@
                     fab
                     x-small
                     class="my-1" 
-                    :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(curGame) == 'LIVE'}"
+                    :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(item) == 'LIVE'}"
                     :disabled="canJoin(item) == 'No enough coins'" 
                     @click.stop="joinContest(item)"
                   >

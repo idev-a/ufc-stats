@@ -44,7 +44,9 @@ def show__games(user_id):
             buyin=0,
             buyin_bonus=0,
             prize=0,
-            action=event.action
+            action=event.action,
+            re_entry=False,
+            retry_times=1
         )
     if user_id:
         for _ in Game.objects.filter(entrants__pk=user_id).filter(event__action=''):
@@ -63,7 +65,9 @@ def show__games(user_id):
                 summary=_.summary,
                 rules_set=_.rules_set,
                 date=_.date,
-                action=_.action
+                action=_.action,
+                re_entry=_.re_entry,
+                retry_times=_.retry_times
             )
 
 

@@ -113,11 +113,13 @@ class UserViewSet(viewsets.ModelViewSet):
             for _ in entries:
                 game_id = _.game and _.game.id or -1
                 ranking = _.ranking
-                if _.event.action != 'completed':
-                    ranking = '-'
                 prize = 0
                 if _.game:
-                    prize = _.game.prize / Entry.objects.get_total_winners(_.game.id)
+                    prize = "{:10.2f}".format(_.game.prize / Entry.objects.get_total_winners(_.game.id))
+                
+                if _.event.action != 'completed':
+                    ranking = '-'
+                    prize = 0
                 data['contest_history'].append(dict(
                     id= _.id,
                     event_id=_.event.id,

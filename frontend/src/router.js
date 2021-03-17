@@ -56,7 +56,7 @@ let router = new Router({
         },
         {
           name: 'Selection',
-          path: '/selection/:game_id?',
+          path: '/selection/:game_id?/:retry_number?',
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {

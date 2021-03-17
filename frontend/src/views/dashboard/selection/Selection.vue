@@ -20,6 +20,12 @@
               </div>
               <div class="subtitle-2 ">
                 <span>{{ contestDate }}</span>
+                <v-tooltip right>
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on" v-if="isTournament" color="info" size=22> mdi-tournament mdi-rotate-270</v-icon>
+                  </template>
+                  <span>Tournament Type</span>
+                </v-tooltip>
               </div>
               <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
               <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
@@ -84,7 +90,7 @@
                   Submit
                 </v-btn>
               </template>
-              <span>Submit Selection</span>
+              <span>Submit & Go Contest</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -100,6 +106,42 @@
                 </v-btn>
               </template>
               <span>Clear Selection</span>
+            </v-tooltip>
+            <v-tooltip
+              v-if="isTournament"
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="info mr-2" 
+                  :disabled="!hasPrevRetryNumber" 
+                  :loading="loading"
+                  small 
+                  v-on="on"
+                  @click="gotoPrevEntry"
+                >
+                  <v-icon small>mdi-step-backward</v-icon>
+                </v-btn>
+              </template>
+              <span>Sumbit & Go Prev Entry</span>
+            </v-tooltip>
+            <v-tooltip
+              v-if="isTournament"
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="info mr-2" 
+                  :disabled="!hasNextRetryNumber" 
+                  :loading="loading"
+                  small 
+                  v-on="on"
+                  @click="gotoNextEntry"
+                >
+                  <v-icon small>mdi-step-forward</v-icon>
+                </v-btn>
+              </template>
+              <span>Sumbit & Go Next Entry</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -134,7 +176,7 @@
                   :input-value="data.selected"
                   @click="data.select"
                 >
-                  {{ data.item.name }}
+                  {{ gameName(data.item) }}
                 </v-chip>
               </template>
               <template v-slot:item="data">
@@ -179,7 +221,7 @@
       Money
     },
 
-    props: ['game_id'],
+    props: ['game_id', 'retry_number'],
 
     watch: {
       event: {
@@ -190,6 +232,9 @@
         },
         deep: true
       },
+      isTournament (val) {
+        this.key++
+      }
     },
 
     data () {
@@ -228,13 +273,7 @@
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
-        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
-      },
-      contestName () {
-        return this.curContest && this.curContest.name || ""
-      },
-      isPaidContest () {
-        return this.curContest && this.curContest.genre == 'paid'
+        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started || !this._validRetryNumber()
       },
       curContest () {
         let contest = undefined
@@ -248,6 +287,18 @@
           })
         }
         return contest
+      },
+      contestName () {
+        return this.curContest && this.curContest.name || ""
+      },
+      isTournament () {
+        return this.curContest && this.curContest.re_entry || false
+      },
+      hasPrevRetryNumber () {
+        return this.isTournament && this.retry_number > 1 && this.curContest.retry_times >= this.retry_number
+      },
+      hasNextRetryNumber () {
+        return this.isTournament && this.retry_number > 0 && this.retry_number < this.curContest.retry_times
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
@@ -299,19 +350,22 @@
         if (this.curGame == -1) {
           link = `${process.env.VUE_APP_URL}/contest`
         }
+        if (this._validRetryNumber()) {
+          link += `/${this.retry_number}`
+        }
         return link
       }
     },
 
     async mounted () {
-      this.curGame = +this.game_id || -1
+      this.curGame = this.game_id || -1
 
       this.loading = true
       await this.getFighters()
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
       this.summary = this.defaultSummary
-      await this.getLatestData(this.game_id || -1)
+      await this.getLatestData()
       this.loading = false
 
       // return login
@@ -335,13 +389,13 @@
           }
         })
       },
-      async getLatestData(game_id=-1) {
-        await this.getLatestEvent(game_id)
+      async getLatestData() {
+        await this.getLatestEvent()
         this.preselectFighters()
         this.changeContests()
       },
-      async getLatestEvent (game_id=-1) {
-        const { data } = await main.getLatestEvent(game_id)
+      async getLatestEvent () {
+        const { data } = await main.getLatestEvent(this.game_id || -1, +this.retry_number)
         this.bouts = data.bouts
         this.$store.commit('SET_EVENT', data.event)
         this.games = data.games
@@ -354,15 +408,32 @@
         const fighters = this.fighters.filter(fighter => fighter.id == id)
         return fighters[0]
       },
-
-      async submit () {
+      gameName (item) {
+        let name = item.name
+        if (item.re_entry) {
+          name += ` (${item.retry_times} Retries)`
+        }
+        return name
+      },
+      _validRetryNumber() {
+        if (this.isTournament) {
+          return this.retry_number > 0 && this.retry_number <= this.curContest.retry_times
+        } else {
+          return true
+        }
+      },
+      async _submit (callback) {
         if (!this.isAuthenticated) {
           this.$store.commit('auth/showLoginDlg')
+          return
+        }
+        if (!this._validRetryNumber()) {
           return
         }
         const event_id = this.curContest.id || this.curContest.event_id
         const payload = {
           entry: {
+            retry_number: this.retry_number,
             game: this.curGame,
             event: event_id,
             user: this.authUser.pk || this.authUser.id,
@@ -400,10 +471,18 @@
         this.loading = false
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
-        if (data.status == 'success') {
-          const self = this
-          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
+        if (callback) {
+          if (data.status == 'success'){
+            callback(data)
+          }
         }
+      },
+
+      async submit (data) {
+        const self = this
+        await this._submit((data) => {
+          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
+        })
       },
       clearSelection () {
         this.contests = {}
@@ -416,24 +495,36 @@
           this.squadSize += survivors.length
         }
       },
+      async gotoPrevEntry () {
+        await this._submit((data) => {
+          this.$router.push({ path: `/selection/${this.game_id}/${this.retry_number-1}`})
+        })
+      },
+      async gotoNextEntry () {
+        await this._submit((data) => {
+          this.$router.push({ path: `/selection/${this.game_id}/${this.retry_number+1}`})
+        })
+      },
       disableSelection () {
         this.countdownEnd = true
       },
       async changeGame (item) {
-        this.loading = true
-        await this.getLatestData(item)
-        if (item == -1) {
-          this.instructions = this.defaultInstructions
-          this.summary = this.defaultSummary
-          this.rulesSet = this.defaultRulesSet
-        } else {
-          this.instructions = this.curContest.instructions.split('\n')
-          this.rulesSet = this.curContest.rules_set.split('\n')
-          this.summary = this.curContest.summary
-          this.key++
-        }
-        this.startCountDown(this.curContest.date)
-        this.loading = false
+        return this.$router.push({ path: `/selection/${item}`})
+
+        // this.loading = true
+        // await this.getLatestData(item)
+        // if (item == -1) {
+        //   this.instructions = this.defaultInstructions
+        //   this.summary = this.defaultSummary
+        //   this.rulesSet = this.defaultRulesSet
+        // } else {
+        //   this.instructions = this.curContest.instructions.split('\n')
+        //   this.rulesSet = this.curContest.rules_set.split('\n')
+        //   this.summary = this.curContest.summary
+        //   this.key++
+        // }
+        // this.startCountDown(this.curContest.date)
+        // this.loading = false
       },
       collapseSide () {
         this.side = !this.side

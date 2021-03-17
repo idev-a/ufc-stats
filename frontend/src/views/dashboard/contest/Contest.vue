@@ -174,9 +174,10 @@
         this.loading = false
       },
       async changeGame (item) {
-        this.loading = true
-        await this.getLatestContest(item)
-        this.loading = false
+        this.$router.push({'path': `/contest/${item}`})
+        // this.loading = true
+        // await this.getLatestContest(item)
+        // this.loading = false
       },
     }
   }

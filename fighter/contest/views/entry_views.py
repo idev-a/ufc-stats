@@ -138,7 +138,10 @@ def get_entry_views(selections):
         score[username_id]['game_id'] = -1
         if selection.entry.game and selection.entry.game.id:
             score[username_id]['game_id'] = selection.entry.game.id
-        score[username_id]['entry'] = selection.entry.user.displayname
+        entry_name = selection.entry.user.displayname
+        if selection.entry.retry_number:
+            entry_name += f' ({selection.entry.retry_number})'
+        score[username_id]['entry'] = entry_name
         score[username_id]['user_id'] = selection.entry.user.id
         score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
 
@@ -491,13 +494,15 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             is_exist = False
             message = 'Successfully done.'
             try:
-                if data['game'] != -1:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+                if int(data['game']) != -1:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], retry_number=data['retry_number'])
                 else:
                     entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
             except:
                 pass
             if entry:
+                if entry.game and data['retry_number'] > entry.game.retry_times:
+                    raise Exception
                 is_exist = True
                 message = 'Successfully edited.'
                 data['last_edited'] = datetime.now()

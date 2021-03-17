@@ -194,6 +194,19 @@ class Game(models.Model):
 	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
 	
 	'''
+		New game type 'Re entry'. 
+		These games can be entered by a user up to X number of times (Entry Number), 
+		where X is set when creating the game in admin. 
+		For example, we will have a tournament 
+		where each user can enter 3 different teams of fighters. 
+		And other tournament where each person can only enter once.
+		Each re-entry would cost the same number of coins as the initial buyin 
+		(whether free or not)
+		re_entry would be True if retry_times > 1
+	'''
+	# re_entry = models.BooleanField(blank=False, default=False)
+	retry_times = models.PositiveIntegerField(blank=False, default=0)
+	'''
 		the first one is kind of free game in which any one is free to join 
 		and the winner will get fixed buyin by admin.
 		On the other hands, for the paid game the user is asked to pay coin to join, 
@@ -205,6 +218,14 @@ class Game(models.Model):
 	# Added by Admin
 	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=0)
 
+	@property
+	def re_entry(self):
+		return self.retry_times > 0
+
+	@property
+	def tournament(self):
+		return f"{self.re_entry}({self.retry_times})"
+	
 	@property
 	def date(self):
 		return self.event.date
@@ -220,22 +241,22 @@ class Game(models.Model):
 			real_users = Entry.objects.filter(game_id=self.id).count()
 			_prize = real_users * self.buyin + self.buyin_bonus
 		return _prize
-	
+
 	def info_entrants(self):
-		return '{}'.format(self.entrants.count())
+		return f'{self.joined_users.count()}/{self.entrants.count()}'
 
 	def info_joined(self):
 		return '{}'.format(self.joined_users.count())
 
 	@property
 	def short_instructions(self):
-		return truncatewords(self.instructions, 50)
+		return truncatewords(self.instructions, 20)
 
 	@property
 	def short_rules_set(self):
-		return truncatewords(self.rules_set, 50)
+		return truncatewords(self.rules_set, 20)
 
-	info_entrants.short_description  = 'Total entrants'
+	info_entrants.short_description  = 'Entrants'
 	info_joined.short_description  = 'Total joined users'
 
 	def __str__(self):
@@ -269,6 +290,9 @@ class Entry(models.Model):
 	wins = models.IntegerField(blank=True, null=True, default=0)
 	quaked = models.IntegerField(blank=True, null=True, default=0)
 	ranking = models.IntegerField(blank=True, null=True, default=0)
+
+	# retry number indicating tournament type or retry type
+	retry_number = models.PositiveIntegerField(blank=True, null=True, default=0, help_text="Used in tournament type game. The user can re-sumbit entry up to this number of times")
 
 	def __str__(self):
 		return "%s - %s" % (self.user, self.event)

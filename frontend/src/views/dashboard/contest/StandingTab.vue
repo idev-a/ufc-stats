@@ -109,7 +109,7 @@
         </template>
         <template v-slot:expanded-item="{ headers, item }">
           <td :colspan="headers.length">
-            <div class="d-flex flex-wrap">
+            <div class="d-flex flex-wrap max-600">
               <template v-for="fighter in item.fighters">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">

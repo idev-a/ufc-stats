@@ -73,6 +73,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 games = []
                 if request.user.id:
                     game_id = int(request.data['game_id'])
+                    retry_number = int(request.data['retry_number'])
                     my_entry = None
                     cur_game = None
                     try:
@@ -80,7 +81,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                             my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
                         else:
                             cur_game = Game.objects.get(id=game_id)
-                            my_entry = Entry.objects.all().get(user_id=request.user.id, game_id=game_id)
+                            my_entry = Entry.objects.all().get(user_id=request.user.id, game_id=game_id, retry_number=retry_number)
                     except:
                         pass
                     if cur_game:

@@ -50,7 +50,9 @@ class GameManager(models.Manager):
             buyin=0,
             buyin_bonus=0,
             prize=0,
-            action=event.action
+            action=event.action,
+            re_entry=False,
+            retry_times=1
         ))
 
         if user_id:
@@ -73,6 +75,8 @@ class GameManager(models.Manager):
                         prize=_.prize,
                         joined_users=_.joined_users.count(),
                         buyin_bonus=_.buyin_bonus,
+                        re_entry=_.re_entry,
+                        retry_times=_.retry_times
                     ))
 
         return games

@@ -305,4 +305,8 @@
   .max-60 {
     max-width: 800px;
   }
+
+  .max-600 {
+    max-width: 600px;
+  }
 </style>

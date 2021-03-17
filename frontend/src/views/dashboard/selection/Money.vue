@@ -10,7 +10,7 @@
       >
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-icon v-on="on"  color="gold">mdi-crown-outline</v-icon>
+            <v-icon v-on="on" size=18 color="gold">mdi-medal-outline</v-icon>
           </template>
           <span>Prize</span>
         </v-tooltip>
