@@ -433,12 +433,14 @@
         const event_id = this.curContest.id || this.curContest.event_id
         const payload = {
           entry: {
-            retry_number: this.retry_number,
             game: this.curGame,
             event: event_id,
             user: this.authUser.pk || this.authUser.id,
           },
           selections: []
+        }
+        if (this.isTournament) {
+          payload.entry.retry_number = this.retry_number
         }
         let selected = false
         for (const bout in this.contests) {
