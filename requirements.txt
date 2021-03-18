@@ -20,6 +20,5 @@ redis==3.5.3
 django_celery_beat==2.2.0
 drf-flex-fields==0.8.8
 tweepy==3.10.0 
-imgkit==1.0.2,
 django-admin-autocomplete-filter==0.6.1
 sendgrid==6.6.0

@@ -101,13 +101,18 @@ class Scraper:
 			time.sleep(10)
 
 	def info_from_espn(self):
-		soup = bs(self.session.get(self.espn_url, headers=_headers).text, 'lxml')
-		name = soup.select_one('h1.headline').text
-		date = soup.select_one('div.n6.mb2').text
-		card = soup.select('span.MMAHeaderUpsellTunein__Meta')[-1].text
-		_time = card
-		if card != 'LIVE':
-			_time = datetime.strptime(card, '%I:%M %p').strftime('%H:%M:%S')
+		name = date = _time = ''
+		try:
+			soup = bs(self.session.get(self.espn_url, headers=_headers).text, 'lxml')
+			name = soup.select_one('h1.headline').text
+			date = soup.select_one('div.n6.mb2').text
+			card = soup.select('span.MMAHeaderUpsellTunein__Meta')[-1].text
+			_time = card
+			if card != 'LIVE':
+				_time = datetime.strptime(card, '%I:%M %p').strftime('%H:%M:%S')
+		except Exception as err:
+			logger.warning(str(err))
+			
 		return name, date, _time
 
 	def parse_event(self, response):
