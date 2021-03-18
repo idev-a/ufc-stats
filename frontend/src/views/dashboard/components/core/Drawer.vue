@@ -104,14 +104,14 @@
           to: '/contest',
         },
         {
-          icon: 'mdi-sofa-single-outline',
-          title: 'Old Contests',
-          to: '/history/contest',
-        },
-        {
           icon: 'mdi-view-dashboard-outline',
           title: 'Leaderboard',
           to: '/leaderboard',
+        },
+        {
+          icon: 'mdi-sofa-outline',
+          title: 'Old Contests',
+          to: '/history/contest',
         },
         {
           icon: 'mdi-help-circle-outline',

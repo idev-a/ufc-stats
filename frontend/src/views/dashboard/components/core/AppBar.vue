@@ -8,7 +8,6 @@
     height="75"
   >
     <v-btn
-      v-if="$vuetify.breakpoint.smAndDown"
       class="mr-3"
       elevation="1"
       fab
@@ -33,11 +32,27 @@
 
     <div class="mx-3" />
 
+    <v-tooltip bottom z-index=100>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-on="on"
+          min-width="0"
+          text
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
+          to="/"
+        >
+          Lobby
+        </v-btn>
+        </template>
+      <span>Lobby</span>
+    </v-tooltip>
+
     <template v-for="top in tops">
       <v-tooltip bottom z-index=100>
         <template v-slot:activator="{ on }">
           <v-btn
-            v-if="$vuetify.breakpoint.smAndUp"
+            v-if="$vuetify.breakpoint.smAndUp && false"
             v-on="on"
             min-width="0"
             class="fq-btn top-btn"
@@ -318,7 +333,6 @@
       referralDlg: false,
       accountDlg: false,
       tops: [
-        { name: 'Lobby', to:'/'},
         { name: 'Selection', to:'/selection'},
         { name: 'Contest', to:'/contest'},
       ]

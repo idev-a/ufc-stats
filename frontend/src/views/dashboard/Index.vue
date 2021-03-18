@@ -3,7 +3,7 @@
     <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage, 'contest-over-bg': contestOverPage}"></span>
     <dashboard-core-app-bar :key="`key${key}`" v-model="expandOnHover" />
 
-    <dashboard-core-drawer v-if="$vuetify.breakpoint.mobile" :expand-on-hover.sync="expandOnHover" />
+    <dashboard-core-drawer :expand-on-hover.sync="expandOnHover" />
 
     <dashboard-core-view :key="`newKey${newKey}`"/>
 
@@ -31,7 +31,7 @@
     },
 
     data: () => ({
-      expandOnHover: false,
+      expandOnHover: true,
       key: 0,
       newKey: 0,
     }),

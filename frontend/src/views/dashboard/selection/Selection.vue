@@ -185,7 +185,7 @@
                 </template>
                 <template v-else>
                   <v-list-item-content>
-                    <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                    <v-list-item-title v-html="gameName(data.item)"></v-list-item-title>
                   </v-list-item-content>
                 </template>
               </template>
