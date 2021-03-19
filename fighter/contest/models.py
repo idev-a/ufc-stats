@@ -18,7 +18,7 @@ ACTION_TYPE = [
 ]
 
 GENDER_TYPE = [
-	('M', 'M'),
+	('M', 'Male'),
 	('F', 'Female'),
 ]
 

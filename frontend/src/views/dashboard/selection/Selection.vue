@@ -8,7 +8,7 @@
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
       <v-row dense>
-        <v-col cols=12 md=6 >
+        <v-col cols=12 md=6>
           <v-card-title 
             v-if="curContest" 
             class="font-weight-medium mb-0"
@@ -40,7 +40,6 @@
             <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
             <div
               id="scrollContainer"
-              style="height: 300px; overflow-y: scroll; -webkit-overflow-scrolling: touch; -webkit-overflow-scrolling: scroll; position: relative;"
               @scroll="onScroll"
             >
               <template v-for="item in bouts">
@@ -54,23 +53,18 @@
                   tile
                   @change="changeContests"
                 >
-                  <v-btn
-                    :value="item.fighter1"
-                    :disabled="eventStarted"
-                    small
-                    :width="152"
-                  >
-                    {{_fighter(item.fighter1).name}}
-                  </v-btn>
+                  <fighter 
+                    :id="item.fighter1"
+                    :fighters="fighters"
+                    :eventStated="eventStarted"
+                  />
 
-                  <v-btn
-                    :value="item.fighter2"
-                    :disabled="eventStarted"
-                    small
-                    :width="152"
-                  >
-                    {{_fighter(item.fighter2).name}}
-                  </v-btn>
+                  <fighter 
+                    :id="item.fighter2"
+                    :fighters="fighters"
+                    :eventStated="eventStarted"
+                  />
+
                 </v-btn-toggle>
               </template>
             </div>
@@ -209,6 +203,7 @@
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
   import Money from "./Money";
+  import Fighter from "./Fighter";
   import ContestSummary from "./ContestSummary";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
@@ -218,7 +213,8 @@
     components: {
       FlipCountdown,
       ContestSummary,
-      Money
+      Money,
+      Fighter
     },
 
     props: ['game_id', 'retry_number'],
@@ -404,10 +400,6 @@
         const { data } = await main.getFighters()
         this.fighters = data.results
       },
-      _fighter (id) {
-        const fighters = this.fighters.filter(fighter => fighter.id == id)
-        return fighters[0]
-      },
       gameName (item) {
         let name = item.name
         if (item.re_entry) {
@@ -560,6 +552,14 @@
   }
 
   #selection {
+
+    #scrollContainer {
+      height: 300px; 
+      overflow-y: scroll; 
+      -webkit-overflow-scrolling: touch; 
+      -webkit-overflow-scrolling: scroll; 
+      position: relative;
+    }
     
     .v-btn-toggle {
       display: flex;

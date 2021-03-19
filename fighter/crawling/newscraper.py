@@ -19,6 +19,7 @@ from lxml import html
 from bs4 import BeautifulSoup as bs
 from datetime import datetime
 import argparse
+import re
 
 from contest.models import (
 	Event,
@@ -84,7 +85,7 @@ class Scraper:
 
 	def start_bouts(self):
 		while True:
-			logger.info('[scraper] started')
+			logger.info('[scraper] started ***************')
 			# scan db to get the scraped events to get the stats
 			events = Event.objects.filter(status='upcoming')
 			if events:
@@ -163,9 +164,12 @@ class Scraper:
 				round = _valid(tr.xpath('.//td[9]/p/text()').get()) or 0
 				round_time = _valid(tr.xpath('.//td[10]/p/text()').get())
 
+				gender = 'M'
+				if re.search(r'women', weight_class, re.IGNORECASE):
+					gender = 'F'
 				item = dict(
-					fighter1=self.save_fighter({'name': fighters[0]}).id,
-					fighter2=self.save_fighter({'name': fighters[1]}).id,
+					fighter1=self.save_fighter({'name': fighters[0], 'gender': gender}).id,
+					fighter2=self.save_fighter({'name': fighters[1], 'gender': gender}).id,
 					weight_class=weight_class,
 					method=method,
 					round=round,
@@ -323,6 +327,10 @@ class Scraper:
 			fighter_serializer = FighterSerializer(data=item)
 			if fighter_serializer.is_valid():
 				fighter = fighter_serializer.save()
+		else:
+			fighter.gender = item['gender']
+			fighter.title = item.get('title', '')
+			fighter.save()
 
 		return fighter
 

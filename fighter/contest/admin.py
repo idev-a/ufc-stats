@@ -41,7 +41,7 @@ class EventAdmin(admin.ModelAdmin):
 class FighterAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	search_fields = ('name', 'title', )
-	list_display = ('name', 'title', 'id')
+	list_display = ('name', 'gender', 'id')
 
 	class Meta:
 		ordering = ("name", )
