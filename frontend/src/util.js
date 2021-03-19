@@ -123,3 +123,11 @@ export const isSameDay = (d1, d2) => {
 export const equals = (a, b) =>
   a.length === b.length &&
   a.every((v, i) => v === b[i]);
+
+export const genderIcon = (fighter) => {
+  if (fighter.gender == 'M') {
+    return 'mdi-gender-male'
+  } else {
+    return 'mdi-gender-female'
+  }
+}

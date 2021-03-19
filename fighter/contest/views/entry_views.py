@@ -479,6 +479,60 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         except Exception as err:
             return Response(dict(entries=[]), status=500)
 
+    @action(methods=['post'], detail=False)
+    def get_my_teams(self, request, **kwarg):
+        ''' 
+            data for My Teams page
+            requirs user info
+        '''
+        status = 200
+        live_data = {'teams': []}
+        recent_data = {'teams': []}
+        try:
+            if request.user:
+                latest_event = Event.objects.filter(status='upcoming').latest('-date')
+                selections = Selection.objects.filter(entry__user_id=request.user.id)
+                for sel in selections:
+                    event = sel.entry.event
+                    game = sel.entry.game
+                    retry_number = sel.entry.retry_number
+                    if event.id == latest_event.id:
+                        key = game.id if game else '0'
+                        if retry_number:
+                            key = f"{key}_{retry_number}"
+                        # main contest, live contest
+                        cur_data = {'key':key, 'game': {}, 'fighters': []}
+                        is_new = True
+                        for data in live_data['teams']:
+                            if data['key'] == cur_data['key']:
+                                cur_data = data
+                                is_new = False
+                                break
+                        if is_new:
+                            live_data['teams'].append(cur_data)
+                        cur_data.get('game',{})['event'] = EventSerializer(event).data
+                        cur_data.get('game',{})['id'] = game.id if game else 0
+                        cur_data.get('game',{})['name'] = game.name if game else event.name
+                        cur_data.get('game',{})['buyin'] = game.buyin if game else 0
+                        cur_data.get('game',{})['prize'] = game.prize if game else 0
+                        cur_data.get('game',{})['genre'] = game.genre if game else 'free'
+                        cur_data.get('game',{})['retry_number'] = retry_number
+                        if sel.survivor1:
+                            cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor1).data)
+                        if sel.survivor2:
+                            cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor2).data)
+                    else:
+                        # game
+                        pass
+            else:
+                return Response(dict(live_data={}, recent_data={}), status=400)
+        except Exception as err:
+            logger.warning(str(err))
+            status = 500
+
+        live_data['teams'] = sorted(live_data['teams'], key=lambda x: (x['game']['id'], x['game']['retry_number']))
+        return Response(dict(live_data=live_data, recent_data=recent_data), status=status)
+
     @action(methods=['get'], detail=False)
     def test_update_rank(self, request, **kwarg):
         event_id = request.query_params['event_id']

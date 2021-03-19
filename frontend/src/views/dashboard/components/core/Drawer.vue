@@ -94,6 +94,11 @@
           to: '/',
         },
         {
+          icon: 'mdi-account-group-outline',
+          title: 'My Teams',
+          to: '/myteams',
+        },
+        {
           icon: 'mdi-pickaxe',
           title: 'Selection',
           to: '/selection',

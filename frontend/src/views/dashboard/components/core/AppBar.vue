@@ -141,6 +141,18 @@
             text
             v-if="isAuthenticated"
             class="fq-menu-item"
+            to="/myteams"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-account-group-outline</v-icon>
+            My Teams
+          </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            class="fq-menu-item"
             @click="referralDlg=true"
             block
             plain

@@ -58,7 +58,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class FighterSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Fighter
-		fields = '__all__'
+		fields = ['id', 'name', 'title', 'gender', 'initials']
 
 class EventSerializer(serializers.ModelSerializer):
 	class Meta:

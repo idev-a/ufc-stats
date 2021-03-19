@@ -17,6 +17,11 @@ ACTION_TYPE = [
 	('completed', 'Completed'),
 ]
 
+GENDER_TYPE = [
+	('M', 'M'),
+	('F', 'Female'),
+]
+
 DEFAULT_INSTRUCTIONS = [
   'Choose fighters',
   'Hope they all survive'
@@ -90,6 +95,17 @@ class Event(models.Model):
 class Fighter(models.Model):
 	name = models.CharField(max_length=100, blank=False, default='')
 	title = models.CharField(max_length=100, blank=True, default='')
+	gender = models.CharField(choices=GENDER_TYPE, max_length=10, default='M')
+
+	@property
+	def initials(self):
+		val = ''
+		first_last = self.name.split(' ')
+		val = f"{first_last[0][0]}."
+		if len(first_last) > 1:
+			val += f" {first_last[-1]}"
+
+		return val
 
 	def __str__(self):
 		return "%s" % self.name

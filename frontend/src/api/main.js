@@ -36,5 +36,8 @@ export default {
   },
   submitTicket(form) {
     return session.post('api/faqs/submit_ticket/', form)
+  },
+  getMyTeams() {
+    return session.post('api/entries/get_my_teams/')
   }
 }

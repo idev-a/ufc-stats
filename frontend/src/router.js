@@ -89,6 +89,12 @@ let router = new Router({
           beforeEnter: requireAuthenticated
         },
         {
+          name: 'My Teams',
+          path: '/myteams',
+          component: () => import('@/views/dashboard/myteams/MyteamsContainer'),
+          beforeEnter: requireAuthenticated
+        },
+        {
           name: 'FAQ',
           path: '/faq',
           component: () => import('@/views/dashboard/faq/Faq'),
