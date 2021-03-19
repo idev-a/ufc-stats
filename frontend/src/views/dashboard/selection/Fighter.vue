@@ -6,7 +6,6 @@
         :disabled="eventStarted"
         small
         :width="152"
-        v-on="on"
       >
         {{_fighter().name}}
         <v-icon 
