@@ -310,7 +310,7 @@
         return this.deadline2 && !this.eventStarted && diff == 0
       },
       totalFighters () {
-        return this.bouts && this.bouts.length * 2 || 0
+        return this.fighters?.length || 0
       },
       needsInstruction () {
         return true
@@ -357,7 +357,6 @@
       this.curGame = this.game_id || -1
 
       this.loading = true
-      await this.getFighters()
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
       this.summary = this.defaultSummary
@@ -393,12 +392,9 @@
       async getLatestEvent () {
         const { data } = await main.getLatestEvent(this.game_id || -1, +this.retry_number)
         this.bouts = data.bouts
+        this.fighters = data.fighters
         this.$store.commit('SET_EVENT', data.event)
         this.games = data.games
-      },
-      async getFighters () {
-        const { data } = await main.getFighters()
-        this.fighters = data.results
       },
       gameName (item) {
         let name = item.name

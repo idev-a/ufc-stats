@@ -67,7 +67,7 @@
       </v-tooltip>
     </template>
 
-    <v-tooltip bottom z-index=100>
+    <!-- <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
@@ -81,7 +81,7 @@
         </v-btn>
         </template>
       <span>Instructions</span>
-    </v-tooltip>
+    </v-tooltip> -->
 
     <v-menu
       bottom
@@ -185,6 +185,17 @@
             Leaderboard
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            class="fq-menu-item"
+            @click.stop="showInstruction"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-information-outline</v-icon>
+            Instructions
+          </v-btn>
+          <v-divider />
           <v-btn
             text
             class="fq-menu-item"

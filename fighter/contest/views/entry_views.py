@@ -486,11 +486,15 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             requirs user info
         '''
         status = 200
-        live_data = {'teams': []}
-        recent_data = {'teams': []}
+        live_data = {'fighters': [], 'teams': []}
+        recent_data = {'fighters': [], 'teams': []}
         try:
             if request.user:
                 latest_event = Event.objects.filter(status='upcoming').latest('-date')
+                bouts = Bout.objects.filter(event__id=latest_event.id)
+                for bout in bouts:
+                    live_data['fighters'].append(FighterSerializer(bout.fighter1).data)
+                    live_data['fighters'].append(FighterSerializer(bout.fighter2).data)
                 selections = Selection.objects.filter(entry__user_id=request.user.id)
                 for sel in selections:
                     event = sel.entry.event

@@ -71,6 +71,10 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 _bouts = BoutSerializer(bouts, many=True).data
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                 games = []
+                fighters = []
+                for bout in bouts:
+                    fighters.append(FighterSerializer(bout.fighter1).data)
+                    fighters.append(FighterSerializer(bout.fighter2).data)
                 if request.user.id:
                     game_id = int(request.data['game_id'])
                     retry_number = int(request.data['retry_number'])
@@ -106,6 +110,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 return Response(dict(
                     bouts=_bouts,
                     games=games,
+                    fighters=fighters,
                     event=EventSerializer(latest_event).data
                 ))
             else:

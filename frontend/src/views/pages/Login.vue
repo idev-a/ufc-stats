@@ -213,6 +213,7 @@
         this.$refs.form.validate()
 
         if (this.valid) {
+          this.form.email = this.form.email.toLowerCase()
           this.form.username = this.form.email
           await this.$store.dispatch('auth/login', this.form)
         }
