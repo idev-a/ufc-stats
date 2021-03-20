@@ -92,11 +92,12 @@ class Scraper:
 				event = events.latest('-date')
 				res = self.session.get(event.detail_link)
 				meta = {'event_id': event.id}
-				espn_name, espn_date, espn_time = self.info_from_espn()
-				event_date = event.date.strftime('%B %d, %Y')
-				if event_date == espn_date and event.name == espn_name and espn_time != 'LIVE':
-					event.date = convert_date(f"{event_date} {espn_time}")
-					event.save()
+				# espn_name, espn_date, espn_time = self.info_from_espn()
+				# event_date = event.date.strftime('%B %d, %Y')
+				# print(f'espn_time, espn_date ', espn_time, espn_date)
+				# if event_date == espn_date and event.name == espn_name and espn_time != 'LIVE':
+				# 	event.date = convert_date(f"{event_date} {espn_time}")
+				# 	event.save()
 				self.parse_bout_list(Selector(text=res.content), meta)
 
 			time.sleep(10)
@@ -119,7 +120,7 @@ class Scraper:
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
-		default_time = ' 15:00:00'
+		default_time = ' 18:00:00'
 		espn_name, espn_date, espn_time = self.info_from_espn()
 		if len(trs) > 2:
 			for tr in trs[2:]:
