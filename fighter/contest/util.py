@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def _valid(val):
 	if val:
@@ -17,7 +17,7 @@ def strip_list1(arr):
 	return new_list
 
 def convert_date(date):
-	return datetime.strptime(date, '%B %d, %Y %H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+	return (datetime.strptime(date, '%B %d, %Y %H:%M:%S') - timedelta(hours=3)).strftime('%Y-%m-%d %H:%M:%S')
 
 def html2png(body=None):
 	body = """
