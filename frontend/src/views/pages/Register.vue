@@ -248,9 +248,9 @@
         }
         
         if (this.valid) {
+          this.form.email = this.form.email.toLowerCase()
           this.form.username = this.form.email
           this.form.referred_by = this.$route.params?.id
-          console.log(this.form)
           this.$store.dispatch('signup/createAccount', this.form)
         }
       },
