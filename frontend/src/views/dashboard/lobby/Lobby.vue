@@ -79,17 +79,15 @@
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
           </template>
-          <!-- :disabled="canJoin(item) != 'ok'"  -->
+          <!-- :disabled="canJoin(item) == 'No enough coins'"  -->
           <template v-slot:item.actions="{ item }">
             <v-tooltip right>
               <template  v-slot:activator="{ on }">
                 <div v-on="on">
                   <v-btn 
-                    fab
-                    x-small
+                    small
                     class="my-1" 
                     :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(item) == 'LIVE'}"
-                    :disabled="canJoin(item) == 'No enough coins'" 
                     @click.stop="joinContest(item)"
                   >
                     {{joinLabel(item)}}
@@ -301,7 +299,6 @@
             text: 'When',
             value: 'date',
             align: 'center',
-            width: '100'
           },
          
         ],
@@ -340,7 +337,7 @@
         return this.authUser && (this.authUser.id || this.authUser.pk)
       },
       myCoins () {
-        return this.authUser && (this.authUser.coins || this.authUser.fq_points || this.profile.user.coins)
+        return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
       }
     },
 
@@ -395,6 +392,11 @@
       },
       JoinBtnTooltip(item) {
         let tooltip = ''
+        if (item.genre != 'free') {
+          if (!this.hasEnoughCoins(item)) {
+            tooltip =  'No enough coins'
+          }
+        }
         const label = this.joinLabel(item)
         if (label.includes('JOIN')) {
           tooltip = 'Go to Selection'
