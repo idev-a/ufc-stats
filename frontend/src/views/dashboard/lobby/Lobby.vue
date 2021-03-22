@@ -88,7 +88,7 @@
                   <v-btn 
                     small
                     class="my-1" 
-                    :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(curGame) == 'LIVE'}"
+                    :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(item) == 'LIVE'}"
                     @click.stop="joinContest(item)"
                   >
                     {{joinLabel(item)}}
@@ -336,10 +336,10 @@
         return require('@/assets/logo.jpg')
       },
       myId () {
-        return this.authUser && (this.authUser.id || this.authUser.pk)
+        return this.authUser?.id || this.authUser?.pk
       },
       myCoins () {
-        return this.authUser && (this.authUser.coins || this.authUser.fq_points || this.profile.user.coins)
+        return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
       }
     },
 
