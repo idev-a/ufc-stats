@@ -197,6 +197,9 @@
     letter-spacing: 0;
   }
 
+  .relative {
+    position: relative;
+  }
 
   * {
     scrollbar-width: thin;
@@ -297,6 +300,7 @@
       text-align: center !important;
     }
   }
+
   .v-chip__content {
     font-size: 12px;
     font-weight: 400;
@@ -308,5 +312,58 @@
 
   .max-600 {
     max-width: 600px;
+  }
+
+  #scrollContainer {
+    height: 300px; 
+    overflow-y: scroll; 
+    -webkit-overflow-scrolling: touch; 
+    -webkit-overflow-scrolling: scroll; 
+    position: relative;
+    
+    .v-btn-toggle {
+      display: flex;
+
+      .v-btn.v-size--small {
+        border-radius: 5px;
+        background-color: #d3d3d3;
+        color: black;
+        width: 172px !important;
+      }
+
+      .v-btn.v-size--small.initial {
+        width: 125px !important;
+      }
+    }
+   
+    .v-item--active {
+      color: white !important;
+      background-color: #008000 !important;
+    }
+
+    .v-btn.v-btn--disabled {
+      color: rgba(255, 255, 255, 0.26) !important;
+    }
+  }
+
+  .arrow-up {
+    position: absolute !important;
+    bottom: 6px;
+    left: calc(50% - 17px);
+    z-index: 2;
+  }
+
+  .arrow-down {
+    position: absolute !important;
+    top: 0;
+    left: calc(50% - 11px);
+    z-index: 2;
+  }
+
+  .arrow-side {
+    position: absolute !important;
+    top: 50%;
+    right: 0;
+    z-index: 2;
   }
 </style>

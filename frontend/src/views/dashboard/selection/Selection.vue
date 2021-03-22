@@ -14,7 +14,7 @@
             class="font-weight-medium mb-0"
           >
             <div class="text-center w-100">
-              <div class="d-flex justify-center" style="position: relative;">
+              <div class="d-flex justify-center relative">
                 <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
                 <money :curContest="curContest" />
               </div>
@@ -33,8 +33,7 @@
             </div>
           </v-card-title>
           <v-card-text
-            class="pb-0"
-            style="position: relative;"
+            class="pb-0 relative"
           >
             <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
             <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
@@ -56,13 +55,13 @@
                   <fighter 
                     :id="item.fighter1"
                     :fighters="fighters"
-                    :eventStated="eventStarted"
+                    :eventStarted="eventStarted"
                   />
 
                   <fighter 
                     :id="item.fighter2"
                     :fighters="fighters"
-                    :eventStated="eventStarted"
+                    :eventStarted="eventStarted"
                   />
 
                 </v-btn-toggle>
@@ -329,9 +328,6 @@
       _side() {
         return !this.$vuetify.breakpoint.mobile && false
       },
-      sideCollapseClass () {
-        return ''
-      },
       defaultInstructions () {
         return DEFAULT_INSTRUCTIONS
       },
@@ -545,56 +541,5 @@
   .v-list .v-subheader{
     height: 15px;
     color: #008000;
-  }
-
-  #selection {
-
-    #scrollContainer {
-      height: 300px; 
-      overflow-y: scroll; 
-      -webkit-overflow-scrolling: touch; 
-      -webkit-overflow-scrolling: scroll; 
-      position: relative;
-    }
-    
-    .v-btn-toggle {
-      display: flex;
-
-      .v-btn {
-        border-radius: 5px;
-        background-color: #d3d3d3;
-        color: black;
-      }
-    }
-   
-    .v-item--active {
-      color: white !important;
-      background-color: #008000 !important;
-    }
-
-    .v-btn.v-btn--disabled {
-      color: rgba(255, 255, 255, 0.26) !important;
-    }
-
-    .arrow-up {
-      position: absolute;
-      bottom: 6px;
-      left: calc(50% - 17px);
-      z-index: 2;
-    }
-
-    .arrow-down {
-      position: absolute;
-      top: 0;
-      left: calc(50% - 11px);
-      z-index: 2;
-    }
-
-    .arrow-side {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      z-index: 2;
-    }
   }
 </style>

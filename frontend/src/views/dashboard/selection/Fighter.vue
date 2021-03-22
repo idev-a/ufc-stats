@@ -6,8 +6,9 @@
         :disabled="eventStarted"
         small
         :width="152"
+        :class="{'initial': initial}"
       >
-        {{_fighter().name}}
+        {{_fighterName()}}
         <v-icon 
           right
           :color="_color()"
@@ -24,12 +25,16 @@
   export default {
     name: 'Fighter',
 
-    props: ['fighters', 'id', 'eventStarted'],
+    props: ['fighters', 'id', 'eventStarted', 'initial'],
 
     methods: {
       _fighter () {
         const fighters = this.fighters.filter(fighter => fighter.id == this.id)
         return fighters[0]
+      },
+      _fighterName () {
+        const fighter = this._fighter()
+        return this.initial ? fighter.initials : fighter.name 
       },
       _color () {
         return this._fighter().gender == 'F' ? 'pink' : 'teal darken-4'

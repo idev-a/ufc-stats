@@ -47,14 +47,15 @@
                 v-for="item in items"
                 :key="item.id"
                 cols="12"
-                sm="4"
-                md="3"
+                sm="6"
+                md="4"
                 lg="3"
               >
                 <team-card 
                   :loading="loading"
                   :item="item"
                   :fighters="curData.fighters"
+                  @updateLoading="updateLoading"
                 />
               </v-col>
             </v-row>
@@ -112,6 +113,17 @@
         this.fighters = data.fighters
         this.loading = false
       },
+      preselectFighters() {
+        this.curData.bouts.map(bout => {
+          this.contests[bout.id] = []
+          if (bout.survivors) {
+            this.contests[bout.id] = bout.survivors
+          }
+        })
+      },
+      updateLoading (loading) {
+        this.loading = loading
+      }
     }
   }
 </script>

@@ -479,6 +479,19 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         except Exception as err:
             return Response(dict(entries=[]), status=500)
 
+    def bout_not_cancelled(self, data, fighter):
+        is_exist = False
+        for bout in data['bouts']:
+            if 'survivors' not in bout:
+                bout['survivors'] = []
+            if fighter.id in [bout['fighter1'], bout['fighter2']]:
+                is_exist = True
+                bout['survivors'].append(fighter.id)
+                bout['contests'].append(fighter.id)
+                bout['contests_orig'].append(fighter.id)
+                break
+        return is_exist
+
     @action(methods=['post'], detail=False)
     def get_my_teams(self, request, **kwarg):
         ''' 
@@ -488,14 +501,19 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         status = 200
         live_data = {'fighters': [], 'teams': []}
         recent_data = {'fighters': [], 'teams': []}
+        selections = Selection.objects.filter(entry__user_id=request.user.id)
         try:
             if request.user:
                 latest_event = Event.objects.filter(status='upcoming').latest('-date')
                 bouts = Bout.objects.filter(event__id=latest_event.id)
+                _bouts = BoutSerializer(bouts, many=True).data
+                for bout in _bouts:
+                    bout['contests'] = []
+                    bout['contests_orig'] = []
+
                 for bout in bouts:
                     live_data['fighters'].append(FighterSerializer(bout.fighter1).data)
                     live_data['fighters'].append(FighterSerializer(bout.fighter2).data)
-                selections = Selection.objects.filter(entry__user_id=request.user.id)
                 for sel in selections:
                     event = sel.entry.event
                     game = sel.entry.game
@@ -513,18 +531,19 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                                 is_new = False
                                 break
                         if is_new:
+                            cur_data['bouts'] = copy.deepcopy(_bouts)
                             live_data['teams'].append(cur_data)
                         cur_data.get('game',{})['event'] = EventSerializer(event).data
-                        cur_data.get('game',{})['id'] = game.id if game else 0
+                        cur_data.get('game',{})['id'] = game.id if game else -1
                         cur_data.get('game',{})['name'] = game.name if game else event.name
                         cur_data.get('game',{})['buyin'] = game.buyin if game else 0
                         cur_data.get('game',{})['prize'] = game.prize if game else 0
                         cur_data.get('game',{})['genre'] = game.genre if game else 'free'
                         cur_data.get('game',{})['retry_number'] = retry_number
-                        if sel.survivor1:
-                            cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor1).data)
-                        if sel.survivor2:
-                            cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor2).data)
+                        if sel.survivor1 and self.bout_not_cancelled(cur_data, sel.survivor1):
+                            cur_data.get('fighters',[]).append(sel.survivor1.id)
+                        if sel.survivor2 and self.bout_not_cancelled(cur_data, sel.survivor2):
+                            cur_data.get('fighters',[]).append(sel.survivor2.id)
                     else:
                         # game
                         pass
@@ -582,10 +601,11 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 selection_serializer.save()
                 return Response({'status': 'success', 'message': message})
             
-            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'}, status=400)
         except Exception as err:
             logger.warning(str(err))
-            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+            print(str(err))
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'}, status=400)
 
     
 
