@@ -29,6 +29,16 @@
             </template>
           </v-radio>
         </v-radio-group>
+        <v-select
+          class="col-auto"
+          v-if="option=='recent'"
+          v-model="dateRange"
+          :items="dateOptions"
+          label="Date Range"
+          @change="getMyTeams"
+        >
+        </v-select>
+        <v-spacer />
       </v-card-title>
 
       <v-card-text
@@ -37,14 +47,12 @@
         <v-data-iterator
           :items="curData.teams"
           item-key="key"
-          :items-per-page="4"
-          hide-default-footer
-          hide-default-header
-        >
-          <template v-slot:default="{ items, isExpanded, expand }">
+          :items-per-page="5"
+        > 
+          <template v-slot:default="{ items }">
             <v-row>
               <v-col
-                v-for="item in items"
+                v-for="(item, x) in items"
                 :key="item.id"
                 cols="12"
                 sm="6"
@@ -54,8 +62,11 @@
                 <team-card 
                   :loading="loading"
                   :item="item"
+                  :key="item.id"
+                  :item_index="x"
                   :fighters="curData.fighters"
                   @updateLoading="updateLoading"
+                  @updateTeams="updateTeams"
                 />
               </v-col>
             </v-row>
@@ -89,6 +100,21 @@
             value: 'recent'
           }
         ],
+        dateRange: 30,
+        dateOptions: [
+          {
+            text: '30 Days',
+            value: 90
+          },
+          {
+            text: '10 Days',
+            value: 60
+          },
+          {
+            text: '1 Day',
+            value: 1
+          }
+        ],
         liveData: {},
         recentData: {},
       }
@@ -107,7 +133,7 @@
     methods: {
       async getMyTeams () {
         this.loading = true
-        const  { data } = await main.getMyTeams()
+        const  { data } = await main.getMyTeams(this.dateRange)
         this.liveData = data.live_data
         this.recentData = data.recent_data
         this.fighters = data.fighters
@@ -123,7 +149,13 @@
       },
       updateLoading (loading) {
         this.loading = loading
-      }
+      },
+      updateTeams (item, idx) {
+        this.curData.teams.splice(idx, 1, item)
+      },
+      updateItemsPerPage (number) {
+        this.itemsPerPage = number
+      },
     }
   }
 </script>

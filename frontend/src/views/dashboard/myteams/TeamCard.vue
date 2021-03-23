@@ -7,7 +7,7 @@
     >
       <div class="font-weight-medium display-1 text-center pt-2 text-uppercase">{{contestName(item.game)}}</div>
       <div class="subtitle-2 text-center">{{ item.game.event.date | beautifyDateTimeMin }}
-        <money  />
+        <money />
       </div>
 
       <v-list 
@@ -62,7 +62,7 @@
         <v-spacer />
         <v-tooltip left>
           <template v-slot:activator="{ on }">
-            <v-btn fab x-small class="mr-2" v-on="on"><v-icon color="gold">mdi-pencil-outline</v-icon></v-btn>
+            <v-btn fab x-small disabled class="mr-2" v-on="on"><v-icon color="gold">mdi-pencil-outline</v-icon></v-btn>
           </template>
           <span>Edit</span>
         </v-tooltip>
@@ -110,7 +110,7 @@
   export default {
     name: 'TeamCard',
 
-    props: ['loading', 'item', 'fighters'],
+    props: ['loading', 'item', 'fighters', 'item_index'],
 
     data () {
       return {
@@ -172,8 +172,8 @@
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
         if (data.status == 'success'){
-          this.oldItem.fighters = JSON.parse(JSON.stringify(this.item.fighters))
-          this.oldItem.bouts = JSON.parse(JSON.stringify(this.item.bouts))
+          this.$emit('updateTeams', this.item, this.item_index)
+          this.oldItem = JSON.parse(JSON.stringify(this.item))
         }
       },
       refreshTeam () {
@@ -215,7 +215,6 @@
             }
           }
         })
-        console.log(this.item.fighters)
       }
     }
   }
