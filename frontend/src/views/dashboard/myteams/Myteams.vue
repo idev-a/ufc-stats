@@ -104,11 +104,11 @@
         dateOptions: [
           {
             text: '30 Days',
-            value: 90
+            value: 30
           },
           {
             text: '10 Days',
-            value: 60
+            value: 10
           },
           {
             text: '1 Day',
