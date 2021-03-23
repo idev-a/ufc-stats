@@ -34,6 +34,23 @@ DEFAULT_RULES_SET = [
   'You are allowed to resubmit your team. 1 team per person.'
 ]
 
+WEIGHT_MAPPING = {
+	'Straw weight': '115',
+	'Flyweight': '125',
+	'Bantamweight': '135',
+	'Featherweight': '145',
+	'Lightweight': '155',
+	'Super Lightweight': '165',
+	'Welterweight': '170',
+	'Super Welterweight': '175',
+	'Middleweight': '185',
+	'Super Middleweight': '195',
+	'Light Heavyweight': '205',
+	'Cruiserweight': '225',
+	'Heavyweight': '265',
+	'Super Heavyweight': '265',
+}
+
 # Customize User model
 class CustomUser(AbstractUser):
 	USERNAME_FIELD = 'username'
@@ -166,6 +183,12 @@ class Bout(models.Model):
 	time = models.CharField(max_length=20, blank=True, default='00:00')
 	go_the_distance = models.BooleanField(null=True, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
+
+	@property
+	def division(self):
+		_division = WEIGHT_MAPPING[self.weight_class.replace("Women's ", "")]
+		return f'{_division}-W' if self.weight_class.startswith('Women') else _division
+	
 
 	def __str__(self):
 		return "%s vs. %s" % (self.fighter1, self.fighter2)

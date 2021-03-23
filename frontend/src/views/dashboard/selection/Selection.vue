@@ -33,7 +33,7 @@
             </div>
           </v-card-title>
           <v-card-text
-            class="pb-0 relative"
+            class="py-3 relative"
           >
             <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
             <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
@@ -56,12 +56,20 @@
                     :id="item.fighter1"
                     :fighters="fighters"
                     :eventStarted="eventStarted"
+                    :firstName="true"
                   />
+
+                  <div 
+                    class="between-fighters"
+                  >
+                    ({{ item.division || '256' }})
+                  </div>
 
                   <fighter 
                     :id="item.fighter2"
                     :fighters="fighters"
                     :eventStarted="eventStarted"
+                    :firstName="true"
                   />
 
                 </v-btn-toggle>

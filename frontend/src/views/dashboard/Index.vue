@@ -323,12 +323,23 @@
     
     .v-btn-toggle {
       display: flex;
+      align-items: center;
+      justify-content: center;
 
       .v-btn.v-size--small {
         border-radius: 5px;
         background-color: #d3d3d3;
         color: black;
-        width: 172px !important;
+        width: 122px !important;
+      }
+
+      .between-fighters {
+        min-width: 20px;
+        flex-shrink: 0;
+        align-items: center;
+        color: #4caf50;
+        font-size: 14.5px;
+        font-weight: 500;
       }
 
       .v-btn.v-size--small.initial {

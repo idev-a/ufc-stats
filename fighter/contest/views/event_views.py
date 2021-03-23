@@ -92,9 +92,6 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         latest_event = cur_game.event
                     if my_entry:
                         latest_event = my_entry.event
-                        bouts = Bout.objects.filter(event__id=latest_event.id)
-                        _bouts = BoutSerializer(bouts, many=True).data
-                        _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                         for bout in _bouts:
                             selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
                             if selected:

@@ -5,11 +5,12 @@
         :value="id"
         :disabled="eventStarted"
         small
-        :width="152"
-        :class="{'initial': initial}"
+        text
+        :class="{'initial': initial, 'first-name': firstName}"
       >
         {{_fighterName()}}
         <v-icon 
+          v-if="false"
           right
           :color="_color()"
         >
@@ -25,7 +26,7 @@
   export default {
     name: 'Fighter',
 
-    props: ['fighters', 'id', 'eventStarted', 'initial'],
+    props: ['fighters', 'id', 'eventStarted', 'initial', 'firstName'],
 
     methods: {
       _fighter () {
@@ -34,7 +35,9 @@
       },
       _fighterName () {
         const fighter = this._fighter()
-        return this.initial ? fighter.initials : fighter.name 
+        let name = this.initial ? fighter.initials : fighter.name 
+        const _split = fighter.name.trim().split(' ')
+        return this.firstName ? _split[_split.length-1] : name
       },
       _color () {
         return this._fighter().gender == 'F' ? 'pink' : 'teal darken-4'
