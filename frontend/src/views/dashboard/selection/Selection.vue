@@ -4,10 +4,11 @@
     :style="`height: ${height}`" 
   >
     <v-card
+      tile
       :loading="loading"
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
-      <v-row dense>
+      <v-row dense no-gutters>
         <v-col cols=12 md=6>
           <v-card-title 
             v-if="curContest" 
@@ -224,7 +225,7 @@
       Fighter
     },
 
-    props: ['game_id', 'retry_number'],
+    props: ['game_id', 'entry_number'],
 
     watch: {
       event: {
@@ -291,16 +292,16 @@
         return contest
       },
       contestName () {
-        return this.curContest && this.curContest.name || ""
+        return this.curContest?.name || ""
       },
       isTournament () {
-        return this.curContest && this.curContest.re_entry || false
+        return this.curContest?.re_entry || false
       },
       hasPrevRetryNumber () {
-        return this.isTournament && this.retry_number > 1 && this.curContest.retry_times >= this.retry_number
+        return this.isTournament && this.entry_number > 1 && this.curContest.multientry >= this.entry_number
       },
       hasNextRetryNumber () {
-        return this.isTournament && this.retry_number > 0 && this.retry_number < this.curContest.retry_times
+        return this.isTournament && this.entry_number > 0 && this.entry_number < this.curContest.multientry
       },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
@@ -309,7 +310,7 @@
         return beautifyDate(this.curContest.date)
       },
       eventStarted () {
-        return this.curContest && this.curContest.action != '' || this.countdownEnd
+        return this.curContest?.action != '' || this.countdownEnd
       },
       countable () {
         const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')
@@ -350,7 +351,7 @@
           link = `${process.env.VUE_APP_URL}/contest`
         }
         if (this._validRetryNumber()) {
-          link += `/${this.retry_number}`
+          link += `/${this.entry_number}`
         }
         return link
       }
@@ -384,7 +385,7 @@
         this.changeContests()
       },
       async getLatestEvent () {
-        const { data } = await main.getLatestEvent(this.game_id || -1, +this.retry_number)
+        const { data } = await main.getLatestEvent(this.game_id || -1, +this.entry_number)
         this.bouts = data.bouts
         this.fighters = data.fighters
         this.$store.commit('SET_EVENT', data.event)
@@ -393,13 +394,13 @@
       gameName (item) {
         let name = item.name
         if (item.re_entry) {
-          name += ` (${item.retry_times} Retries)`
+          name += ` (${item.multientry} Entries)`
         }
         return name
       },
       _validRetryNumber() {
         if (this.isTournament) {
-          return this.retry_number > 0 && this.retry_number <= this.curContest.retry_times
+          return this.entry_number > 0 && this.entry_number <= this.curContest.multientry
         } else {
           return true
         }
@@ -422,7 +423,7 @@
           selections: []
         }
         if (this.isTournament) {
-          payload.entry.retry_number = this.retry_number
+          payload.entry.entry_number = this.entry_number
         }
         let selected = false
         for (const bout in this.bouts) {
@@ -478,12 +479,12 @@
       },
       async gotoPrevEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.game_id}/${this.retry_number-1}`})
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number-1}`})
         })
       },
       async gotoNextEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.game_id}/${this.retry_number+1}`})
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number+1}`})
         })
       },
       disableSelection () {

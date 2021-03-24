@@ -270,21 +270,11 @@
             value: 'type_of_registration',
             align: 'center',
           },
-          // {
-          //   text: 'Genre',
-          //   value: 'genre',
-          //   align: 'center',
-          // },
           {
             text: 'Buyin',
             value: 'buyin',
             align: 'center',
           },
-          // {
-          //   text: 'Bonus',
-          //   value: 'buyin_bonus',
-          //   align: 'center',
-          // },
           {
             text: 'Prize Pool',
             value: 'prize',

@@ -85,7 +85,7 @@ class GameAdmin(admin.ModelAdmin):
 	list_filter = [GameFilter]
 
 	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
-	list_display = ('name', 'event', 'type_of_registration', 'genre', 'tournament', 'info_entrants', 'summary', 'short_rules_set', 'date',)
+	list_display = ('name', 'event', 'type_of_registration', 'tournament', 'info_entrants', 'summary', 'short_rules_set', 'date',)
 
 	filter_horizontal = ("joined_users", "entrants")
 

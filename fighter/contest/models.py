@@ -230,7 +230,7 @@ class Game(models.Model):
 	summary = models.TextField(max_length=1000, blank=False, default='FIGHTQUAKE contest')
 
 	# Determine where game is free to play or needs some coins to join.
-	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
+	# genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
 	
 	'''
 		New game type 'Re entry'. 
@@ -241,10 +241,10 @@ class Game(models.Model):
 		And other tournament where each person can only enter once.
 		Each re-entry would cost the same number of coins as the initial buyin 
 		(whether free or not)
-		re_entry would be True if retry_times > 1
+		re_entry would be True if multientry > 1
 	'''
 	# re_entry = models.BooleanField(blank=False, default=False)
-	retry_times = models.PositiveIntegerField(blank=False, default=0)
+	multientry = models.PositiveIntegerField(blank=False, default=0)
 	'''
 		the first one is kind of free game in which any one is free to join 
 		and the winner will get fixed buyin by admin.
@@ -255,15 +255,19 @@ class Game(models.Model):
 	buyin = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 	# Added by Admin
-	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=0)
+	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 	@property
 	def re_entry(self):
-		return self.retry_times > 0
+		return self.multientry > 0
 
 	@property
+	def genre(self):
+		return 'paid' if self.added_prizepool > 0  else 'free'
+	
+	@property
 	def tournament(self):
-		return f"{self.re_entry}({self.retry_times})"
+		return f"{self.re_entry}({self.multientry})"
 	
 	@property
 	def date(self):
@@ -278,7 +282,7 @@ class Game(models.Model):
 		_prize = 0
 		if self.genre == 'paid':
 			real_users = Entry.objects.filter(game_id=self.id).count()
-			_prize = real_users * self.buyin + self.buyin_bonus
+			_prize = real_users * self.buyin + self.added_prizepool
 		return _prize
 
 	def info_entrants(self):
@@ -331,7 +335,7 @@ class Entry(models.Model):
 	ranking = models.IntegerField(blank=True, null=True, default=0)
 
 	# retry number indicating tournament type or retry type
-	retry_number = models.PositiveIntegerField(blank=True, null=True, default=0, help_text="Used in tournament type game. The user can re-sumbit entry up to this number of times")
+	entry_number = models.PositiveIntegerField(blank=True, null=True, default=0, help_text="Used in tournament type game. The user can re-sumbit entry up to this number of times")
 
 	def __str__(self):
 		return "%s - %s" % (self.user, self.event)

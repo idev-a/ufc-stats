@@ -139,8 +139,8 @@ def get_entry_views(selections):
         if selection.entry.game and selection.entry.game.id:
             score[username_id]['game_id'] = selection.entry.game.id
         entry_name = selection.entry.user.displayname
-        if selection.entry.retry_number:
-            entry_name += f' ({selection.entry.retry_number})'
+        if selection.entry.entry_number:
+            entry_name += f' ({selection.entry.entry_number})'
         score[username_id]['entry'] = entry_name
         score[username_id]['user_id'] = selection.entry.user.id
         score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
@@ -533,10 +533,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 for sel in selections:
                     event = sel.entry.event
                     game = sel.entry.game
-                    retry_number = sel.entry.retry_number
+                    entry_number = sel.entry.entry_number
                     key = game.id if game else f'e_{event.id}'
-                    if retry_number:
-                        key = f"{key}_{retry_number}"
+                    if entry_number:
+                        key = f"{key}_{entry_number}"
                     # main contest, live contest
                     cur_data = {'key':key, 'game': {}, 'fighters': []}
                     is_new = True
@@ -560,7 +560,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         cur_data.get('game',{})['buyin'] = game.buyin if game else 0
                         cur_data.get('game',{})['prize'] = game.prize if game else 0
                         cur_data.get('game',{})['genre'] = game.genre if game else 'free'
-                        cur_data.get('game',{})['retry_number'] = retry_number
+                        cur_data.get('game',{})['entry_number'] = entry_number
                     if sel.survivor1 and self.bout_not_cancelled(cur_data, sel.survivor1):
                         cur_data.get('fighters',[]).append(sel.survivor1.id)
                     if sel.survivor2 and self.bout_not_cancelled(cur_data, sel.survivor2):
@@ -571,8 +571,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             logger.warning(str(err))
             status = 500
 
-        live_data['teams'] = sorted(live_data['teams'], key=lambda x: (x['game']['id'], x['game']['retry_number']))
-        recent_data['teams'] = sorted(recent_data['teams'], reverse=True, key=lambda x: (x['game']['id'], x['game']['retry_number'], x['game']['event']['date']))
+        live_data['teams'] = sorted(live_data['teams'], key=lambda x: (x['game']['id'], x['game']['entry_number']))
+        recent_data['teams'] = sorted(recent_data['teams'], reverse=True, key=lambda x: (x['game']['id'], x['game']['entry_number'], x['game']['event']['date']))
         return Response(dict(live_data=live_data, recent_data=recent_data), status=status)
 
     @action(methods=['get'], detail=False)
@@ -591,13 +591,13 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             message = 'Successfully done.'
             try:
                 if int(data['game']) != -1:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], retry_number=data['retry_number'])
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], entry_number=data['entry_number'])
                 else:
                     entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
             except:
                 pass
             if entry:
-                if entry.game and data['retry_number'] > entry.game.retry_times:
+                if entry.game and data['entry_number'] > entry.game.multientry:
                     raise Exception
                 is_exist = True
                 message = 'Successfully edited.'

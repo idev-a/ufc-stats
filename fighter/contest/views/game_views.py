@@ -42,11 +42,11 @@ def show__games(user_id):
             entrants=None,
             genre='free',
             buyin=0,
-            buyin_bonus=0,
+            added_prizepool=0,
             prize=0,
             action=event.action,
             re_entry=False,
-            retry_times=1
+            multientry=1
         )
     if user_id:
         for _ in Game.objects.filter(entrants__pk=user_id).filter(event__action=''):
@@ -58,7 +58,7 @@ def show__games(user_id):
                 genre=_.genre,
                 buyin=_.buyin,
                 prize=_.prize,
-                buyin_bonus=_.buyin_bonus,
+                added_prizepool=_.added_prizepool,
                 joined_users=UserSerializer(_.joined_users.all(), many=True).data,
                 entrants=UserSerializer(_.entrants.all(), many=True).data,
                 instructions=_.instructions,
@@ -67,7 +67,7 @@ def show__games(user_id):
                 date=_.date,
                 action=_.action,
                 re_entry=_.re_entry,
-                retry_times=_.retry_times
+                multientry=_.multientry
             )
 
 

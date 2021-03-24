@@ -140,8 +140,8 @@
       },
       contestName(game) {
         let name = game.name
-        if (game.retry_number) {
-          name += ` (${game.retry_number})`
+        if (game.entry_number) {
+          name += ` (${game.entry_number})`
         }
         return name
       },
@@ -167,7 +167,7 @@
             game: this.item.game.id,
             event: this.item.game.event.id,
             user: this.authUser.pk || this.authUser.id,
-            retry_number: this.item.game.retry_number
+            entry_number: this.item.game.entry_number
           },
           selections: []
         }

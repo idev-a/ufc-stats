@@ -159,6 +159,7 @@
     background-color: #969494;
     background-image: url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
     background-repeat: repeat-x;
+    height: 25px;
   }
 
   .dialog-drag .dialog-body {

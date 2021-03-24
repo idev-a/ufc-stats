@@ -38,8 +38,7 @@ class CustomUserManager(BaseUserManager):
 class GameManager(models.Manager):
  
     def get_games(self, event, user_id=None):
-        games = [{ 'header': 'Single' }]
-        games.append(dict(
+        games = [dict(
             name=event.name,
             group='Single',
             event_id=event.id,
@@ -48,17 +47,16 @@ class GameManager(models.Manager):
             value=-1,
             genre='free',
             buyin=0,
-            buyin_bonus=0,
+            added_prizepool=0,
             prize=0,
             action=event.action,
             re_entry=False,
-            retry_times=1
-        ))
+            multientry=1
+        )]
 
         if user_id:
             multi_games = self.filter(joined_users__pk=user_id).filter(~Q(event__action='completed'))
             if multi_games:
-                games.append({ 'header': 'Multiple' })
                 for _ in multi_games:
                     games.append(dict(
                         name=_.name,
@@ -74,9 +72,9 @@ class GameManager(models.Manager):
                         buyin=_.buyin,
                         prize=_.prize,
                         joined_users=_.joined_users.count(),
-                        buyin_bonus=_.buyin_bonus,
+                        added_prizepool=_.added_prizepool,
                         re_entry=_.re_entry,
-                        retry_times=_.retry_times
+                        multientry=_.multientry
                     ))
 
         return games
