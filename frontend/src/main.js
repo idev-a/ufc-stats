@@ -27,12 +27,19 @@ import { BASE_API } from '@/api/index'
 import { TwitterAuthConfig } from '@/config'
 import VueNativeSock from 'vue-native-websocket'
 import Meta from 'vue-meta'
+import VuetifyDialog from 'vuetify-dialog'
+import 'vuetify-dialog/dist/vuetify-dialog.css'
 // import VueGtag from "vue-gtag";
 
 // Vue.use(VueGtag, {
 //   config: { id: "G-ZVN752YT85" }
 // });
 
+Vue.use(VuetifyDialog, {
+  context: {
+    vuetify
+  }
+})
 
 Vue.use(Meta);
 

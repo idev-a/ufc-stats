@@ -43,7 +43,7 @@
             >
               <template v-for="item in bouts">
                 <v-btn-toggle
-                  v-model="contests[item.id]"
+                  v-model="item.survivors"
                   :disabled="loading"
                   :key="item.id"
                   dense
@@ -62,7 +62,7 @@
                   <div 
                     class="between-fighters"
                   >
-                    ({{ item.division || '256' }})
+                    ({{ item.division }})
                   </div>
 
                   <fighter 
@@ -250,7 +250,6 @@
         bouts: [],
         fighters: [],
         selectedItem: -1,
-        contests: {},
         snackbar: {
           snack: true,
           message: '',
@@ -380,17 +379,8 @@
       startCountDown(val) {
         this.deadline2 = this.$moment(`${val}`).format(fmt)
       },
-      preselectFighters() {
-        this.bouts.map(bout => {
-          this.contests[bout.id] = []
-          if (bout.survivors) {
-            this.contests[bout.id] = bout.survivors
-          }
-        })
-      },
       async getLatestData() {
         await this.getLatestEvent()
-        this.preselectFighters()
         this.changeContests()
       },
       async getLatestEvent () {
@@ -435,15 +425,14 @@
           payload.entry.retry_number = this.retry_number
         }
         let selected = false
-        for (const bout in this.contests) {
-          const survivors = this.contests[bout]
-          if (survivors.length) {
+        for (const bout in this.bouts) {
+          if (bout.survivors.length) {
             selected = true
           }
           payload.selections.push({
             bout: bout,
-            survivor1: survivors?.[0] || null,
-            survivor2: survivors?.[1] || null,
+            survivor1: bout.survivors?.[0] || null,
+            survivor2: bout.survivors?.[1] || null,
           })
         }
 
@@ -479,14 +468,12 @@
         })
       },
       clearSelection () {
-        this.contests = {}
         this.squadSize = 0
       },
       changeContests() {
         this.squadSize = 0
-        for (const bout in this.contests) {
-          const survivors = this.contests[bout]
-          this.squadSize += survivors.length
+        for (const bout in this.survivors) {
+          this.squadSize += bout.survivors.length
         }
       },
       async gotoPrevEntry () {

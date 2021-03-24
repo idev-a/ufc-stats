@@ -35,7 +35,7 @@ DEFAULT_RULES_SET = [
 ]
 
 WEIGHT_MAPPING = {
-	'Straw weight': '115',
+	'Strawweight': '115',
 	'Flyweight': '125',
 	'Bantamweight': '135',
 	'Featherweight': '145',

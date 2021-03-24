@@ -62,7 +62,7 @@
                 <team-card 
                   :loading="loading"
                   :item="item"
-                  :key="item.id"
+                  :key="item.key"
                   :item_index="x"
                   :fighters="curData.fighters"
                   @updateLoading="updateLoading"

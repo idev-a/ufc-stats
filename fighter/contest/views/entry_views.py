@@ -485,18 +485,15 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if fighter.id in [bout['fighter1'], bout['fighter2']]:
                 is_exist = True
                 bout.get('survivors', []).append(fighter.id)
-                bout['contests'].append(fighter.id)
-                bout['contests_orig'].append(fighter.id)
+                bout.get('contests_orig', []).append(fighter.id)
                 break
         return is_exist
 
     def add_fighters(self, event, data):
         bouts = Bout.objects.filter(event__id=event.id)
         bouts_dict = BoutSerializer(bouts, many=True).data
-        for bout in bouts_dict:
-            bout['contests'] = []
-            bout['contests_orig'] = []
-
+        for _bout in bouts_dict:
+            _bout['survivors'] = []
         for bout in bouts:
             fighter = FighterSerializer(bout.fighter1).data
             if fighter not in data['fighters']:

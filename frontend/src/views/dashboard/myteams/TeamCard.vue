@@ -128,6 +128,7 @@
     computed: {
       ...mapState('auth', ['authUser']),
       noChangeFighters () {
+
         return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters)
       }
     },
@@ -145,6 +146,22 @@
         return name
       },
       async confirmTeam () {
+        await this.$dialog.confirm({
+          text: 'Are you sure?',
+          title: 'Confirmation',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                this._confirmTeam()
+              }
+            }
+          }
+        })
+      },
+      async _confirmTeam () {
         const payload = {
           entry: {
             game: this.item.game.id,
@@ -157,8 +174,8 @@
         this.item.bouts.forEach(bout => {
           payload.selections.push({
             bout: bout.id,
-            survivor1: bout.contests?.[0] || null,
-            survivor2: bout.contests?.[1] || null,
+            survivor1: bout.survivors?.[0] || null,
+            survivor2: bout.survivors?.[1] || null,
           })
         })
 
@@ -183,12 +200,9 @@
       removeFighter (id, i) {
         this.item.fighters.splice(i, 1)
         this.item.bouts.forEach(bout => {
-          if (!bout.contests) {
-            console.log(bout)
-          }
-          const index = bout.contests.indexOf(id)
+          const index = bout.survivors.indexOf(id)
           if (index > -1) {
-            bout.contests.splice(bout.contests.indexOf(id), 1)
+            bout.survivors.splice(bout.survivors.indexOf(id), 1)
           }
         })
       },
@@ -197,21 +211,21 @@
       },
       closeDlg (item) {
         item.bouts.forEach(bout => {
-          bout.contests = bout.contests_orig
+          bout.survivors = bout.contests_orig
         })
         this.editDlg = false
       },
       okDlg () {
         this.editDlg = false
         this.item.bouts.forEach(bout => {
-          if (bout.contests.length == 1) {
-            if (!this.item.fighters.includes(bout.contests[0])) {
-              this.item.fighters.push(bout.contests[0])
+          if (bout.survivors.length == 1) {
+            if (!this.item.fighters.includes(bout.survivors[0])) {
+              this.item.fighters.push(bout.survivors[0])
             }
           }
-          if (bout.contests.length == 2) {
-            if (!this.item.fighters.includes(bout.contests[1])) {
-              this.item.fighters.push(bout.contests[1])
+          if (bout.survivors.length == 2) {
+            if (!this.item.fighters.includes(bout.survivors[1])) {
+              this.item.fighters.push(bout.survivors[1])
             }
           }
         })

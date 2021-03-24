@@ -15,7 +15,7 @@
       >
         <template v-for="bout in bouts">
           <v-btn-toggle
-            v-model="bout.contests"
+            v-model="bout.survivors"
             :disabled="loading"
             :key="bout.id"
             dense
@@ -30,6 +30,12 @@
               :eventStated="eventStarted"
               :initial="initial"
             />
+
+            <div 
+              class="between-fighters"
+            >
+              ({{ bout.division }})
+            </div>
 
             <fighter 
               :id="bout.fighter2"
@@ -80,6 +86,10 @@
       },
     },
 
+    mounted () {
+      this.changeContests()
+    },
+
     methods: {
       onScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
         this.top = scrollTop
@@ -93,7 +103,7 @@
       changeContests () {
         this.squadSize = 0
         this.bouts.forEach(bout => {
-          this.squadSize += bout.contests.length
+          this.squadSize += bout.survivors.length
         })
       }
     }

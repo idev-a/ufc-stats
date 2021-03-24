@@ -338,12 +338,12 @@
         flex-shrink: 0;
         align-items: center;
         color: #4caf50;
-        font-size: 14.5px;
+        font-size: 14px;
         font-weight: 500;
       }
 
       .v-btn.v-size--small.initial {
-        width: 125px !important;
+        width: 105px !important;
       }
     }
    
