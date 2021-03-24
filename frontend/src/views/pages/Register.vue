@@ -3,7 +3,7 @@
     v-model="propDlg"
     fullscreen
   >
-    <v-row justify="center" align="center" style="min-height: 100vh;">
+    <v-row no-gutters justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
         <v-card
           max-width="100%"
