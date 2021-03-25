@@ -115,7 +115,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 ranking = _.ranking
                 prize = 0
                 if _.game:
-                    prize = "{:10.2f}".format(_.game.prize / Entry.objects.get_total_winners(_.game.id))
+                    winners = Entry.objects.get_total_winners(_.game.id)
+                    if winners:
+                        prize = "{:10.2f}".format(_.game.prize / winners)
                 
                 if _.event.action != 'completed':
                     ranking = '-'

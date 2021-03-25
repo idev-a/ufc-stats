@@ -46,7 +46,7 @@
         return +this.$route.params.game_id
       },
       entry_number () {
-        return +this.$route.params.entry_number || 0
+        return +this.$route.params.entry_number || 1
       }
     },
 
