@@ -350,14 +350,14 @@
     },
 
     async mounted () {
+      this.curGame = this.game_id  || -1
+      
       this.loading = true
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
       this.summary = this.defaultSummary
       await this.getLatestData()
       this.loading = false
-
-      // return login
     },
     methods: {
       beautifyDate,

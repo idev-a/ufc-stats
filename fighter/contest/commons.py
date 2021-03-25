@@ -26,6 +26,7 @@ def get_games(event, user_id=None):
 	if _:
 		event_data = EventSerializer(event).data
 		games.append(dict(
+			id=_.id,
 			name=_.name,
 			group='single',
 			date=_.date,
@@ -50,6 +51,7 @@ def get_games(event, user_id=None):
 			if multi_games:
 				for _ in multi_games:
 					games.append(dict(
+						id=_.id,
 						name=_.name,
 						group='Multiple',
 						date=_.date,
