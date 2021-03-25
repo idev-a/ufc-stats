@@ -16,19 +16,22 @@ class GameForm(forms.ModelForm):
 		try:
 			cleaned_data = super(GameForm, self).clean()
 			event = cleaned_data["event"]
-			games = (
-				Game.objects.filter(event=event)
-				.filter(type_of_registration="public")
-				.filter(buyin=0)
-			)
-			if self.instance.id:
-				if games and games.first().id == self.instance.id:
-					return cleaned_data
-				raise MainGameExistException()
-			else:
-				if games.count():
-					raise MainGameExistException()
+			if cleaned_data["type_of_registration"] == 'private':
 				return cleaned_data
+			else:
+				games = (
+					Game.objects.filter(event=event)
+					.filter(type_of_registration="public")
+					.filter(buyin=0)
+				)
+				if self.instance.id:
+					if games and games.first().id == self.instance.id:
+						return cleaned_data
+					raise MainGameExistException()
+				else:
+					if games.count():
+						raise MainGameExistException()
+					return cleaned_data
 		except MainGameExistException:
 			msg = "You've already created a default game for this event with the following conditions".format(event)
 			raise ValidationError([
