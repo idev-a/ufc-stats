@@ -591,12 +591,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             entry_serializer = None
             is_exist = False
             message = 'Successfully done.'
+            pdb.set_trace()
             try:
                 if int(data['game']) != -1:
                     entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], entry_number=data['entry_number'])
                 else:
                     entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
-            except:
+            except Exception as err:
+                print(err)
                 pass
             if entry:
                 if entry.game and data['entry_number'] > entry.game.multientry:
