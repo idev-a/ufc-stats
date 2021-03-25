@@ -43,14 +43,9 @@ from contest.serializers import (
     ChatMessageSerializer
 )
 
-import pdb
+from contest.commons import get_games
 
-def show__latest_event():
-    events = Event.objects.filter(status='upcoming')
-    event = None
-    if events:
-        event = events.latest('-date')
-    return event
+import pdb
 
 class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     """
@@ -64,14 +59,15 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['post'], detail=False)
     def get_latestevent(self, request, **kwarg):
         try:
-            events = Event.objects.all().filter(status='upcoming')
-            if events:
-                latest_event = events.latest('-date')
+            latest_event = Event.objects.latest_event()
+            if latest_event:
                 bouts = Bout.objects.filter(event__id=latest_event.id)
                 _bouts = BoutSerializer(bouts, many=True).data
                 _bouts = sorted(_bouts, key = lambda _bout: _bout['id'])
                 games = []
                 fighters = []
+                for bout in _bouts:
+                    bout['survivors'] = []
                 for bout in bouts:
                     fighters.append(FighterSerializer(bout.fighter1).data)
                     fighters.append(FighterSerializer(bout.fighter2).data)
@@ -94,16 +90,16 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         latest_event = my_entry.event
                         for bout in _bouts:
                             selected = Selection.objects.all().filter(entry_id=my_entry.id, bout_id=bout['id'])
+                            bout['survivors'] = []
                             if selected:
-                                bout['survivors'] = []
                                 if selected[0].survivor1_id:
                                     bout['survivors'].append(selected[0].survivor1_id)
                                 if selected[0].survivor2_id:
                                     bout['survivors'].append(selected[0].survivor2_id)
 
-                    games = Game.objects.get_games(latest_event, request.user.id)
+                    games = get_games(latest_event, request.user.id)
                 else:
-                    games = Game.objects.get_games(latest_event)
+                    games = get_games(latest_event)
                 return Response(dict(
                     bouts=_bouts,
                     games=games,

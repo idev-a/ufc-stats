@@ -6,7 +6,7 @@
       class="mt-0"
       style="background: none;"
     >
-      <v-card-title class="mb-2">
+      <v-card-title class="mb-0 pt-0">
         <v-text-field
           v-model="entryViewSearch"
           append-icon="mdi-magnify"

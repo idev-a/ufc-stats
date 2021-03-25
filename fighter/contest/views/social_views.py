@@ -191,7 +191,7 @@ class TwitterWebhookEndpoint(APIView):
 
         if not event:
             # choose latest event
-            event = event_views.show__latest_event()
+            event = Event.objects.latest_event()
 
         if not name:
             name = event.__str__()
@@ -228,7 +228,7 @@ class TwitterWebhookEndpoint(APIView):
             self.reply('show__latest_event', reply_id)
 
         elif first_command == 'show__latest_event':
-            event = event_views.show__latest_event()
+            event = Event.objects.latest_event()
             self.reply(event.__str__(), reply_id)
         elif first_command == 'show__games':
             image_path = f"{reply_id}.png"

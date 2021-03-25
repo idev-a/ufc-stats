@@ -42,11 +42,11 @@
     >
       <v-card-text
         tile
-        v-if="game.entrants"
+        v-if="game.joined_users"
         width="100%"
       >
         <v-data-iterator
-          :items="game.entrants"
+          :items="game.joined_users"
           hide-default-footer
           hide-default-header
         >

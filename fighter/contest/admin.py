@@ -16,6 +16,8 @@ from .models import (
 	Ticket,
 )
 
+from .forms import GameForm
+
 # Register your models here.
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -75,14 +77,15 @@ class SelectionAdmin(admin.ModelAdmin):
 	class Meta:
 		ordering = ('entry', "bout", )
 
-class GameFilter(AutocompleteFilter):
+class GameEventFilter(AutocompleteFilter):
     title = 'Event' # display title
     field_name = 'event' # name of the foreign key field
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
-	list_filter = [GameFilter]
+	form = GameForm
+	list_filter = [GameEventFilter]
 
 	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
 	list_display = ('name', 'event', 'type_of_registration', 'tournament', 'info_entrants', 'summary', 'short_rules_set', 'date',)

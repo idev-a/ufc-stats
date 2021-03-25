@@ -262,7 +262,7 @@
         top: 0,
         sHeight: -1,
         games: [],
-        curGame: -1,
+        curGame: 0,
         instructions: [],
         rulesSet: [],
         summary: '',
@@ -413,7 +413,7 @@
         if (!this._validRetryNumber()) {
           return
         }
-        const event_id = this.curContest.id || this.curContest.event_id
+        const event_id = this.curContest.id || this.curContest.event.id
         const payload = {
           entry: {
             game: this.curGame,
@@ -426,16 +426,16 @@
           payload.entry.entry_number = this.entry_number
         }
         let selected = false
-        for (const bout in this.bouts) {
+        this.bouts.forEach(bout => {
           if (bout.survivors.length) {
             selected = true
           }
           payload.selections.push({
-            bout: bout,
+            bout: bout.id,
             survivor1: bout.survivors?.[0] || null,
             survivor2: bout.survivors?.[1] || null,
           })
-        }
+        })
 
         if (!selected) {
           this.snackbar = {

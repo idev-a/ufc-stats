@@ -34,28 +34,39 @@ class CustomUserManager(BaseUserManager):
             raise ValueError(_('Superuser must have is_superuser=True.'))
         return self.create_user(username, password, **extra_fields)
 
+class EventManager(models.Manager):
+    
+    def latest_event(self):
+        events = self.filter(status='upcoming')
+        event = None
+        if events:
+            event = events.latest('-date')
+        return event
 
 class GameManager(models.Manager):
- 
     def get_games(self, event, user_id=None):
+        _ = self.filter(event=event).filter(type_of_registration='public').filter(buyin=0).first()
         games = [dict(
-            name=event.name,
-            group='Single',
-            event_id=event.id,
-            date=event.date,
-            joined_users=0,
-            value=-1,
-            genre='free',
-            buyin=0,
-            added_prizepool=0,
-            prize=0,
-            action=event.action,
-            re_entry=False,
-            multientry=1
+            name=_.name,
+            group='single',
+            date=_.date,
+            value=_.id,
+            event_id=_.event.id,
+            instructions=_.instructions,
+            summary=_.summary,
+            rules_set=_.rules_set,
+            action=_.action,
+            genre=_.genre,
+            buyin=_.buyin,
+            prize=_.prize,
+            joined_users=_.joined_users,
+            added_prizepool=_.added_prizepool,
+            re_entry=_.re_entry,
+            multientry=_.multientry
         )]
 
         if user_id:
-            multi_games = self.filter(joined_users__pk=user_id).filter(~Q(event__action='completed'))
+            multi_games = self.filter(joined_users__pk=user_id).filter(event=event)
             if multi_games:
                 for _ in multi_games:
                     games.append(dict(

@@ -13,6 +13,8 @@ sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__f
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'fighter.settings')
 django.setup()
 
+from contest.models import Event
+
 from contest.views import (
     event_views
 )
@@ -41,7 +43,7 @@ class FavRetweetListener(tweepy.StreamListener):
             self.reply('show__latest_event', tweet.id)
 
         elif first_command == 'show__latest_event':
-            event = event_views.show__latest_event()
+            event = Event.objects.latest_event()
             self.reply(event.__str__(), tweet.id)
 
     def on_status(self, tweet):

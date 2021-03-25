@@ -33,7 +33,8 @@ from contest.serializers import (
 	FighterSerializer
 )
 from contest.views.entry_views import update_rank
-from contest.util import _valid, convert_date, strip_list1
+from contest.commons import create_main_contest
+from contest.utils import _valid, convert_date, strip_list1
 
 import pdb
 from contest.logger import logger
@@ -213,6 +214,7 @@ class Scraper:
 						event.action = 'completed'
 						event.status = 'old'
 						update_rank(event.id)
+						create_main_contest(event)
 					elif not is_notified:
 						notify_data = {
 							'type': 'live_score',

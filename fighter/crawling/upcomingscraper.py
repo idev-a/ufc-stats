@@ -22,7 +22,7 @@ from contest.serializers import (
 	BoutSerializer,
 	FighterSerializer
 )
-from contest.util import _valid, convert_date, strip_list1
+from contest.utils import _valid, convert_date, strip_list1
 
 class ScraperSpider(scrapy.Spider):
 	name = 'scraper'

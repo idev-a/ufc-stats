@@ -8,48 +8,20 @@ from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 from django import forms
 
-from .managers import CustomUserManager, GameManager, EntryManager
+from .managers import CustomUserManager, GameManager, EntryManager, EventManager
+from .constants import (
+	DEFAULT_INSTRUCTIONS,
+	DEFAULT_RULES_SET,
+	WEIGHT_MAPPING,
+	ACTION_TYPE,
+	GENDER_TYPE,
+	EVENT_STATUS_TYPE,
+	BOUT_STATUS_TYPE,
+	TICKET_STATUS_TYPE,
+	REGISTRATION_TYPES
+)
 
 import pdb
-
-ACTION_TYPE = [
-	('started', 'Started'),
-	('completed', 'Completed'),
-]
-
-GENDER_TYPE = [
-	('M', 'Male'),
-	('F', 'Female'),
-]
-
-DEFAULT_INSTRUCTIONS = [
-  'Choose fighters',
-  'Hope they all survive'
-]
-  
-DEFAULT_RULES_SET = [
-  'User can pick any number of fighters. If any of them get finished, user is eliminated.',
-  'Out of all surviving entries, the user with the most surviving fighters, wins the contest.',
-  'If there is a tie, the winner is the entry with the most winning fighters.',
-  'You are allowed to resubmit your team. 1 team per person.'
-]
-
-WEIGHT_MAPPING = {
-	'Strawweight': '115',
-	'Flyweight': '125',
-	'Bantamweight': '135',
-	'Featherweight': '145',
-	'Lightweight': '155',
-	'Super Lightweight': '165',
-	'Welterweight': '170',
-	'Super Welterweight': '175',
-	'Middleweight': '185',
-	'Super Middleweight': '195',
-	'Light Heavyweight': '205',
-	'Cruiserweight': '225',
-	'Heavyweight': '265',
-	'Super Heavyweight': '265',
-}
 
 # Customize User model
 class CustomUser(AbstractUser):
@@ -91,15 +63,12 @@ class CustomUser(AbstractUser):
 
 # Create your models here.
 class Event(models.Model):
-	STATUS_TYPE = [
-		('upcoming', 'Upcoming'),
-		('old', 'Old'),
-	]
+	objects = EventManager()
 
 	name = models.CharField(max_length=100)
 	location = models.CharField(max_length=200, blank=True, default='')
 	date = models.DateTimeField()
-	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='upcoming')
+	status = models.CharField(choices=EVENT_STATUS_TYPE, max_length=50, blank=True, default='upcoming')
 	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
 
@@ -134,12 +103,6 @@ class Notification(models.Model):
 		return "%s" % self.name
 
 class Bout(models.Model):
-	STATUS_TYPE = [
-		('pending', 'Pending'),
-		('completed', 'Completed'),
-		('drawn', 'Drawn'),
-	]
-
 	fighter1 = models.ForeignKey(
 		Fighter,
 		on_delete=models.CASCADE,
@@ -176,7 +139,7 @@ class Bout(models.Model):
 		on_delete=models.CASCADE,
 	)
 
-	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='pending')
+	status = models.CharField(choices=BOUT_STATUS_TYPE, max_length=50, blank=True, default='pending')
 	weight_class = models.CharField(max_length=50, blank=True, default='')
 	method = models.CharField(max_length=100, blank=True, default='')
 	round = models.PositiveIntegerField(blank=True, null=True, default=1)
@@ -196,16 +159,6 @@ class Bout(models.Model):
 
 # multiple games
 class Game(models.Model):
-	REGISTRATION_TYPES = [
-		('private', 'Private'),
-		('public', 'Public')
-	]
-
-	GENRE_TYPES = [
-		('free', 'Free'),
-		('paid', 'Paid')
-	]
-
 	owner = models.ForeignKey(
 		CustomUser,
 		on_delete=models.CASCADE,
@@ -218,8 +171,6 @@ class Game(models.Model):
 		related_name='game_event', 
 		on_delete=models.CASCADE,
 	)
-
-	objects = GameManager()
 
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
@@ -449,16 +400,10 @@ class Faq(models.Model):
 		return self.question
 
 class Ticket(models.Model):
-	STATUS_TYPES = [
-		('delivered', 'Delivered'),
-		('resolved', 'Resolved'),
-		('failed', 'Failed'),
-	]
-
 	title = models.CharField(max_length=50)
 	message = models.TextField(default='')
 	answer = models.TextField(default='')
-	status = models.CharField(choices=STATUS_TYPES, max_length=20, blank=True, default='')
+	status = models.CharField(choices=TICKET_STATUS_TYPE, max_length=20, blank=True, default='')
 	delivered = models.DateTimeField(null=True, blank=True)
 	resolved = models.DateTimeField(null=True, blank=True)
 

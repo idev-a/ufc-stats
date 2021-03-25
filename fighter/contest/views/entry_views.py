@@ -38,6 +38,8 @@ from contest.serializers import (
     EntrySerializer,
 )
 
+from contest.commons import get_games
+
 import pdb
 logger = logging.getLogger(__name__)
 
@@ -352,7 +354,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
  
     @action(methods=['post'], detail=False)
     def get_latestcontest(self, request, **kwarg):
-        latest_event = Event.objects.filter(status='upcoming').latest('-date')
+        latest_event = Event.objects.latest_event()
         game_id = request.data['game_id']
         if int(game_id) == -1:
             selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
@@ -361,7 +363,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
-        games = Game.objects.get_games(latest_event, request.user.id)
+        games = get_games(latest_event, request.user.id)
 
         return Response(dict(
             bout_views=bout_views,
@@ -527,7 +529,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         selections = Selection.objects.filter(entry__user_id=request.user.id).filter(entry__last_edited__range=date_range)
         try:
             if request.user:
-                latest_event = Event.objects.filter(status='upcoming').latest('-date')
+                latest_event = Event.objects.latest_event()
                 live_bouts_dict = self.add_fighters(latest_event, live_data)
 
                 for sel in selections:
