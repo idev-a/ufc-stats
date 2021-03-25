@@ -21,14 +21,13 @@ class GameForm(forms.ModelForm):
 				.filter(type_of_registration="public")
 				.filter(buyin=0)
 			)
-			if (
-				games.count() > 1 or
-				(cleaned_data["type_of_registration"] == "public"
-				and cleaned_data["buyin"] == 0
-				and games and games.first().event == event)
-			):
+			if self.instance.id:
+				if games and games.first().id == self.instance.id:
+					return cleaned_data
 				raise MainGameExistException()
 			else:
+				if games.count():
+					raise MainGameExistException()
 				return cleaned_data
 		except MainGameExistException:
 			msg = "You've already created a default game for this event with the following conditions".format(event)
