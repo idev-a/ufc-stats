@@ -375,6 +375,7 @@
         this.changeContests()
       },
       async getLatestEvent () {
+        console.log(+this.entry_number)
         const { data } = await main.getLatestEvent(this.curGame, +this.entry_number)
         this.bouts = data.bouts
         this.fighters = data.fighters
@@ -406,9 +407,10 @@
         if (!this._validRetryNumber()) {
           return
         }
-        const event_id = this.curContest.id || this.curContest.event.id
+        const event_id = this.curContest.event.id
         const payload = {
           entry: {
+            entry_number: 0,
             game: this.curGame,
             event: event_id,
             user: this.authUser.pk || this.authUser.id,
