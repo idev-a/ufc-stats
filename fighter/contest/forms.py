@@ -25,7 +25,7 @@ class GameForm(forms.ModelForm):
 				games.count() > 1 or
 				(cleaned_data["type_of_registration"] == "public"
 				and cleaned_data["buyin"] == 0
-				and games.first().event == event)
+				and games and games.first().event == event)
 			):
 				raise MainGameExistException()
 			else:
