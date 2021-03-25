@@ -613,6 +613,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             # update entry information
             if entry_serializer.is_valid():
                 entry = entry_serializer.save()
+            else:
+                print(entry_serializer.errors)
+                raise Exception()
 
             # delete old selections and save new data
             Selection.objects.filter(entry_id=entry.id).delete()
