@@ -233,7 +233,7 @@
         return this.profile.user && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
       },
       width () {
-        return this.$vuetify.breakpoint.smAndUp ? '60%' : ''
+        return this.$vuetify.breakpoint.mdAndUp ? '60%' : ''
       }
     },
 

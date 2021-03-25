@@ -228,14 +228,6 @@
     props: ['game_id', 'entry_number'],
 
     watch: {
-      event: {
-        handler(val) {
-          if (val) {
-            this.startCountDown(val.date)
-          }
-        },
-        deep: true
-      },
       isTournament (val) {
         this.key++
       }
@@ -262,7 +254,7 @@
         top: 0,
         sHeight: -1,
         games: [],
-        curGame: 0,
+        curGame: this.game_id  || -1,
         instructions: [],
         rulesSet: [],
         summary: '',
@@ -358,8 +350,6 @@
     },
 
     async mounted () {
-      this.curGame = this.game_id || -1
-
       this.loading = true
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
@@ -385,11 +375,14 @@
         this.changeContests()
       },
       async getLatestEvent () {
-        const { data } = await main.getLatestEvent(this.game_id || -1, +this.entry_number)
+        const { data } = await main.getLatestEvent(this.curGame, +this.entry_number)
         this.bouts = data.bouts
         this.fighters = data.fighters
-        this.$store.commit('SET_EVENT', data.event)
         this.games = data.games
+        if (data.games.length > 0 && this.curGame == -1) {
+          this.curGame = data.games[0].id
+          this.startCountDown(data.games[0].event.date)
+        }
       },
       gameName (item) {
         let name = item.name
