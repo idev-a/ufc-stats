@@ -18,7 +18,7 @@
             <span v-if="eventStarted" class="red--text h6">({{curContest.action}})</span>
           </div>
         </div>
-        <v-col cols="auto">
+        <v-col cols="auto" class="py-0">
           <v-autocomplete 
             :loading="loading"
             v-model="curGame"
@@ -27,7 +27,7 @@
             item-value="value"
             item-text="name"
             label="Select Contest"
-            class="mt-2 mr-4"
+            class="mt-2 mr-4 hidden-detail"
             @change="changeGame"
           >
             <template v-slot:item="data">
@@ -47,7 +47,9 @@
           class="w-100"
         >
           <v-tabs
-            align-with-title
+            grow
+            centered
+            hide-slider
             v-model="tab"
             background-color="transparent"
             slider-color="red lighten-1"
@@ -55,11 +57,13 @@
           >
             <v-tab
               v-for="item in tabs"
-              :key="item"
-              :title="item"
-              :href='`#${item}`'
+              :key="item.text"
+              :title="item.text"
+              :href='`#${item.text}`'
+              active-class="winner"
             >
-              {{item}}
+              {{item.text}}
+              <v-icon right>{{item.icon}}</v-icon>
             </v-tab>
           </v-tabs>
           <v-tabs-items
@@ -114,9 +118,18 @@
         boutViews: [],
         entryViews: [],
         tabs: [
-          'fights',
-          'standings',
-          'chat'
+          {
+            text: 'fights',
+            icon: 'mdi-fencing'
+          },
+          {
+            text: 'standings',
+            icon: 'mdi-view-list-outline'
+          },
+          {
+            text: 'chat',
+            icon: 'mdi-message'
+          }
         ],
         games: [],
         curGame: -1,

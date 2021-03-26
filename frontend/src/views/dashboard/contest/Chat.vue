@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-2">
     <chat-window
       theme="dark"
       height="calc(100vh - 250px)"
@@ -105,9 +105,15 @@ export default {
       return {
         general: {
           color: '#fff',
-          backgroundInput: '#a09c9c',
+          backgroundInput: '#1e1e1e',
         },
-        container: { borderRadius: '4px' },
+        container: { 
+          background: '#13141569',
+          borderRadius: '4px' 
+        },
+        content: {
+          background: '#13141569'
+        },
         room: {
           colorMessage: '#eee',
           colorTimestamp: '#eee',
@@ -116,8 +122,14 @@ export default {
           backgroundCounterBadge: '#1976d2',
           colorCounterBadge: '#fff'
         },
+        header: {
+          background: '#15151569',
+        },
+        footer: {
+          backgroundReply: '#13141569'
+        },
         message: {
-          background: '#a09c9c',
+          background: '#a09c11',
           color: '#fff'
         },
       }

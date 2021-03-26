@@ -28,34 +28,36 @@ def main_contest():
 		return -1
 
 def get_games(event, user_id=None):
-	_ = Game.objects.filter(event=event).filter(type_of_registration='public').filter(buyin=0).first()
+	public_games = Game.objects.filter(event=event).filter(type_of_registration='public')
 	games = []
-	if _:
+	if public_games:
 		event_data = EventSerializer(event).data
-		games.append(dict(
-			id=_.id,
-			name=_.name,
-			group='single',
-			date=_.date,
-			value=_.id,
-			event=event_data,
-			type_of_registration=_.type_of_registration,
-			instructions=_.instructions,
-			summary=_.summary,
-			rules_set=_.rules_set,
-			action=_.action,
-			genre=_.genre,
-			buyin=_.buyin,
-			prize=_.prize,
-			entrants=UserSerializer(_.entrants, many=True).data,
-			joined_users=UserSerializer(_.joined_users, many=True).data,
-			added_prizepool=_.added_prizepool,
-			re_entry=_.re_entry,
-			multientry=_.multientry
-		))
+		for _ in public_games:
+			games.append(dict(
+				id=_.id,
+				name=_.name,
+				group='single',
+				date=_.date,
+				value=_.id,
+				event=event_data,
+				type_of_registration=_.type_of_registration,
+				instructions=_.instructions,
+				summary=_.summary,
+				rules_set=_.rules_set,
+				action=_.action,
+				genre=_.genre,
+				teams_limit=_.teams_limit,
+				buyin=_.buyin,
+				prize=_.prize,
+				entrants=UserSerializer(_.entrants, many=True).data,
+				joined_users=UserSerializer(_.joined_users, many=True).data,
+				added_prizepool=_.added_prizepool,
+				re_entry=_.re_entry,
+				multientry=_.multientry
+			))
 
 		if user_id:
-			multi_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event).exclude(pk=_.id)
+			multi_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event).exclude(pk=_.id).exclude(type_of_registration='public')
 			if multi_games:
 				for _ in multi_games:
 					games.append(dict(
@@ -70,6 +72,7 @@ def get_games(event, user_id=None):
 						summary=_.summary,
 						rules_set=_.rules_set,
 						action=_.action,
+						teams_limit=_.teams_limit,
 						genre=_.genre,
 						buyin=_.buyin,
 						prize=_.prize,

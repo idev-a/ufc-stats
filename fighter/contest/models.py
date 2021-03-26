@@ -208,13 +208,15 @@ class Game(models.Model):
 	# Added by Admin
 	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=100)
 
+	teams_limit = models.PositiveIntegerField(blank=True, null=True, default=10)
+
 	@property
 	def re_entry(self):
 		return self.multientry > 0
 
 	@property
 	def genre(self):
-		return 'paid' if self.added_prizepool > 0  else 'free'
+		return 'paid' if self.buyin > 0  else 'free'
 	
 	@property
 	def tournament(self):

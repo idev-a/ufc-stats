@@ -30,7 +30,7 @@
               </div>
               <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
               <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
-              <div class="overline">{{totalFighters}} FIGHTERS ( <b style="color:#fffd">SQUAD SIZE: {{squadSize}}</b> )</div>
+              <div class="overline">{{totalFighters}} FIGHTERS ( <b class="silver--text">SQUAD SIZE: {{squadSize}}</b> )</div>
             </div>
           </v-card-title>
           <v-card-text

@@ -360,7 +360,7 @@
             isInvolved = true
           }
         })
-        let isStarted = this.$moment(item.date).isBefore(this.$moment())
+        let isStarted = this.$moment(item.date).isSameOrBefore(this.$moment())
         if (isStarted) {
           return 'Game started'
         }
@@ -403,11 +403,17 @@
       },
       hasJoined(item) {
         let joined = false
-        item.joined_users != null && item.joined_users.map(user => {
-          if (user.id == this.myId) {
+        if (this.authUser) {
+          if (item.type_of_registration == 'public') {
             joined = true
+          } else {
+            item.joined_users != null && item.joined_users.map(user => {
+              if (user.id == this.myId) {
+                joined = true
+              }
+            })
           }
-        })
+        }
         return joined
       },
       hasEnoughCoins(item) {
@@ -425,7 +431,7 @@
         if (item.id == -1) {
           label = 'EDIT'
         }
-        let isStarted = this.$moment(item.date).isBefore(this.$moment())
+        let isStarted = this.$moment(item.date).isSameOrBefore(this.$moment())
         if (isStarted && label == 'EDIT') {
           label = 'LIVE'
         }
@@ -436,6 +442,9 @@
       },
       async joinContest (item) {
         const label = this.joinLabel(item)
+        if (label == 'JOIN' && !this.authUser) {
+          return this.$router.push({ path: `/selection/${item.id}` })
+        }
         if (label == 'LIVE') {
           return this.$router.push({ name: 'Contest', query: {tab: 'standings'}})
         }

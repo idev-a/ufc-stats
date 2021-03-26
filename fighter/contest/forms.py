@@ -15,6 +15,7 @@ class GameForm(forms.ModelForm):
 	def clean(self):
 		try:
 			cleaned_data = super(GameForm, self).clean()
+			return cleaned_data
 			event = cleaned_data["event"]
 			if cleaned_data["type_of_registration"] == 'private':
 				return cleaned_data
