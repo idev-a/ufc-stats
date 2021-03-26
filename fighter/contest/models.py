@@ -206,7 +206,7 @@ class Game(models.Model):
 	buyin = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 	# Added by Admin
-	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=0)
+	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=100)
 
 	@property
 	def re_entry(self):
