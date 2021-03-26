@@ -172,6 +172,9 @@
         this.boutViews = data.bout_views
         this.entryViews = data.entry_views
         this.games = data.games
+        if (data.games.length > 0 && this.curGame == -1) {
+          this.curGame = data.games[0].id
+        }
         this.$store.commit('SET_EVENT', data.event)
         this.loading = false
       },
