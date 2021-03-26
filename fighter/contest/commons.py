@@ -86,5 +86,5 @@ def get_games(event, user_id=None):
 	return games
 
 def create_main_contest(event):
-	game = Game(name='Main Contest', event=event, added_prizepool=100)
+	game = Game(name='Main Contest', event=event, added_prizepool=100, buyin=0)
 	game.save()

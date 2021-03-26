@@ -212,9 +212,8 @@ class Scraper:
 							'message': 'All fights were completed.'
 						}
 						event.action = 'completed'
-						event.status = 'old'
 						update_rank(event.id)
-						create_main_contest(event)
+						# create_main_contest(event)
 					elif not is_notified:
 						notify_data = {
 							'type': 'live_score',
