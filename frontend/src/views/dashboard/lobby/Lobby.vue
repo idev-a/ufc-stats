@@ -79,7 +79,6 @@
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
           </template>
-          <!-- :disabled="canJoin(item) == 'No enough coins'"  -->
           <template v-slot:item.actions="{ item }">
             <v-tooltip right>
               <template  v-slot:activator="{ on }">
@@ -324,7 +323,7 @@
         return require('@/assets/logo.jpg')
       },
       myId () {
-        return this.authUser && (this.authUser.id || this.authUser.pk)
+        return this.authUser?.id || this.authUser?.pk
       },
       myCoins () {
         return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
@@ -388,6 +387,11 @@
           }
         }
         const label = this.joinLabel(item)
+        if (item.genre != 'free') {
+          if (!this.hasEnoughCoins(item)) {
+            tooltip = 'No enough coins'
+          }
+        }
         if (label.includes('JOIN')) {
           tooltip = 'Go to Selection'
         } else if (label == 'EDIT') {
