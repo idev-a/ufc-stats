@@ -55,6 +55,7 @@ def get_games(event, user_id=None):
 		))
 
 		if user_id:
+			games = []
 			multi_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event)
 			if multi_games:
 				for _ in multi_games:
