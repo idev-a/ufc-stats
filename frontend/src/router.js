@@ -56,7 +56,7 @@ let router = new Router({
         },
         {
           name: 'Selection',
-          path: '/selection/:game_id?',
+          path: '/selection/:game_id?/:entry_number?',
           component: () => import('@/views/dashboard/selection/SelectionContainer'),
         },
         {
@@ -86,6 +86,12 @@ let router = new Router({
           name: 'MyContestDetail',
           path: 'history/contest/:event_id/:game_id',
           component: () => import('@/views/dashboard/history/ContestHistoryDetailContainer'),
+          beforeEnter: requireAuthenticated
+        },
+        {
+          name: 'My Teams',
+          path: '/myteams',
+          component: () => import('@/views/dashboard/myteams/MyteamsContainer'),
           beforeEnter: requireAuthenticated
         },
         {

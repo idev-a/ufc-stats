@@ -4,22 +4,29 @@
     :style="`height: ${height}`" 
   >
     <v-card
+      tile
       :loading="loading"
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
-      <v-row dense>
-        <v-col cols=12 md=6 >
+      <v-row dense no-gutters>
+        <v-col cols=12 md=6>
           <v-card-title 
             v-if="curContest" 
             class="font-weight-medium mb-0"
           >
             <div class="text-center w-100">
-              <div class="d-flex justify-center" style="position: relative;">
+              <div class="d-flex justify-center relative">
                 <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
                 <money :curContest="curContest" />
               </div>
               <div class="subtitle-2 ">
                 <span>{{ contestDate }}</span>
+                <v-tooltip right>
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on" v-if="isTournament" color="info" size=22> mdi-tournament mdi-rotate-270</v-icon>
+                  </template>
+                  <span>Tournament Type</span>
+                </v-tooltip>
               </div>
               <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
               <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
@@ -27,19 +34,17 @@
             </div>
           </v-card-title>
           <v-card-text
-            class="pb-0"
-            style="position: relative;"
+            class="py-3 relative"
           >
             <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
             <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
             <div
               id="scrollContainer"
-              style="height: 300px; overflow-y: scroll; -webkit-overflow-scrolling: touch; -webkit-overflow-scrolling: scroll; position: relative;"
               @scroll="onScroll"
             >
               <template v-for="item in bouts">
                 <v-btn-toggle
-                  v-model="contests[item.id]"
+                  v-model="item.survivors"
                   :disabled="loading"
                   :key="item.id"
                   dense
@@ -48,23 +53,26 @@
                   tile
                   @change="changeContests"
                 >
-                  <v-btn
-                    :value="item.fighter1"
-                    :disabled="eventStarted"
-                    small
-                    :width="152"
-                  >
-                    {{_fighter(item.fighter1).name}}
-                  </v-btn>
+                  <fighter 
+                    :id="item.fighter1"
+                    :fighters="fighters"
+                    :eventStarted="eventStarted"
+                    :firstName="true"
+                  />
 
-                  <v-btn
-                    :value="item.fighter2"
-                    :disabled="eventStarted"
-                    small
-                    :width="152"
+                  <div 
+                    class="between-fighters"
                   >
-                    {{_fighter(item.fighter2).name}}
-                  </v-btn>
+                    ({{ item.division }})
+                  </div>
+
+                  <fighter 
+                    :id="item.fighter2"
+                    :fighters="fighters"
+                    :eventStarted="eventStarted"
+                    :firstName="true"
+                  />
+
                 </v-btn-toggle>
               </template>
             </div>
@@ -84,7 +92,7 @@
                   Submit
                 </v-btn>
               </template>
-              <span>Submit Selection</span>
+              <span>Submit & Go Contest</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -100,6 +108,42 @@
                 </v-btn>
               </template>
               <span>Clear Selection</span>
+            </v-tooltip>
+            <v-tooltip
+              v-if="isTournament"
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="info mr-2" 
+                  :disabled="!hasPrevRetryNumber" 
+                  :loading="loading"
+                  small 
+                  v-on="on"
+                  @click="gotoPrevEntry"
+                >
+                  <v-icon small>mdi-step-backward</v-icon>
+                </v-btn>
+              </template>
+              <span>Sumbit & Go Prev Entry</span>
+            </v-tooltip>
+            <v-tooltip
+              v-if="isTournament"
+              bottom
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn 
+                  class="info mr-2" 
+                  :disabled="!hasNextRetryNumber" 
+                  :loading="loading"
+                  small 
+                  v-on="on"
+                  @click="gotoNextEntry"
+                >
+                  <v-icon small>mdi-step-forward</v-icon>
+                </v-btn>
+              </template>
+              <span>Sumbit & Go Next Entry</span>
             </v-tooltip>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -134,7 +178,7 @@
                   :input-value="data.selected"
                   @click="data.select"
                 >
-                  {{ data.item.name }}
+                  {{ gameName(data.item) }}
                 </v-chip>
               </template>
               <template v-slot:item="data">
@@ -143,7 +187,7 @@
                 </template>
                 <template v-else>
                   <v-list-item-content>
-                    <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                    <v-list-item-title v-html="gameName(data.item)"></v-list-item-title>
                   </v-list-item-content>
                 </template>
               </template>
@@ -167,6 +211,7 @@
   import { mapState, mapGetters } from 'vuex'
   import FlipCountdown from "./Countdown";
   import Money from "./Money";
+  import Fighter from "./Fighter";
   import ContestSummary from "./ContestSummary";
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
@@ -176,20 +221,16 @@
     components: {
       FlipCountdown,
       ContestSummary,
-      Money
+      Money,
+      Fighter
     },
 
-    props: ['game_id'],
+    props: ['game_id', 'entry_number'],
 
     watch: {
-      event: {
-        handler(val) {
-          if (val) {
-            this.startCountDown(val.date)
-          }
-        },
-        deep: true
-      },
+      isTournament (val) {
+        this.key++
+      }
     },
 
     data () {
@@ -202,7 +243,6 @@
         bouts: [],
         fighters: [],
         selectedItem: -1,
-        contests: {},
         snackbar: {
           snack: true,
           message: '',
@@ -214,7 +254,7 @@
         top: 0,
         sHeight: -1,
         games: [],
-        curGame: -1,
+        curGame: this.game_id  || -1,
         instructions: [],
         rulesSet: [],
         summary: '',
@@ -228,13 +268,7 @@
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
-        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started
-      },
-      contestName () {
-        return this.curContest && this.curContest.name || ""
-      },
-      isPaidContest () {
-        return this.curContest && this.curContest.genre == 'paid'
+        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started || !this._validRetryNumber()
       },
       curContest () {
         let contest = undefined
@@ -249,6 +283,18 @@
         }
         return contest
       },
+      contestName () {
+        return this.curContest?.name || ""
+      },
+      isTournament () {
+        return this.curContest?.re_entry || false
+      },
+      hasPrevRetryNumber () {
+        return this.isTournament && this.entry_number > 1 && this.curContest.multientry >= this.entry_number
+      },
+      hasNextRetryNumber () {
+        return this.isTournament && this.entry_number > 0 && this.entry_number < this.curContest.multientry
+      },
       leftMargin () {
         return this.$vuetify.breakpoint.mobile ? 5 : 50
       },
@@ -256,14 +302,14 @@
         return beautifyDate(this.curContest.date)
       },
       eventStarted () {
-        return this.curContest && this.curContest.action != '' || this.countdownEnd
+        return this.curContest?.action != '' || this.countdownEnd
       },
       countable () {
         const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')
         return this.deadline2 && !this.eventStarted && diff == 0
       },
       totalFighters () {
-        return this.bouts && this.bouts.length * 2 || 0
+        return this.fighters?.length || 0
       },
       needsInstruction () {
         return true
@@ -282,9 +328,6 @@
       _side() {
         return !this.$vuetify.breakpoint.mobile && false
       },
-      sideCollapseClass () {
-        return ''
-      },
       defaultInstructions () {
         return DEFAULT_INSTRUCTIONS
       },
@@ -299,22 +342,22 @@
         if (this.curGame == -1) {
           link = `${process.env.VUE_APP_URL}/contest`
         }
+        if (this._validRetryNumber()) {
+          link += `/${this.entry_number}`
+        }
         return link
       }
     },
 
     async mounted () {
-      this.curGame = +this.game_id || -1
-
+      this.curGame = this.game_id  || -1
+      
       this.loading = true
-      await this.getFighters()
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
       this.summary = this.defaultSummary
-      await this.getLatestData(this.game_id || -1)
+      await this.getLatestData()
       this.loading = false
-
-      // return login
     },
     methods: {
       beautifyDate,
@@ -327,60 +370,62 @@
       startCountDown(val) {
         this.deadline2 = this.$moment(`${val}`).format(fmt)
       },
-      preselectFighters() {
-        this.bouts.map(bout => {
-          this.contests[bout.id] = []
-          if (bout.survivors) {
-            this.contests[bout.id] = bout.survivors
-          }
-        })
-      },
-      async getLatestData(game_id=-1) {
-        await this.getLatestEvent(game_id)
-        this.preselectFighters()
+      async getLatestData() {
+        await this.getLatestEvent()
         this.changeContests()
       },
-      async getLatestEvent (game_id=-1) {
-        const { data } = await main.getLatestEvent(game_id)
+      async getLatestEvent () {
+        const { data } = await main.getLatestEvent(this.curGame, +this.entry_number)
         this.bouts = data.bouts
-        this.$store.commit('SET_EVENT', data.event)
+        this.fighters = data.fighters
         this.games = data.games
+        if (data.games.length > 0 && this.curGame == -1) {
+          this.curGame = data.games[0].id
+          this.startCountDown(data.games[0].event.date)
+        }
       },
-      async getFighters () {
-        const { data } = await main.getFighters()
-        this.fighters = data.results
+      gameName (item) {
+        let name = item.name
+        if (item.re_entry) {
+          name += ` (${item.multientry} Entries)`
+        }
+        return name
       },
-      _fighter (id) {
-        const fighters = this.fighters.filter(fighter => fighter.id == id)
-        return fighters[0]
+      _validRetryNumber() {
+        if (this.isTournament) {
+          return this.entry_number > 0 && this.entry_number <= this.curContest.multientry
+        } else {
+          return true
+        }
       },
-
-      async submit () {
+      async _submit (callback) {
         if (!this.isAuthenticated) {
           this.$store.commit('auth/showLoginDlg')
           return
         }
-        const event_id = this.curContest.id || this.curContest.event_id
+        if (!this._validRetryNumber()) {
+          return
+        }
         const payload = {
           entry: {
+            entry_number: this.entry_number,
             game: this.curGame,
-            event: event_id,
+            event: this.curContest.event.id,
             user: this.authUser.pk || this.authUser.id,
           },
           selections: []
         }
         let selected = false
-        for (const bout in this.contests) {
-          const survivors = this.contests[bout]
-          if (survivors.length) {
+        this.bouts.forEach(bout => {
+          if (bout.survivors.length) {
             selected = true
           }
           payload.selections.push({
-            bout: bout,
-            survivor1: survivors?.[0] || null,
-            survivor2: survivors?.[1] || null,
+            bout: bout.id,
+            survivor1: bout.survivors?.[0] || null,
+            survivor2: bout.survivors?.[1] || null,
           })
-        }
+        })
 
         if (!selected) {
           this.snackbar = {
@@ -400,40 +445,58 @@
         this.loading = false
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
-        if (data.status == 'success') {
-          const self = this
-          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
+        if (callback) {
+          if (data.status == 'success'){
+            callback(data)
+          }
         }
       },
+
+      async submit (data) {
+        const self = this
+        await this._submit((data) => {
+          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
+        })
+      },
       clearSelection () {
-        this.contests = {}
         this.squadSize = 0
       },
       changeContests() {
         this.squadSize = 0
-        for (const bout in this.contests) {
-          const survivors = this.contests[bout]
-          this.squadSize += survivors.length
+        for (const bout in this.survivors) {
+          this.squadSize += bout.survivors.length
         }
+      },
+      async gotoPrevEntry () {
+        await this._submit((data) => {
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number-1}`})
+        })
+      },
+      async gotoNextEntry () {
+        await this._submit((data) => {
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number+1}`})
+        })
       },
       disableSelection () {
         this.countdownEnd = true
       },
       async changeGame (item) {
-        this.loading = true
-        await this.getLatestData(item)
-        if (item == -1) {
-          this.instructions = this.defaultInstructions
-          this.summary = this.defaultSummary
-          this.rulesSet = this.defaultRulesSet
-        } else {
-          this.instructions = this.curContest.instructions.split('\n')
-          this.rulesSet = this.curContest.rules_set.split('\n')
-          this.summary = this.curContest.summary
-          this.key++
-        }
-        this.startCountDown(this.curContest.date)
-        this.loading = false
+        return this.$router.push({ path: `/selection/${item}`})
+
+        // this.loading = true
+        // await this.getLatestData(item)
+        // if (item == -1) {
+        //   this.instructions = this.defaultInstructions
+        //   this.summary = this.defaultSummary
+        //   this.rulesSet = this.defaultRulesSet
+        // } else {
+        //   this.instructions = this.curContest.instructions.split('\n')
+        //   this.rulesSet = this.curContest.rules_set.split('\n')
+        //   this.summary = this.curContest.summary
+        //   this.key++
+        // }
+        // this.startCountDown(this.curContest.date)
+        // this.loading = false
       },
       collapseSide () {
         this.side = !this.side
@@ -464,48 +527,5 @@
   .v-list .v-subheader{
     height: 15px;
     color: #008000;
-  }
-
-  #selection {
-    
-    .v-btn-toggle {
-      display: flex;
-
-      .v-btn {
-        border-radius: 5px;
-        background-color: #d3d3d3;
-        color: black;
-      }
-    }
-   
-    .v-item--active {
-      color: white !important;
-      background-color: #008000 !important;
-    }
-
-    .v-btn.v-btn--disabled {
-      color: rgba(255, 255, 255, 0.26) !important;
-    }
-
-    .arrow-up {
-      position: absolute;
-      bottom: 6px;
-      left: calc(50% - 17px);
-      z-index: 2;
-    }
-
-    .arrow-down {
-      position: absolute;
-      top: 0;
-      left: calc(50% - 11px);
-      z-index: 2;
-    }
-
-    .arrow-side {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      z-index: 2;
-    }
   }
 </style>

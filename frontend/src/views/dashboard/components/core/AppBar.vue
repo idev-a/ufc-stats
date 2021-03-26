@@ -8,7 +8,6 @@
     height="75"
   >
     <v-btn
-      v-if="$vuetify.breakpoint.smAndDown"
       class="mr-3"
       elevation="1"
       fab
@@ -33,11 +32,27 @@
 
     <div class="mx-3" />
 
+    <v-tooltip bottom z-index=100>
+      <template v-slot:activator="{ on }">
+        <v-btn
+          v-on="on"
+          min-width="0"
+          text
+          class="fq-btn top-btn"
+          exact-active-class="fq-btn-active"
+          to="/"
+        >
+          Lobby
+        </v-btn>
+        </template>
+      <span>Lobby</span>
+    </v-tooltip>
+
     <template v-for="top in tops">
       <v-tooltip bottom z-index=100>
         <template v-slot:activator="{ on }">
           <v-btn
-            v-if="$vuetify.breakpoint.smAndUp"
+            v-if="$vuetify.breakpoint.smAndUp && false"
             v-on="on"
             min-width="0"
             class="fq-btn top-btn"
@@ -52,7 +67,7 @@
       </v-tooltip>
     </template>
 
-    <v-tooltip bottom z-index=100>
+    <!-- <v-tooltip bottom z-index=100>
       <template v-slot:activator="{ on }">
         <v-btn
           v-on="on"
@@ -66,7 +81,7 @@
         </v-btn>
         </template>
       <span>Instructions</span>
-    </v-tooltip>
+    </v-tooltip> -->
 
     <v-menu
       bottom
@@ -126,6 +141,18 @@
             text
             v-if="isAuthenticated"
             class="fq-menu-item"
+            to="/myteams"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-account-group-outline</v-icon>
+            My Teams
+          </v-btn>
+          <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            v-if="isAuthenticated"
+            class="fq-menu-item"
             @click="referralDlg=true"
             block
             plain
@@ -158,6 +185,17 @@
             Leaderboard
           </v-btn>
           <v-divider v-if="isAuthenticated"/>
+          <v-btn
+            text
+            class="fq-menu-item"
+            @click.stop="showInstruction"
+            block
+            plain
+          >
+            <v-icon color="white" left>mdi-information-outline</v-icon>
+            Instructions
+          </v-btn>
+          <v-divider />
           <v-btn
             text
             class="fq-menu-item"
@@ -318,7 +356,6 @@
       referralDlg: false,
       accountDlg: false,
       tops: [
-        { name: 'Lobby', to:'/'},
         { name: 'Selection', to:'/selection'},
         { name: 'Contest', to:'/contest'},
       ]

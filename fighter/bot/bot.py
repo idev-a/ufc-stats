@@ -19,6 +19,8 @@ django.setup()
 
 from config import create_api
 
+from contest.models import Event
+
 from contest.views import (
     event_views,
     social_views
@@ -79,7 +81,7 @@ class TwitterBot:
             self.reply('show__latest_event', tweet['id'])
 
         elif first_command == 'show__latest_event':
-            event = event_views.show__latest_event()
+            event = Event.objects.latest_event()
             self.reply(event.__str__(), tweet['id'])
 
     def create_headers(self):

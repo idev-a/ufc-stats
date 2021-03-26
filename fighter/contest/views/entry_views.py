@@ -14,7 +14,7 @@ from requests_oauthlib import OAuth1
 from urllib.parse import urlencode
 from django.conf import settings
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from contest.decorators import paginate
@@ -37,6 +37,8 @@ from contest.serializers import (
     SelectionSerializer,
     EntrySerializer,
 )
+
+from contest.commons import get_games
 
 import pdb
 logger = logging.getLogger(__name__)
@@ -138,7 +140,10 @@ def get_entry_views(selections):
         score[username_id]['game_id'] = -1
         if selection.entry.game and selection.entry.game.id:
             score[username_id]['game_id'] = selection.entry.game.id
-        score[username_id]['entry'] = selection.entry.user.displayname
+        entry_name = selection.entry.user.displayname
+        if selection.entry.entry_number:
+            entry_name += f' ({selection.entry.entry_number})'
+        score[username_id]['entry'] = entry_name
         score[username_id]['user_id'] = selection.entry.user.id
         score[username_id]['last_edited'] = selection.entry.last_edited.timestamp()
 
@@ -349,7 +354,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
  
     @action(methods=['post'], detail=False)
     def get_latestcontest(self, request, **kwarg):
-        latest_event = Event.objects.filter(status='upcoming').latest('-date')
+        latest_event = Event.objects.latest_event()
         game_id = request.data['game_id']
         if int(game_id) == -1:
             selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
@@ -358,7 +363,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
-        games = Game.objects.get_games(latest_event, request.user.id)
+        games = get_games(latest_event, request.user.id)
 
         return Response(dict(
             bout_views=bout_views,
@@ -476,6 +481,102 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         except Exception as err:
             return Response(dict(entries=[]), status=500)
 
+    def bout_not_cancelled(self, _data, fighter):
+        is_exist = False
+        for bout in _data.get('bouts', []):
+            if fighter.id in [bout['fighter1'], bout['fighter2']]:
+                is_exist = True
+                bout.get('survivors', []).append(fighter.id)
+                bout.get('contests_orig', []).append(fighter.id)
+                break
+        return is_exist
+
+    def add_fighters(self, event, data):
+        bouts = Bout.objects.filter(event__id=event.id)
+        bouts_dict = BoutSerializer(bouts, many=True).data
+        for _bout in bouts_dict:
+            _bout['survivors'] = []
+        for bout in bouts:
+            fighter = FighterSerializer(bout.fighter1).data
+            if fighter not in data['fighters']:
+                data['fighters'].append(fighter)
+            fighter = FighterSerializer(bout.fighter2).data
+            if fighter not in data['fighters']:
+                data['fighters'].append(fighter)
+        return bouts_dict
+
+    def is_new_team_data(self, _data, cur_data):
+        is_new = True
+        for _ in _data['teams']:
+             if _['key'] == cur_data['key']:
+                cur_data = _
+                is_new = False
+                break
+        return is_new, cur_data
+
+    @action(methods=['post'], detail=False)
+    def get_my_teams(self, request, **kwarg):
+        ''' 
+            data for My Teams page
+            requirs user info
+        '''
+        status = 200
+        live_data = {'fighters': [], 'teams': []}
+        recent_data = {'fighters': [], 'teams': []}
+        option = request.data.get('option', 30)
+        min_dt = datetime.now() - timedelta(days=option)
+        date_range = (min_dt, datetime.now())
+        selections = Selection.objects.filter(entry__user_id=request.user.id).filter(entry__last_edited__range=date_range)
+        try:
+            if request.user:
+                latest_event = Event.objects.latest_event()
+                live_bouts_dict = self.add_fighters(latest_event, live_data)
+
+                for sel in selections:
+                    event = sel.entry.event
+                    game = sel.entry.game
+                    entry_number = sel.entry.entry_number
+                    key = game.id if game else f'e_{event.id}'
+                    if entry_number:
+                        key = f"{key}_{entry_number}"
+                    # main contest, live contest
+                    cur_data = {'key':key, 'game': {}, 'fighters': []}
+                    is_new = True
+                    if event.id == latest_event.id:
+                        is_new, cur_data = self.is_new_team_data(live_data, cur_data)
+                        if is_new:
+                            cur_data['bouts'] = copy.deepcopy(live_bouts_dict)
+                            live_data['teams'].append(cur_data)
+                    else:
+                        # recent games
+                        recent_bouts_dict = self.add_fighters(event, recent_data)
+                        is_new, cur_data = self.is_new_team_data(recent_data, cur_data)
+                        if is_new:
+                            cur_data['bouts'] = copy.deepcopy(recent_bouts_dict)
+                            recent_data['teams'].append(cur_data)
+
+                    if is_new:
+                        cur_data.get('game',{})['event'] = EventSerializer(event).data
+                        cur_data.get('game',{})['id'] = game.id if game else -1
+                        cur_data.get('game',{})['name'] = game.name if game else event.name
+                        cur_data.get('game',{})['buyin'] = game.buyin if game else 0
+                        cur_data.get('game',{})['prize'] = game.prize if game else 0
+                        cur_data.get('game',{})['genre'] = game.genre if game else 'free'
+                        cur_data.get('game',{})['entry_number'] = entry_number
+                    if sel.survivor1 and self.bout_not_cancelled(cur_data, sel.survivor1):
+                        cur_data.get('fighters',[]).append(sel.survivor1.id)
+                    if sel.survivor2 and self.bout_not_cancelled(cur_data, sel.survivor2):
+                        cur_data.get('fighters',[]).append(sel.survivor2.id)
+            else:
+                return Response(dict(live_data={}, recent_data={}), status=400)
+        except Exception as err:
+            logger.warning(str(err))
+            status = 500
+
+        live_data['teams'] = sorted(live_data['teams'], key=lambda x: (x['game']['id'], x['game']['entry_number']))
+        recent_data['teams'] = sorted(recent_data['teams'], reverse=True, key=lambda x: (x['game']['id'], x['game']['entry_number'], x['game']['event']['date']))
+        return Response(dict(live_data=live_data, recent_data=recent_data), status=status)
+
     @action(methods=['get'], detail=False)
     def test_update_rank(self, request, **kwarg):
         event_id = request.query_params['event_id']
@@ -491,13 +592,16 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             is_exist = False
             message = 'Successfully done.'
             try:
-                if data['game'] != -1:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'])
+                if int(data['game']) != -1:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], entry_number=data['entry_number'])
                 else:
                     entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
-            except:
+            except Exception as err:
+                print(err)
                 pass
             if entry:
+                if entry.game and data['entry_number'] > entry.game.multientry:
+                    raise Exception
                 is_exist = True
                 message = 'Successfully edited.'
                 data['last_edited'] = datetime.now()
@@ -507,9 +611,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     data['game'] = None
                 entry_serializer = EntrySerializer(data=data)
 
+            # update entry information
             if entry_serializer.is_valid():
                 entry = entry_serializer.save()
+            else:
+                print(entry_serializer.errors)
+                raise Exception()
 
+            # delete old selections and save new data
             Selection.objects.filter(entry_id=entry.id).delete()
             for selection in request.data['selections']:
                 selection['entry'] = entry.id
@@ -519,10 +628,11 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 selection_serializer.save()
                 return Response({'status': 'success', 'message': message})
             
-            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'}, status=400)
         except Exception as err:
             logger.warning(str(err))
-            return Response({'status': 'failed', 'message': 'Something wrong happened.'})
+            print(str(err))
+            return Response({'status': 'failed', 'message': 'Something wrong happened.'}, status=400)
 
     
 

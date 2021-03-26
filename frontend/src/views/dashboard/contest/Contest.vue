@@ -6,7 +6,7 @@
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
     >
       <v-card-title 
-        class="font-weight-medium mb-3 ml-md-5"
+        class="font-weight-medium mb-0 ml-md-5"
       >
         <div class="text-center w-100 mr-10">
           <div class="d-flex justify-center" style="position: relative;">
@@ -18,28 +18,30 @@
             <span v-if="eventStarted" class="red--text h6">({{curContest.action}})</span>
           </div>
         </div>
-        <v-autocomplete 
-          :loading="loading"
-          v-model="curGame"
-          :items="games"
-          chips
-          item-value="value"
-          item-text="name"
-          label="Select Contest"
-          class="mt-2 mr-4"
-          @change="changeGame"
-        >
-          <template v-slot:item="data">
-            <template v-if="typeof data.item !== 'object'">
-              <v-list-item-content v-text="data.item"></v-list-item-content>
+        <v-col cols="auto">
+          <v-autocomplete 
+            :loading="loading"
+            v-model="curGame"
+            :items="games"
+            chips
+            item-value="value"
+            item-text="name"
+            label="Select Contest"
+            class="mt-2 mr-4"
+            @change="changeGame"
+          >
+            <template v-slot:item="data">
+              <template v-if="typeof data.item !== 'object'">
+                <v-list-item-content v-text="data.item"></v-list-item-content>
+              </template>
+              <template v-else>
+                <v-list-item-content>
+                  <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                </v-list-item-content>
+              </template>
             </template>
-            <template v-else>
-              <v-list-item-content>
-                <v-list-item-title v-html="data.item.name"></v-list-item-title>
-              </v-list-item-content>
-            </template>
-          </template>
-        </v-autocomplete>
+          </v-autocomplete>
+        </v-col>
       </v-card-title>
         <v-card-text
           class="w-100"
@@ -174,9 +176,10 @@
         this.loading = false
       },
       async changeGame (item) {
-        this.loading = true
-        await this.getLatestContest(item)
-        this.loading = false
+        this.$router.push({'path': `/contest/${item}`})
+        // this.loading = true
+        // await this.getLatestContest(item)
+        // this.loading = false
       },
     }
   }

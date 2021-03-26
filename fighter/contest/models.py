@@ -8,26 +8,20 @@ from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 from django import forms
 
-from .managers import CustomUserManager, GameManager, EntryManager
+from .managers import CustomUserManager, GameManager, EntryManager, EventManager
+from .constants import (
+	DEFAULT_INSTRUCTIONS,
+	DEFAULT_RULES_SET,
+	WEIGHT_MAPPING,
+	ACTION_TYPE,
+	GENDER_TYPE,
+	EVENT_STATUS_TYPE,
+	BOUT_STATUS_TYPE,
+	TICKET_STATUS_TYPE,
+	REGISTRATION_TYPES
+)
 
 import pdb
-
-ACTION_TYPE = [
-	('started', 'Started'),
-	('completed', 'Completed'),
-]
-
-DEFAULT_INSTRUCTIONS = [
-  'Choose fighters',
-  'Hope they all survive'
-]
-  
-DEFAULT_RULES_SET = [
-  'User can pick any number of fighters. If any of them get finished, user is eliminated.',
-  'Out of all surviving entries, the user with the most surviving fighters, wins the contest.',
-  'If there is a tie, the winner is the entry with the most winning fighters.',
-  'You are allowed to resubmit your team. 1 team per person.'
-]
 
 # Customize User model
 class CustomUser(AbstractUser):
@@ -69,15 +63,12 @@ class CustomUser(AbstractUser):
 
 # Create your models here.
 class Event(models.Model):
-	STATUS_TYPE = [
-		('upcoming', 'Upcoming'),
-		('old', 'Old'),
-	]
+	objects = EventManager()
 
 	name = models.CharField(max_length=100)
 	location = models.CharField(max_length=200, blank=True, default='')
 	date = models.DateTimeField()
-	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='upcoming')
+	status = models.CharField(choices=EVENT_STATUS_TYPE, max_length=50, blank=True, default='upcoming')
 	action = models.CharField(choices=ACTION_TYPE, max_length=50, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
 
@@ -90,6 +81,17 @@ class Event(models.Model):
 class Fighter(models.Model):
 	name = models.CharField(max_length=100, blank=False, default='')
 	title = models.CharField(max_length=100, blank=True, default='')
+	gender = models.CharField(choices=GENDER_TYPE, max_length=10, default='M')
+
+	@property
+	def initials(self):
+		val = ''
+		first_last = self.name.split(' ')
+		val = f"{first_last[0][0]}."
+		if len(first_last) > 1:
+			val += f" {first_last[-1]}"
+
+		return val
 
 	def __str__(self):
 		return "%s" % self.name
@@ -101,12 +103,6 @@ class Notification(models.Model):
 		return "%s" % self.name
 
 class Bout(models.Model):
-	STATUS_TYPE = [
-		('pending', 'Pending'),
-		('completed', 'Completed'),
-		('drawn', 'Drawn'),
-	]
-
 	fighter1 = models.ForeignKey(
 		Fighter,
 		on_delete=models.CASCADE,
@@ -143,7 +139,7 @@ class Bout(models.Model):
 		on_delete=models.CASCADE,
 	)
 
-	status = models.CharField(choices=STATUS_TYPE, max_length=50, blank=True, default='pending')
+	status = models.CharField(choices=BOUT_STATUS_TYPE, max_length=50, blank=True, default='pending')
 	weight_class = models.CharField(max_length=50, blank=True, default='')
 	method = models.CharField(max_length=100, blank=True, default='')
 	round = models.PositiveIntegerField(blank=True, null=True, default=1)
@@ -151,22 +147,18 @@ class Bout(models.Model):
 	go_the_distance = models.BooleanField(null=True, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
 
+	@property
+	def division(self):
+		_division = WEIGHT_MAPPING[self.weight_class.replace("Women's ", "")]
+		return f'{_division}-W' if self.weight_class.startswith('Women') else _division
+	
+
 	def __str__(self):
 		return "%s vs. %s" % (self.fighter1, self.fighter2)
 
 
 # multiple games
 class Game(models.Model):
-	REGISTRATION_TYPES = [
-		('private', 'Private'),
-		('public', 'Public')
-	]
-
-	GENRE_TYPES = [
-		('free', 'Free'),
-		('paid', 'Paid')
-	]
-
 	owner = models.ForeignKey(
 		CustomUser,
 		on_delete=models.CASCADE,
@@ -180,8 +172,6 @@ class Game(models.Model):
 		on_delete=models.CASCADE,
 	)
 
-	objects = GameManager()
-
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
@@ -191,8 +181,21 @@ class Game(models.Model):
 	summary = models.TextField(max_length=1000, blank=False, default='FIGHTQUAKE contest')
 
 	# Determine where game is free to play or needs some coins to join.
-	genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
+	# genre = models.CharField(choices=GENRE_TYPES, max_length=20, blank=True, default='free')
 	
+	'''
+		New game type 'Re entry'. 
+		These games can be entered by a user up to X number of times (Entry Number), 
+		where X is set when creating the game in admin. 
+		For example, we will have a tournament 
+		where each user can enter 3 different teams of fighters. 
+		And other tournament where each person can only enter once.
+		Each re-entry would cost the same number of coins as the initial buyin 
+		(whether free or not)
+		re_entry would be True if multientry > 1
+	'''
+	# re_entry = models.BooleanField(blank=False, default=False)
+	multientry = models.PositiveIntegerField(blank=False, default=0)
 	'''
 		the first one is kind of free game in which any one is free to join 
 		and the winner will get fixed buyin by admin.
@@ -203,8 +206,20 @@ class Game(models.Model):
 	buyin = models.PositiveIntegerField(blank=True, null=True, default=0)
 
 	# Added by Admin
-	buyin_bonus = models.PositiveIntegerField(blank=True, null=True, default=0)
+	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=0)
 
+	@property
+	def re_entry(self):
+		return self.multientry > 0
+
+	@property
+	def genre(self):
+		return 'paid' if self.added_prizepool > 0  else 'free'
+	
+	@property
+	def tournament(self):
+		return f"{self.re_entry}({self.multientry})"
+	
 	@property
 	def date(self):
 		return self.event.date
@@ -218,24 +233,24 @@ class Game(models.Model):
 		_prize = 0
 		if self.genre == 'paid':
 			real_users = Entry.objects.filter(game_id=self.id).count()
-			_prize = real_users * self.buyin + self.buyin_bonus
+			_prize = real_users * self.buyin + self.added_prizepool
 		return _prize
-	
+
 	def info_entrants(self):
-		return '{}'.format(self.entrants.count())
+		return f'{self.joined_users.count()}/{self.entrants.count()}'
 
 	def info_joined(self):
 		return '{}'.format(self.joined_users.count())
 
 	@property
 	def short_instructions(self):
-		return truncatewords(self.instructions, 50)
+		return truncatewords(self.instructions, 20)
 
 	@property
 	def short_rules_set(self):
-		return truncatewords(self.rules_set, 50)
+		return truncatewords(self.rules_set, 20)
 
-	info_entrants.short_description  = 'Total entrants'
+	info_entrants.short_description  = 'Entrants'
 	info_joined.short_description  = 'Total joined users'
 
 	def __str__(self):
@@ -269,6 +284,9 @@ class Entry(models.Model):
 	wins = models.IntegerField(blank=True, null=True, default=0)
 	quaked = models.IntegerField(blank=True, null=True, default=0)
 	ranking = models.IntegerField(blank=True, null=True, default=0)
+
+	# retry number indicating tournament type or retry type
+	entry_number = models.PositiveIntegerField(blank=True, null=True, default=0, help_text="Used in tournament type game. The user can re-sumbit entry up to this number of times")
 
 	def __str__(self):
 		return "%s - %s" % (self.user, self.event)
@@ -382,16 +400,10 @@ class Faq(models.Model):
 		return self.question
 
 class Ticket(models.Model):
-	STATUS_TYPES = [
-		('delivered', 'Delivered'),
-		('resolved', 'Resolved'),
-		('failed', 'Failed'),
-	]
-
 	title = models.CharField(max_length=50)
 	message = models.TextField(default='')
 	answer = models.TextField(default='')
-	status = models.CharField(choices=STATUS_TYPES, max_length=20, blank=True, default='')
+	status = models.CharField(choices=TICKET_STATUS_TYPE, max_length=20, blank=True, default='')
 	delivered = models.DateTimeField(null=True, blank=True)
 	resolved = models.DateTimeField(null=True, blank=True)
 

@@ -6,7 +6,7 @@
       class="mt-0"
       style="background: none;"
     >
-      <v-card-title class="mb-2">
+      <v-card-title class="mb-0 pt-0">
         <v-text-field
           v-model="entryViewSearch"
           append-icon="mdi-magnify"
@@ -109,7 +109,7 @@
         </template>
         <template v-slot:expanded-item="{ headers, item }">
           <td :colspan="headers.length">
-            <div class="d-flex flex-wrap">
+            <div class="d-flex flex-wrap max-600">
               <template v-for="fighter in item.fighters">
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">

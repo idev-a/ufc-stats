@@ -16,6 +16,8 @@ from .models import (
 	Ticket,
 )
 
+from .forms import GameForm
+
 # Register your models here.
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
@@ -41,7 +43,7 @@ class EventAdmin(admin.ModelAdmin):
 class FighterAdmin(admin.ModelAdmin):
 	list_per_page = 20
 	search_fields = ('name', 'title', )
-	list_display = ('name', 'title', 'id')
+	list_display = ('name', 'gender', 'id')
 
 	class Meta:
 		ordering = ("name", )
@@ -49,8 +51,8 @@ class FighterAdmin(admin.ModelAdmin):
 @admin.register(Bout)
 class BoutAdmin(admin.ModelAdmin):
 	list_per_page = 20
-	search_fields = ('weight_class', 'method', 'status', 'event__name', 'fighter1__name', 'fighter2__name')
-	list_display = ('fighter1', 'fighter2', 'event', "method", "weight_class", 'status', 'round', 'time', 'id')
+	search_fields = ('division', 'method', 'status', 'event__name', 'fighter1__name', 'fighter2__name')
+	list_display = ('fighter1', 'fighter2', 'event', "method", "division", 'status', 'round', 'time', 'id')
 
 	class Meta:
 		ordering = ('event', "fighter1", 'fighter2')
@@ -75,17 +77,18 @@ class SelectionAdmin(admin.ModelAdmin):
 	class Meta:
 		ordering = ('entry', "bout", )
 
-class GameFilter(AutocompleteFilter):
+class GameEventFilter(AutocompleteFilter):
     title = 'Event' # display title
     field_name = 'event' # name of the foreign key field
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
-	list_filter = [GameFilter]
+	form = GameForm
+	list_filter = [GameEventFilter]
 
 	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
-	list_display = ('name', 'event', 'type_of_registration', 'genre', 'info_entrants', 'info_joined', 'summary', 'short_rules_set', 'date',)
+	list_display = ('name', 'event', 'type_of_registration', 'multientry', 'info_entrants', 'summary', 'short_rules_set', 'date',)
 
 	filter_horizontal = ("joined_users", "entrants")
 

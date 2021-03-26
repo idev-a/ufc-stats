@@ -3,7 +3,7 @@
     <span class="bg" :class="{'contest-bg': contestPage, 'selection-bg': selectionPage, 'contest-over-bg': contestOverPage}"></span>
     <dashboard-core-app-bar :key="`key${key}`" v-model="expandOnHover" />
 
-    <dashboard-core-drawer v-if="$vuetify.breakpoint.mobile" :expand-on-hover.sync="expandOnHover" />
+    <dashboard-core-drawer :expand-on-hover.sync="expandOnHover" />
 
     <dashboard-core-view :key="`newKey${newKey}`"/>
 
@@ -31,7 +31,7 @@
     },
 
     data: () => ({
-      expandOnHover: false,
+      expandOnHover: true,
       key: 0,
       newKey: 0,
     }),
@@ -159,6 +159,7 @@
     background-color: #969494;
     background-image: url('https://ik.imagekit.io/cuhwrvztecz/bg-pattern_SBQUjHQZs.png');
     background-repeat: repeat-x;
+    height: 25px;
   }
 
   .dialog-drag .dialog-body {
@@ -197,6 +198,9 @@
     letter-spacing: 0;
   }
 
+  .relative {
+    position: relative;
+  }
 
   * {
     scrollbar-width: thin;
@@ -297,6 +301,7 @@
       text-align: center !important;
     }
   }
+
   .v-chip__content {
     font-size: 12px;
     font-weight: 400;
@@ -304,5 +309,73 @@
 
   .max-60 {
     max-width: 800px;
+  }
+
+  .max-600 {
+    max-width: 600px;
+  }
+
+  #scrollContainer {
+    height: 300px; 
+    overflow-y: scroll; 
+    -webkit-overflow-scrolling: touch; 
+    -webkit-overflow-scrolling: scroll; 
+    position: relative;
+    
+    .v-btn-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .v-btn.v-size--small {
+        border-radius: 5px;
+        background-color: #d3d3d3;
+        color: black;
+        width: 122px !important;
+      }
+
+      .between-fighters {
+        min-width: 20px;
+        flex-shrink: 0;
+        align-items: center;
+        color: #4caf50;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .v-btn.v-size--small.initial {
+        width: 105px !important;
+      }
+    }
+   
+    .v-item--active {
+      color: white !important;
+      background-color: #008000 !important;
+    }
+
+    .v-btn.v-btn--disabled {
+      color: rgba(255, 255, 255, 0.26) !important;
+    }
+  }
+
+  .arrow-up {
+    position: absolute !important;
+    bottom: 6px;
+    left: calc(50% - 17px);
+    z-index: 2;
+  }
+
+  .arrow-down {
+    position: absolute !important;
+    top: 0;
+    left: calc(50% - 11px);
+    z-index: 2;
+  }
+
+  .arrow-side {
+    position: absolute !important;
+    top: 50%;
+    right: 0;
+    z-index: 2;
   }
 </style>

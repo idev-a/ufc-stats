@@ -19,6 +19,7 @@ from lxml import html
 from bs4 import BeautifulSoup as bs
 from datetime import datetime
 import argparse
+import re
 
 from contest.models import (
 	Event,
@@ -32,7 +33,8 @@ from contest.serializers import (
 	FighterSerializer
 )
 from contest.views.entry_views import update_rank
-from contest.util import _valid, convert_date, strip_list1
+from contest.commons import create_main_contest
+from contest.utils import _valid, convert_date, strip_list1
 
 import pdb
 from contest.logger import logger
@@ -84,7 +86,7 @@ class Scraper:
 
 	def start_bouts(self):
 		while True:
-			logger.info('[scraper] started')
+			logger.info('[scraper] started ***************')
 			# scan db to get the scraped events to get the stats
 			events = Event.objects.filter(status='upcoming')
 			if events:
@@ -93,6 +95,7 @@ class Scraper:
 				meta = {'event_id': event.id}
 				# espn_name, espn_date, espn_time = self.info_from_espn()
 				# event_date = event.date.strftime('%B %d, %Y')
+				# print(f'espn_time, espn_date ', espn_time, espn_date)
 				# if event_date == espn_date and event.name == espn_name and espn_time != 'LIVE':
 				# 	event.date = convert_date(f"{event_date} {espn_time}")
 				# 	event.save()
@@ -118,7 +121,7 @@ class Scraper:
 	def parse_event(self, response):
 		logger.info('[scraper] Parse Event ---')
 		trs = response.css('table.b-statistics__table-events tr.b-statistics__table-row')
-		default_time = ' 15:00:00'
+		default_time = ' 18:00:00'
 		espn_name, espn_date, espn_time = self.info_from_espn()
 		if len(trs) > 2:
 			for tr in trs[2:]:
@@ -163,9 +166,12 @@ class Scraper:
 				round = _valid(tr.xpath('.//td[9]/p/text()').get()) or 0
 				round_time = _valid(tr.xpath('.//td[10]/p/text()').get())
 
+				gender = 'M'
+				if re.search(r'women', weight_class, re.IGNORECASE):
+					gender = 'F'
 				item = dict(
-					fighter1=self.save_fighter({'name': fighters[0]}).id,
-					fighter2=self.save_fighter({'name': fighters[1]}).id,
+					fighter1=self.save_fighter({'name': fighters[0], 'gender': gender}).id,
+					fighter2=self.save_fighter({'name': fighters[1], 'gender': gender}).id,
 					weight_class=weight_class,
 					method=method,
 					round=round,
@@ -208,6 +214,7 @@ class Scraper:
 						event.action = 'completed'
 						event.status = 'old'
 						update_rank(event.id)
+						create_main_contest(event)
 					elif not is_notified:
 						notify_data = {
 							'type': 'live_score',
@@ -323,6 +330,10 @@ class Scraper:
 			fighter_serializer = FighterSerializer(data=item)
 			if fighter_serializer.is_valid():
 				fighter = fighter_serializer.save()
+		else:
+			fighter.gender = item['gender']
+			fighter.title = item.get('title', '')
+			fighter.save()
 
 		return fighter
 

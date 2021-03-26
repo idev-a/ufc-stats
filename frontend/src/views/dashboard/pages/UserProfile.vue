@@ -51,7 +51,7 @@
                 </template>
                 <span>Total Wins</span>
               </v-tooltip>
-              <span class="ml-1 display-1  gold--text">{{profile.total_wins}}</span>
+              <span class="ml-1 display-1 gold--text">{{profile.total_wins}}</span>
             </div>
 
             <div
@@ -60,11 +60,11 @@
             >
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
-                  <v-icon size=26 color="gold">mdi-cash</v-icon>
+                  <v-icon v-on="on" size=26 color="red lighten-1">mdi-cash</v-icon>
                 </template>
                 <span>Coins</span>
               </v-tooltip>
-              <span class="ml-1 display-1 gold--text">{{profile.user.coins}}</span>
+              <span class="ml-1 display-1 red--text lighten-1">{{profile.user.coins}}</span>
             </div>
           </div>
         </v-card-title>
@@ -233,7 +233,7 @@
         return this.profile.user && (this.profile.user.id == (this.authUser.id || this.authUser.pk))
       },
       width () {
-        return this.$vuetify.breakpoint.smAndUp ? '60%' : ''
+        return this.$vuetify.breakpoint.mdAndUp ? '60%' : ''
       }
     },
 

@@ -24,9 +24,11 @@ from rest_auth.registration.serializers import RegisterSerializer
 import pdb
 
 class UserSerializer(serializers.ModelSerializer):
+	initials = serializers.ReadOnlyField()
+
 	class Meta:
 		model = CustomUser
-		fields = ['id', 'username', 'displayname', 'email', 'coins', 'initials', 'avatar', 'referred_by', 'date_joined']
+		exclude = ('password', )
 
 
 class CustomRegisterSerializer(RegisterSerializer):
@@ -56,6 +58,8 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 		fields = ['url', 'name']
 
 class FighterSerializer(serializers.ModelSerializer):
+	initials = serializers.ReadOnlyField()
+
 	class Meta:
 		model = Fighter
 		fields = '__all__'
@@ -66,6 +70,8 @@ class EventSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 class BoutSerializer(serializers.ModelSerializer):
+	division = serializers.ReadOnlyField()
+
 	class Meta:
 		model = Bout
 		fields = '__all__'

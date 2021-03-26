@@ -19,6 +19,8 @@ django.setup()
 
 from config import create_api
 
+from contest.models import Event
+
 from contest.views import (
     event_views
 )
@@ -74,7 +76,7 @@ class TwitterBot:
             self.reply('show__latest_event', tweet['id'])
 
         elif first_command == 'show__latest_event':
-            event = event_views.show__latest_event()
+            event = Event.objects.latest_event()
             self.reply(event.__str__(), tweet['id'])
         elif first_command == 'show__games':
             image_path = f"{tweet['id']}.png"

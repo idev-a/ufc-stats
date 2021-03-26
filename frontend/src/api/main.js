@@ -7,8 +7,8 @@ export default {
   getLatestContest(game_id=-1) {
   	return session.post('api/entries/get_latestcontest/', {game_id})
   },
-  getLatestEvent (game_id=-1) {
-  	return session.post('api/events/get_latestevent/', {game_id})
+  getLatestEvent (game_id=-1, entry_number=0) {
+  	return session.post('api/events/get_latestevent/', {game_id, entry_number})
   },
   getFighters() {
   	return session.get('api/fighters/')
@@ -36,5 +36,8 @@ export default {
   },
   submitTicket(form) {
     return session.post('api/faqs/submit_ticket/', form)
+  },
+  getMyTeams(option=30) {
+    return session.post('api/entries/get_my_teams/', {option})
   }
 }

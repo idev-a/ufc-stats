@@ -3,7 +3,7 @@
     v-model="propDlg"
     fullscreen
   >
-    <v-row justify="center" align="center" style="min-height: 100vh;">
+    <v-row no-gutters justify="center" align="center" style="min-height: 100vh;">
       <v-slide-y-transition appear>
         <v-card
           max-width="100%"
@@ -251,7 +251,6 @@
           this.form.email = this.form.email.toLowerCase()
           this.form.username = this.form.email
           this.form.referred_by = this.$route.params?.id
-          console.log(this.form)
           this.$store.dispatch('signup/createAccount', this.form)
         }
       },
