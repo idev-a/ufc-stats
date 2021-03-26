@@ -150,7 +150,7 @@ class Bout(models.Model):
 	@property
 	def division(self):
 		_division = WEIGHT_MAPPING[self.weight_class.replace("Women's ", "")]
-		return f'{_division}-W' if self.weight_class.startswith('Women') else _division
+		return f'{_division} lbs-W' if self.weight_class.startswith('Women') else _division + ' lbs'
 	
 
 	def __str__(self):
