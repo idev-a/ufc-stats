@@ -437,19 +437,26 @@
           return
         }
         this.loading = true
-        const { data } = await main.createEntries(payload)
-        this.snackbar = {
-          ...data,
-          snack: true
+        try {
+          const { data } = await main.createEntries(payload)
+          this.snackbar = {
+            ...data,
+            snack: true
+          }
+          if (callback) {
+            if (data.status == 'success'){
+              callback(data)
+            }
+          }
+        } catch (e) {
+          this.snackbar = {
+            message: 'Something went wrong',
+            status: 'dark',
+            snack: true
+          }
         }
         this.loading = false
         this.$store.commit('snackbar/setSnack', this.snackbar)
-
-        if (callback) {
-          if (data.status == 'success'){
-            callback(data)
-          }
-        }
       },
 
       async submit (data) {
@@ -469,12 +476,12 @@
       },
       async gotoPrevEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number-1}`})
+          this.$router.push({ path: `/selection/${this.curGame}/${this.entry_number-1}`})
         })
       },
       async gotoNextEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number+1}`})
+          this.$router.push({ path: `/selection/${this.curGame}/${this.entry_number+1}`})
         })
       },
       disableSelection () {

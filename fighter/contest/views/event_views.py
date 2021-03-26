@@ -43,7 +43,7 @@ from contest.serializers import (
     ChatMessageSerializer
 )
 
-from contest.commons import get_games
+from contest.commons import get_games, main_contest
 
 import pdb
 
@@ -74,14 +74,12 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 if request.user.id:
                     game_id = int(request.data['game_id'])
                     entry_number = int(request.data['entry_number'])
-                    my_entry = None
-                    cur_game = None
                     try:
                         if game_id == -1:
-                            my_entry = Entry.objects.all().get(user_id=request.user.id, event_id=latest_event.id, game__isnull=True)
+                            cur_game = main_contest()
                         else:
                             cur_game = Game.objects.get(id=game_id)
-                            my_entry = Entry.objects.all().filter(user_id=request.user.id, game_id=game_id, entry_number=entry_number).first()
+                        my_entry = Entry.objects.all().filter(user_id=request.user.id, game_id=cur_game.id, entry_number=entry_number).first()
                     except:
                         pass
                     if cur_game:

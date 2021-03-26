@@ -38,7 +38,7 @@ from contest.serializers import (
     EntrySerializer,
 )
 
-from contest.commons import get_games
+from contest.commons import get_games, main_contest
 
 import pdb
 logger = logging.getLogger(__name__)
@@ -357,9 +357,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         latest_event = Event.objects.latest_event()
         game_id = request.data['game_id']
         if int(game_id) == -1:
-            selections = Selection.objects.filter(entry__event_id=latest_event.id, entry__game__isnull=True)
-        else:
-            selections = Selection.objects.filter(entry__game_id=game_id)
+            game_id = main_contest().id
+            
+        selections = Selection.objects.filter(entry__game_id=game_id)
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
@@ -600,8 +600,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 print(err)
                 pass
             if entry:
-                if entry.game and data['entry_number'] > entry.game.multientry:
-                    raise Exception
+                if entry.game and entry.game.re_entry and data['entry_number'] > entry.game.multientry:
+                    raise Exception("Invalid entry number")
                 is_exist = True
                 message = 'Successfully edited.'
                 data['last_edited'] = datetime.now()
@@ -627,7 +627,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if selection_serializer.is_valid():
                 selection_serializer.save()
                 return Response({'status': 'success', 'message': message})
-            
+            print(selection_serializer.errors)
             return Response({'status': 'failed', 'message': 'Something wrong happened.'}, status=400)
         except Exception as err:
             logger.warning(str(err))

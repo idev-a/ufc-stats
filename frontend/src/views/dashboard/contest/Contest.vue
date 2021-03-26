@@ -156,7 +156,7 @@
 
     mounted() {
       this.curGame = +this.game_id || -1
-      this.getLatestContest(this.game_id || -1)
+      this.getLatestContest(this.curGame)
       
       // preselect tab
       const tabParam = this.$route.query.tab

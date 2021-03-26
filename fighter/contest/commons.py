@@ -20,6 +20,9 @@ from contest.serializers import (
 	GameSerializer
 )
 
+def main_contest():
+    return Game.objects.filter(event=Event.objects.latest_event()).filter(buyin=0).filter(type_of_registration='public').first()
+
 def get_games(event, user_id=None):
 	_ = Game.objects.filter(event=event).filter(type_of_registration='public').filter(buyin=0).first()
 	games = []

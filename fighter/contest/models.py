@@ -8,7 +8,7 @@ from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 from django import forms
 
-from .managers import CustomUserManager, GameManager, EntryManager, EventManager
+from .managers import CustomUserManager, EntryManager, EventManager
 from .constants import (
 	DEFAULT_INSTRUCTIONS,
 	DEFAULT_RULES_SET,
