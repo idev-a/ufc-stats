@@ -118,7 +118,7 @@
               </v-list-item-avatar>
 
               <v-list-item-content class="text-left">
-                <v-list-item-title class="display-2" v-html="curGame.event.name"></v-list-item-title>
+                <v-list-item-title class="display-2" v-html="curGame.name"></v-list-item-title>
                 <v-list-item-subtitle><b>Start at</b> {{ curGame.date | beautifyDateTimeMin }}</v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>
