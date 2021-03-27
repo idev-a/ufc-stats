@@ -26,7 +26,7 @@ from contest.serializers import (
     GameSerializer
 )
 
-from contest.commons import get_games
+from contest.commons import load_my_games
 
 import pdb
 
@@ -45,7 +45,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         status = 200
         try:
             event = Event.objects.latest_event()
-            games = get_games(event, request.user.id)
+            games = load_my_games(event, request.user.id)
         except Exception as err:
             print(err)
             status = 500
