@@ -82,7 +82,7 @@
         </v-tooltip>
         <v-tooltip right>
           <template v-slot:activator="{ on }">
-            <v-btn fab x-small class="mr-2" v-on="on" :disabled="noChangeFighters" @click="confirmTeam"><v-icon color="success">mdi-database-outline</v-icon></v-btn>
+            <v-btn fab x-small class="mr-2" v-on="on" :disabled="noChangeFighters" @click="_confirmTeam"><v-icon color="success">mdi-database-outline</v-icon></v-btn>
           </template>
           <span>Confirm</span>
         </v-tooltip>
@@ -137,7 +137,7 @@
       ...mapState('auth', ['authUser']),
       noChangeFighters () {
 
-        return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters)
+        return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters) || this.item.event.action != ''
       }
     },
 
