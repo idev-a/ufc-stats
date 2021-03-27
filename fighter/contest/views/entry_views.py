@@ -141,7 +141,7 @@ def get_entry_views(selections):
         if selection.entry.game and selection.entry.game.id:
             score[username_id]['game_id'] = selection.entry.game.id
         entry_name = selection.entry.user.displayname
-        if selection.entry.entry_number:
+        if selection.entry.game and selection.entry.game.multientry > 1:
             entry_name += f' ({selection.entry.entry_number})'
         score[username_id]['entry'] = entry_name
         score[username_id]['user_id'] = selection.entry.user.id
