@@ -143,7 +143,7 @@
                       <div v-on="on">
                         <v-btn 
                           small
-                          v-if="false"
+                          v-if="canJoin(curGame) && joinLabel(curGame) != 'LIVE'"
                           class="my-1 red lighten-1" 
                           :disabled="canJoin(curGame) == 'No enough coins'" 
                           @click.stop="gotoContest(curGame)"
