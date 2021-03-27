@@ -450,7 +450,7 @@
           }
         } catch (e) {
           this.snackbar = {
-            message: 'Something went wrong',
+            message: e.response.data.message,
             status: 'dark',
             snack: true
           }
