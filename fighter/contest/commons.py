@@ -115,7 +115,7 @@ def load_my_games(event, user_id=None):
 			))
 
 		if user_id:
-			multi_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event).exclude(pk=_.id).exclude(type_of_registration='public')
+			multi_games = Game.objects.filter(entrants__pk=user_id).filter(event=event).exclude(pk=_.id).exclude(type_of_registration='public')
 			if multi_games:
 				for _ in multi_games:
 					games.append(dict(
