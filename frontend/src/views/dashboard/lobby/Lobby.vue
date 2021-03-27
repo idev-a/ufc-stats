@@ -128,9 +128,8 @@
                       <div v-on="on">
                         <v-btn 
                           small
-                          class="my-1 mr-md-2" 
-                          :class="{'red lighten-1': joinLabel(curGame) == 'LIVE'}"
-                          :disabled="canJoin(curGame) == 'No enough coins'" 
+                          class="my-1 mr-2" 
+                          :class="{'success': joinLabel(curGame).includes('JOIN'), 'red lighten-1': joinLabel(curGame) == 'LIVE'}"
                           @click.stop="joinContest(curGame)"
                         >
                           {{joinLabel(curGame)}}
@@ -144,10 +143,10 @@
                       <div v-on="on">
                         <v-btn 
                           small
-                          v-if="joinLabel(curGame) != 'LIVE'"
+                          v-if="false"
                           class="my-1 red lighten-1" 
                           :disabled="canJoin(curGame) == 'No enough coins'" 
-                          @click.stop="gotoContest"
+                          @click.stop="gotoContest(curGame)"
                         >
                           Live
                         </v-btn>
@@ -437,8 +436,8 @@
         }
         return label
       },
-      gotoContest () {
-        this.$router.push({ name: 'Contest', query: {tab: 'standings'}})
+      gotoContest (item) {
+        this.$router.push({ path: `/contest/${item.id}`, query: {tab: 'standings'}})
       },
       async joinContest (item) {
         const label = this.joinLabel(item)
@@ -446,7 +445,7 @@
           return this.$router.push({ path: `/selection/${item.id}` })
         }
         if (label == 'LIVE') {
-          return this.$router.push({ name: 'Contest', query: {tab: 'standings'}})
+          return this.$router.push({ path: `/contest/${item.id}`, query: {tab: 'standings'}})
         }
         if (label == 'EDIT') {
           return this.$router.push({ path: `/selection/${item.id}` })

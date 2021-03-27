@@ -9,6 +9,7 @@ const theme = {
   primary: '#E91E63',
   secondary: '#9C27b0',
   accent: '#9C27b0',
+  warning: '#EF5350',
   info: '#00CAE3',
   winner: '#2E7D32',
   loser: '#43A047',
