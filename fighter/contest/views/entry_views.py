@@ -17,6 +17,7 @@ import requests
 from datetime import datetime, timedelta
 import logging
 
+from contest.exceptions import EntryLimitException
 from contest.decorators import paginate
 from contest.models import (
     Event,
@@ -587,18 +588,24 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def create(self, request):
         try:
             data= request.data['entry']
-            entry = None
+            game = None
             entry_serializer = None
             is_exist = False
             message = 'Successfully done.'
+            entry = None
+            total_entries = 0
+            game_id = int(data['game'])
             try:
-                if int(data['game']) != -1:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], entry_number=data['entry_number'])
+                if game_id == -1:
+                    game = Game.objects.main_contest()
                 else:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
+                    game = Game.objects.get(id=game_id)
+                total_entries = Entry.objects.filter(game=game.id).count()
+                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=game.id)
             except Exception as err:
                 print(err)
                 pass
+
             if entry:
                 if entry.game and entry.game.re_entry and data['entry_number'] > entry.game.multientry:
                     raise Exception("Invalid entry number")
@@ -607,6 +614,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 data['last_edited'] = datetime.now()
                 entry_serializer = EntrySerializer(entry, data=data)
             else:
+                if total_entries >= game.entry_limit:
+                    raise EntryLimitException()
                 if data['game'] == -1:
                     data['game'] = None
                 entry_serializer = EntrySerializer(data=data)
@@ -616,7 +625,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 entry = entry_serializer.save()
             else:
                 print(entry_serializer.errors)
-                raise Exception()
+                raise Exception("Something went wrong")
 
             # delete old selections and save new data
             Selection.objects.filter(entry_id=entry.id).delete()
@@ -627,8 +636,12 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if selection_serializer.is_valid():
                 selection_serializer.save()
                 return Response({'status': 'success', 'message': message})
+
             print(selection_serializer.errors)
             return Response({'status': 'failed', 'message': 'Something wrong happened.'}, status=400)
+        
+        except EntryLimitException:
+            return Response({'status': 'failed', 'message': 'The # of entries reached out to the limit.'}, status=403)
         except Exception as err:
             logger.warning(str(err))
             print(str(err))

@@ -208,7 +208,7 @@ class Game(models.Model):
 	# Added by Admin
 	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=100)
 
-	teams_limit = models.PositiveIntegerField(blank=True, null=True, default=10)
+	entry_limit = models.PositiveIntegerField(blank=True, null=True, default=10)
 
 	@property
 	def re_entry(self):
