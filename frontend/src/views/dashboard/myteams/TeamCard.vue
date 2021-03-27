@@ -137,7 +137,7 @@
       ...mapState('auth', ['authUser']),
       noChangeFighters () {
 
-        return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters) || this.item.event.action != ''
+        return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters) || this.item.game.event.action != ''
       }
     },
 
