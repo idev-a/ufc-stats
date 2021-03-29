@@ -5,9 +5,17 @@
       :loading="loading"
       class="pa-2 mt-0"
     >
-      <div class="font-weight-medium display-1 text-center pt-2 text-uppercase">{{contestName(item.game)}}</div>
-      <div class="subtitle-2 text-center">{{ item.game.event.date | beautifyDateTimeMin }}
-        <money />
+      <div class="font-weight-medium display-1  text-center text-center mt-2 text-uppercase">
+        <span>{{contestName(item.game)}}</span>
+        <v-tooltip  top>
+          <template v-slot:activator="{ on }">
+            <v-btn v-if="false" fab x-small v-on="on" @click="unregister" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
+          </template>
+          <span>Unregister Entry</span>
+        </v-tooltip>
+      </div>
+      <div class="subtitle-2 text-center">
+        {{ item.game.event.date | beautifyDateTimeMin }}
       </div>
 
       <v-list 
@@ -52,13 +60,13 @@
                 {{_fighter(id).gender}}
               </v-list-item-icon>
               <v-list-item-icon>
-                <v-btn @click="removeFighter(id, i)" small icon><v-icon color="red lighten-1">mdi-close</v-icon></v-btn>
+                <v-btn @click="removeFighter(id, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
               </v-list-item-icon>
             </v-list-item>
         </v-list-item-group>
       </v-list>
       <v-card-actions>
-        <div class="red--text lighten-1 subtitle-2"><span>Total</span>&nbsp;{{item.fighters.length}}</div>
+        <div class="warning--text subtitle-2"><span>Total</span>&nbsp;{{item.fighters.length}}</div>
         <v-spacer />
         <v-tooltip left>
           <template v-slot:activator="{ on }">
@@ -74,7 +82,7 @@
         </v-tooltip>
         <v-tooltip right>
           <template v-slot:activator="{ on }">
-            <v-btn fab x-small class="mr-2" v-on="on" :disabled="noChangeFighters" @click="confirmTeam"><v-icon color="success">mdi-database-outline</v-icon></v-btn>
+            <v-btn fab x-small class="mr-2" v-on="on" :disabled="noChangeFighters" @click="_confirmTeam"><v-icon color="success">mdi-database-outline</v-icon></v-btn>
           </template>
           <span>Confirm</span>
         </v-tooltip>
@@ -129,7 +137,7 @@
       ...mapState('auth', ['authUser']),
       noChangeFighters () {
 
-        return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters)
+        return equalsIgnoreOrder(this.item.fighters, this.oldItem.fighters) || this.item.game.event.action != ''
       }
     },
 
@@ -145,21 +153,26 @@
         }
         return name
       },
-      async confirmTeam () {
+      async confirmAction(callback) {
         await this.$dialog.confirm({
           text: 'Are you sure?',
-          title: 'Confirmation',
+          title: 'Warning',
           actions: {
             false: 'No',
             true: {
               color: 'red',
               text: 'Yes',
               handle: () => {
-                this._confirmTeam()
+                if (callback) {
+                  callback()
+                }
               }
             }
           }
         })
+      },
+      async confirmTeam () {
+        await this.confirmAction(this._confirmTeam)
       },
       async _confirmTeam () {
         const payload = {
@@ -229,6 +242,12 @@
             }
           }
         })
+      },
+      async unregister () {
+        await this.confirmAction(this._unregister)
+      },
+      async _unregister () {
+
       }
     }
   }

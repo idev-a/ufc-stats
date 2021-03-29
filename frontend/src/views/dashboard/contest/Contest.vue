@@ -1,6 +1,7 @@
 <template>
   <div id="contest-table">
     <v-card
+      tile
       max-width="100%"
       class="ma-0 pb-3 fq-popup"
       :class="{'y-scroll': !$vuetify.breakpoint.mobile}"
@@ -187,6 +188,11 @@
         this.games = data.games
         if (data.games.length > 0 && this.curGame == -1) {
           this.curGame = data.games[0].id
+          data.games.forEach(game => {
+            if (game.name.trim().toLowerCase() == 'main contest') {
+              this.curGame = game.id
+            }
+          })
         }
         this.$store.commit('SET_EVENT', data.event)
         this.loading = false

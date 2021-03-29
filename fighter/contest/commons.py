@@ -1,31 +1,3 @@
-from django.conf import settings
-
-from contest.models import (
-	Event,
-	Bout,
-	Fighter,
-	Selection,
-	Entry,
-	CustomUser,
-	Game
-)
-from contest.serializers import (
-	UserSerializer,
-	GroupSerializer,
-	EventSerializer,
-	BoutSerializer,
-	FighterSerializer,
-	SelectionSerializer,
-	EntrySerializer,
-	GameSerializer
-)
-
-def main_contest():
-	games = Game.objects.filter(event=Event.objects.latest_event()).filter(buyin=0).filter(type_of_registration='public')
-	if games:
-	    return games.first()
-	else:
-		return -1
 
 def get_games(event, user_id=None):
 	public_games = Game.objects.filter(event=event).filter(type_of_registration='public')
@@ -84,7 +56,6 @@ def get_games(event, user_id=None):
 					))
 
 	return games
-
 
 def load_my_games(event, user_id=None):
 	public_games = Game.objects.filter(event=event).filter(type_of_registration='public')

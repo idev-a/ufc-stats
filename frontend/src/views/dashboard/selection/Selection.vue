@@ -381,7 +381,12 @@
         this.games = data.games
         if (data.games.length > 0 && this.curGame == -1) {
           this.curGame = data.games[0].id
-          this.startCountDown(data.games[0].event.date)
+          data.games.forEach(game => {
+            if (game.name.trim().toLowerCase() == 'main contest') {
+              this.curGame = game.id
+            }
+          })
+          this.startCountDown(this.curContest.event.date)
         }
       },
       gameName (item) {
@@ -450,7 +455,7 @@
           }
         } catch (e) {
           this.snackbar = {
-            message: 'Something went wrong',
+            message: e.response.data.message,
             status: 'dark',
             snack: true
           }
