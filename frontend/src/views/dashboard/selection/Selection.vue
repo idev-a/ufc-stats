@@ -170,6 +170,7 @@
               chips
               label="Select Entry"
               class="mx-5"
+              return-object
               @change="changeGame"
             >
               <template v-slot:selection="data">
@@ -350,8 +351,8 @@
     },
 
     async mounted () {
-      this.curGame = this.game_id  || -1
-      
+      this.curGame = `${this.game_id||-1}_${this.entry_number||1}`
+
       this.loading = true
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
@@ -379,11 +380,11 @@
         this.bouts = data.bouts
         this.fighters = data.fighters
         this.games = data.games
-        if (data.games.length > 0 && this.curGame == -1) {
-          this.curGame = data.games[0].id
+        if (data.games.length > 0 && this.curGame == '-1_1') {
+          this.curGame = data.games[0].value
           data.games.forEach(game => {
             if (game.name.trim().toLowerCase() == 'main contest') {
-              this.curGame = game.id
+              this.curGame = game.value
             }
           })
           this.startCountDown(this.curContest.event.date)
@@ -392,7 +393,7 @@
       gameName (item) {
         let name = item.name
         if (item.re_entry) {
-          name += ` (${item.multientry} Entries)`
+          name += ` (${item.entry_number})`
         }
         return name
       },
@@ -414,7 +415,7 @@
         const payload = {
           entry: {
             entry_number: this.entry_number,
-            game: this.curGame,
+            game: this.curGame.split('_')[0],
             event: this.curContest.event.id,
             user: this.authUser.pk || this.authUser.id,
           },
@@ -493,22 +494,11 @@
         this.countdownEnd = true
       },
       async changeGame (item) {
-        return this.$router.push({ path: `/selection/${item}`})
-
-        // this.loading = true
-        // await this.getLatestData(item)
-        // if (item == -1) {
-        //   this.instructions = this.defaultInstructions
-        //   this.summary = this.defaultSummary
-        //   this.rulesSet = this.defaultRulesSet
-        // } else {
-        //   this.instructions = this.curContest.instructions.split('\n')
-        //   this.rulesSet = this.curContest.rules_set.split('\n')
-        //   this.summary = this.curContest.summary
-        //   this.key++
-        // }
-        // this.startCountDown(this.curContest.date)
-        // this.loading = false
+        let path = `/selection/${item.id}`
+        if (item.re_entry) {
+          path += `/${item.entry_number}`
+        }
+        return this.$router.push({ path })
       },
       collapseSide () {
         this.side = !this.side

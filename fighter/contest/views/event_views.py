@@ -43,7 +43,7 @@ from contest.serializers import (
     ChatMessageSerializer
 )
 
-from contest.commons import get_games, main_contest
+from contest.commons import get_games_with_entry, main_contest
 
 import pdb
 
@@ -95,9 +95,9 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                                 if selected[0].survivor2_id:
                                     bout['survivors'].append(selected[0].survivor2_id)
 
-                    games = get_games(latest_event, request.user.id)
+                    games = get_games_with_entry(latest_event, request.user.id)
                 else:
-                    games = get_games(latest_event)
+                    games = get_games_with_entry(latest_event)
                 return Response(dict(
                     bouts=_bouts,
                     games=games,

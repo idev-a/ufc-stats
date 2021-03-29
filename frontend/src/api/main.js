@@ -8,7 +8,7 @@ export default {
   	return session.post('api/entries/get_latestcontest/', {game_id})
   },
   getLatestEvent (game_id=-1, entry_number=0) {
-  	return session.post('api/events/get_latestevent/', {game_id, entry_number})
+  	return session.post('api/events/get_latestevent/', {game_id:game_id.split('_')[0], entry_number})
   },
   getFighters() {
   	return session.get('api/fighters/')
