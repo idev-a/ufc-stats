@@ -91,6 +91,7 @@ def load_my_games(event, user_id=None):
 	if public_games:
 		event_data = EventSerializer(event).data
 		for _ in public_games:
+			engaged_teams = Entry.objects.filter(game=_).count()
 			games.append(dict(
 				id=_.id,
 				name=_.name,
@@ -111,13 +112,15 @@ def load_my_games(event, user_id=None):
 				joined_users=UserSerializer(_.joined_users, many=True).data,
 				added_prizepool=_.added_prizepool,
 				re_entry=_.re_entry,
-				multientry=_.multientry
+				multientry=_.multientry,
+				engaged_teams=engaged_teams,
 			))
 
 		if user_id:
 			multi_games = Game.objects.filter(entrants__pk=user_id).filter(event=event).exclude(pk=_.id).exclude(type_of_registration='public')
 			if multi_games:
 				for _ in multi_games:
+					engaged_teams = Entry.objects.filter(game=_).count()
 					games.append(dict(
 						id=_.id,
 						name=_.name,
@@ -138,7 +141,8 @@ def load_my_games(event, user_id=None):
 						joined_users=UserSerializer(_.joined_users, many=True).data,
 						added_prizepool=_.added_prizepool,
 						re_entry=_.re_entry,
-						multientry=_.multientry
+						multientry=_.multientry,
+						engaged_teams=engaged_teams
 					))
 
 	return games

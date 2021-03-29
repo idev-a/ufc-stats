@@ -76,6 +76,9 @@
             <span v-if="item.type_of_registration == 'private'">{{ item.joined_users.length }} / {{ item.entrants.length }}</span>
             <span v-else>All</span>
           </template>
+          <template v-slot:item.teams="{ item }">
+            <span>{{ teamInfo(item) }}</span>
+          </template>
           <template v-slot:item.date="{ item }">
             <span>{{ item.date | beautifyDateTimeMin }}</span>
           </template>
@@ -284,6 +287,11 @@
             align: 'center',
           },
           {
+            text: 'Teams',
+            value: 'teams',
+            align: 'center',
+          },
+          {
             text: 'When',
             value: 'date',
             align: 'center',
@@ -479,6 +487,13 @@
           }
         }
         this.$store.dispatch('snackbar/setSnack', snackbar)
+      },
+      teamInfo(item) {
+        let info = `${item.engaged_teams}/${item.entry_limit}`
+        if (item.type_of_registration == 'public') {
+          info = item.engaged_teams
+        }
+        return info
       }
     }
   }

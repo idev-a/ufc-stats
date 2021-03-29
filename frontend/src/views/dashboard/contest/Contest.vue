@@ -27,7 +27,7 @@
             chips
             item-value="value"
             item-text="name"
-            label="Select Contest"
+            label="Select Entry"
             class="mt-2 mr-4 hidden-detail"
             @change="changeGame"
           >

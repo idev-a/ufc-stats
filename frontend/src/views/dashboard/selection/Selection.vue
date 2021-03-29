@@ -168,7 +168,7 @@
               v-model="curGame"
               :items="games"
               chips
-              label="Select Contest"
+              label="Select Entry"
               class="mx-5"
               @change="changeGame"
             >
