@@ -417,7 +417,6 @@
             entry_number: this.entry_number,
             game: this.curGame.split('_')[0],
             event: this.curContest.event.id,
-            user: this.authUser.pk || this.authUser.id,
           },
           selections: []
         }

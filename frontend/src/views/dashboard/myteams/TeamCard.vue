@@ -5,16 +5,16 @@
       :loading="loading"
       class="pa-2 mt-0"
     >
-      <div class="font-weight-medium display-1  text-center text-center mt-2 text-uppercase">
+      <div class="font-weight-medium display-1 d-flex align-center mt-2 text-uppercase">
         <span>{{contestName(item.game)}}</span>
-        <v-tooltip  top>
+        <v-tooltip top>
           <template v-slot:activator="{ on }">
-            <v-btn v-if="false" fab x-small v-on="on" @click="unregister" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
+            <v-btn fab x-small v-on="on" @click="withdrawTeam" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
           </template>
-          <span>Unregister Entry</span>
+          <span>Withdraw Team</span>
         </v-tooltip>
       </div>
-      <div class="subtitle-2 text-center">
+      <div class="subtitle-2 ml-2 silver--text">
         {{ item.game.event.date | beautifyDateTimeMin }}
       </div>
 
@@ -178,9 +178,8 @@
         const payload = {
           entry: {
             game: this.item.game.id,
+            entry_number: this.item.game.entry_number,
             event: this.item.game.event.id,
-            user: this.authUser.pk || this.authUser.id,
-            entry_number: this.item.game.entry_number
           },
           selections: []
         }
@@ -243,11 +242,28 @@
           }
         })
       },
-      async unregister () {
-        await this.confirmAction(this._unregister)
+      async withdrawTeam () {
+        await this.confirmAction(this._withdrawTeam)
       },
-      async _unregister () {
+      async _withdrawTeam () {
+        const payload = {
+          game: this.item.game.id,
+          entry_number: this.item.game.entry_number
+        }
 
+        this.$emit('updateLoading', true)
+        const { data } = await main.withdrawTeam(payload)
+        this.snackbar = {
+          ...data,
+          status: data.status == 200 ? 'success': 'warning',
+          snack: true
+        }
+        this.$emit('updateLoading', false)
+        this.$store.commit('snackbar/setSnack', this.snackbar)
+
+        if (data.status == 200){
+          this.$emit('withdrawTeam', this.item_index)
+        }
       }
     }
   }

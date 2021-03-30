@@ -67,6 +67,7 @@
                   :fighters="curData.fighters"
                   @updateLoading="updateLoading"
                   @updateTeams="updateTeams"
+                  @withdrawTeam="withdrawTeam"
                 />
               </v-col>
             </v-row>
@@ -152,6 +153,9 @@
       },
       updateTeams (item, idx) {
         this.curData.teams.splice(idx, 1, item)
+      },
+      withdrawTeam (idx) {
+        this.curData.teams.splice(idx, 1)
       },
       updateItemsPerPage (number) {
         this.itemsPerPage = number

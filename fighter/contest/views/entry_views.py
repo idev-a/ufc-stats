@@ -584,6 +584,24 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             update_rank(event_id)
         return Response(dict(message='ok'))
 
+    @action(methods=['post'], detail=False)
+    def withdraw_team(self, request, **kwarg):
+        message = 'Successfully done'
+        status = 200
+        if not request.user:
+            status = 400
+            raise Exception()
+        try:
+            entries = Entry.objects.filter(user_id=request.user.id, game_id=request.data['game'], entry_number=request.data['entry_number'])
+            for entry in entries:
+                entry.delete()
+        except Exception as err:
+            print(err)
+            status = 500
+            message = 'Something wrong happened.'
+
+        return Response({ 'message': message, 'status': status }, status=status)    
+
     def create(self, request):
         try:
             data= request.data['entry']
@@ -593,9 +611,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             message = 'Successfully done.'
             try:
                 if int(data['game']) != -1:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=data['game'], entry_number=data['entry_number'])
+                    entry = Entry.objects.get(event_id=data['event'], user_id=request.user.id, game_id=data['game'], entry_number=data['entry_number'])
                 else:
-                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game__isnull=True)
+                    entry = Entry.objects.get(event_id=data['event'], user_id=request.user.id, game__isnull=True)
             except Exception as err:
                 print(err)
                 pass
