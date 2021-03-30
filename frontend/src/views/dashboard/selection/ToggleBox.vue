@@ -28,7 +28,7 @@
               :id="bout.fighter1"
               :fighters="fighters"
               :eventStated="eventStarted"
-              :initial="initial"
+              :first-name="true"
             />
 
             <div 
@@ -41,7 +41,7 @@
               :id="bout.fighter2"
               :fighters="fighters"
               :eventStated="eventStarted"
-              :initial="initial"
+              :first-name="true"
             />
 
           </v-btn-toggle>

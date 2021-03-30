@@ -331,7 +331,7 @@
         border-radius: 5px;
         background-color: #d3d3d3;
         color: black;
-        width: 122px !important;
+        width: 99px !important;
       }
 
       .between-fighters {

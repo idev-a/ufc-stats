@@ -9,7 +9,7 @@
         <span>{{contestName(item.game)}}</span>
         <v-tooltip top>
           <template v-slot:activator="{ on }">
-            <v-btn fab x-small v-on="on" @click="withdrawTeam" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
+            <v-btn v-if="option=='live'" fab x-small v-on="on" @click="withdrawTeam" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
           </template>
           <span>Withdraw Team</span>
         </v-tooltip>
@@ -38,9 +38,9 @@
             <span>Name</span>
           </v-list-item-content>
           <v-list-item-icon>
-            Gender
+            Division
           </v-list-item-icon>
-          <v-list-item-icon></v-list-item-icon>
+          <v-list-item-avatar />
         </v-list-item>
         <v-list-item-group 
           style="overflow-y: auto; height: 250px;"
@@ -57,11 +57,11 @@
                 <v-list-item-title v-text="_fighter(id).initials"></v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon>
-                {{_fighter(id).gender}}
+                <v-list-item-title v-text="_fighter(id).division"></v-list-item-title>
               </v-list-item-icon>
-              <v-list-item-icon>
+              <v-list-item-avatar>
                 <v-btn @click="removeFighter(id, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
-              </v-list-item-icon>
+              </v-list-item-avatar>
             </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -118,7 +118,7 @@
   export default {
     name: 'TeamCard',
 
-    props: ['loading', 'item', 'fighters', 'item_index'],
+    props: ['loading', 'option', 'item', 'fighters', 'item_index'],
 
     data () {
       return {

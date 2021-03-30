@@ -339,13 +339,13 @@
         return DEFAULT_SUMMARY
       },
       tweetShareLink () {
-        let link = `${process.env.VUE_APP_URL}/contest/${this.game_id}`
-        if (this.game_id == -1) {
-          link = `${process.env.VUE_APP_URL}/contest`
+        let link = `${process.env.VUE_APP_URL}/contest`
+        if (this.game_id) {
+          link += `/${this.game_id}`
         }
-        if (this._validRetryNumber()) {
-          link += `/${this.entry_number}`
-        }
+        // if (this._validRetryNumber()) {
+        //   link += `/${this.entry_number}`
+        // }
         return link
       }
     },

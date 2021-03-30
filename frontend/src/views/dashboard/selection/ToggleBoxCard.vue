@@ -2,7 +2,7 @@
 	<div id="contest-table">
     <v-card
       tile
-      :width="$vuetify.breakpoint.mobile ? '100%' : 320"
+      :width="$vuetify.breakpoint.mobile ? '100%' : 520"
       class="ma-0 pa-0 fq-popup"
     >
       <v-card-title
@@ -14,7 +14,7 @@
         <toggle-box
           :fighters="fighters"
           :bouts="bouts"
-          :initial="true"
+          :initial="false"
         />
       </v-card-text>
       <v-card-actions class="pa-0">
