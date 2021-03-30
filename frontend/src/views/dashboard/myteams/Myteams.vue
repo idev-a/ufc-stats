@@ -65,9 +65,9 @@
                   :key="item.key"
                   :item_index="x"
                   :fighters="curData.fighters"
-                  @updateLoading="updateLoading"
-                  @updateTeams="updateTeams"
-                  @withdrawTeam="withdrawTeam"
+                  @update-loading="updateLoading"
+                  @update-teams="updateTeams"
+                  @withdraw-team="withdrawTeam"
                 />
               </v-col>
             </v-row>

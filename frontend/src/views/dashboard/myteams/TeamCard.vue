@@ -191,17 +191,17 @@
           })
         })
 
-        this.$emit('updateLoading', true)
+        this.$emit('update-loading', true)
         const { data } = await main.createEntries(payload)
         this.snackbar = {
           ...data,
           snack: true
         }
-        this.$emit('updateLoading', false)
+        this.$emit('update-loading', false)
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
         if (data.status == 'success'){
-          this.$emit('updateTeams', this.item, this.item_index)
+          this.$emit('update-teams', this.item, this.item_index)
           this.oldItem = JSON.parse(JSON.stringify(this.item))
         }
       },
@@ -251,18 +251,18 @@
           entry_number: this.item.game.entry_number
         }
 
-        this.$emit('updateLoading', true)
+        this.$emit('update-loading', true)
         const { data } = await main.withdrawTeam(payload)
         this.snackbar = {
           ...data,
           status: data.status == 200 ? 'success': 'warning',
           snack: true
         }
-        this.$emit('updateLoading', false)
+        this.$emit('update-loading', false)
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
         if (data.status == 200){
-          this.$emit('withdrawTeam', this.item_index)
+          this.$emit('withdraw-team', this.item_index)
         }
       }
     }
