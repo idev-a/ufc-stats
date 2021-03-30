@@ -498,9 +498,11 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             _bout['survivors'] = []
         for bout in bouts:
             fighter = FighterSerializer(bout.fighter1).data
+            fighter['division'] = bout.division
             if fighter not in data['fighters']:
                 data['fighters'].append(fighter)
             fighter = FighterSerializer(bout.fighter2).data
+            fighter['division'] = bout.division
             if fighter not in data['fighters']:
                 data['fighters'].append(fighter)
         return bouts_dict
