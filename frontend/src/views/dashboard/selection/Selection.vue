@@ -339,8 +339,8 @@
         return DEFAULT_SUMMARY
       },
       tweetShareLink () {
-        let link = `${process.env.VUE_APP_URL}/contest/${this.curGame}`
-        if (this.curGame == -1) {
+        let link = `${process.env.VUE_APP_URL}/contest/${this.game_id}`
+        if (this.game_id == -1) {
           link = `${process.env.VUE_APP_URL}/contest`
         }
         if (this._validRetryNumber()) {
@@ -467,7 +467,7 @@
       async submit (data) {
         const self = this
         await this._submit((data) => {
-          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
+          setTimeout(function(){ self.$router.push({'path': `/contest/${self.game_id}`}); }, 1200);
         })
       },
       clearSelection () {
@@ -481,12 +481,12 @@
       },
       async gotoPrevEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.curGame}/${this.entry_number-1}`})
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number-1}`})
         })
       },
       async gotoNextEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.curGame}/${this.entry_number+1}`})
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number+1}`})
         })
       },
       disableSelection () {

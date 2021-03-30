@@ -609,6 +609,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             entry_serializer = None
             is_exist = False
             message = 'Successfully done.'
+            if not request.user:
+                raise Exception('No User')
             try:
                 if int(data['game']) != -1:
                     entry = Entry.objects.get(event_id=data['event'], user_id=request.user.id, game_id=data['game'], entry_number=data['entry_number'])
@@ -617,6 +619,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             except Exception as err:
                 print(err)
                 pass
+            data['user'] = request.user.id
             if entry:
                 if entry.game and entry.game.re_entry and data['entry_number'] > entry.game.multientry:
                     raise Exception("Invalid entry number")

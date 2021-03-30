@@ -27,12 +27,16 @@ def main_contest():
 	else:
 		return -1
 
-def build_games(games, data, event_data):
+def build_games(games, data, event_data, user_id=None):
 	for _ in data:
+		engaged_teams = 0
+		if user_id:
+			engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).count()
 		games.append(dict(
 			id=_.id,
 			name=_.name,
 			group='no important',
+			engaged_teams=engaged_teams,
 			date=_.date,
 			value=_.id,
 			event=event_data,
@@ -128,7 +132,7 @@ def load_my_games(event, user_id=None):
 
 	if user_id:
 		private_games = Game.objects.filter(entrants__pk=user_id).filter(event=event).exclude(type_of_registration='public')
-		build_games(games, private_games, event_data)
+		build_games(games, private_games, event_data, user_id)
 
 	return games
 

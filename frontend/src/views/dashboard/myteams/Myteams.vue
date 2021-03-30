@@ -47,7 +47,7 @@
         <v-data-iterator
           :items="curData.teams"
           item-key="key"
-          :items-per-page="5"
+          :items-per-page="10"
         > 
           <template v-slot:default="{ items }">
             <v-row>
