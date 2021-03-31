@@ -630,14 +630,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             if game and game.re_entry and data['entry_number'] > game.multientry:
                 raise Exception("Invalid entry number")
 
-            if total_entries >= game.entry_limit:
-                raise EntryLimitException()
             if entry:
                 is_exist = True
                 message = 'Successfully edited.'
                 data['last_edited'] = datetime.now()
                 entry_serializer = EntrySerializer(entry, data=data)
             else:
+                if total_entries >= game.entry_limit:
+                    raise EntryLimitException()
 
                 if data['game'] == -1:
                     data['game'] = None
