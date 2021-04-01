@@ -309,15 +309,15 @@
           game_id: this.curContest.id,
         }
         this.loading = true
-        const res = await main.joinGame(payload)
-        if (res.status == 200) {
+        const { data } = await main.joinGame(payload)
+        if (data.status == 200) {
           this.$store.dispatch('auth/loadProfile')
-          this.$router.push({ path: `/selection/${this.curContest.id}` })
+          this.$router.push({ path: `/selection/${this.curContest.id}/${data.entry_number}` })
         }
         snackbar = {
           ...snackbar,
-          message: res.data.message,
-          status: res.status == 200 ? 'success': ''
+          message: data.message,
+          status: data.status == 200 ? 'success': ''
         }
         this.loading = false
         this.$store.dispatch('snackbar/setSnack', snackbar)

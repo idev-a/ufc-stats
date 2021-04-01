@@ -102,13 +102,13 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 new_entry = Entry(event=game.event, game=game, user=request.user, entry_number=entry_number)
                 new_entry.save()
 
-            # add user to joined_users list in the game
-            game.joined_users.add(request.user)
-            game.save()
+                # add user to joined_users list in the game
+                game.joined_users.add(request.user)
+                game.save()
 
         except Exception as err:
             print(err)
             status = 500
             message = 'Something went wrong.'
 
-        return Response(dict(message=message, status=status), status)
+        return Response(dict(message=message, status=status, entry_number=entry_number), status)
