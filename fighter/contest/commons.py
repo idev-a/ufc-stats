@@ -73,13 +73,17 @@ def build_games(games, data, event_data, user_id=None):
 		can_have_entry = engaged_teams < _.multientry + 1 and engaged_teams < _.entry_limit
 		add_game(games, _, event_data, 1, has_joined, can_have_entry)
 
-def build_games_with_entry(games, data, event_data):
+def build_games_with_entry(games, data, event_data, user_id=None):
 	for _ in data:
 		if _.name.lower() == 'main contest':
 			add_game(games, _, event_data, 1, True)
 		else:
 			for entry in range(1, (_.multientry or 1)+1):
-				engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
+				if user_id:
+				 	engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).count()
+				else:
+					engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
+				
 				if engaged_teams:
 					add_game(games, _, event_data, entry)
 
@@ -100,7 +104,7 @@ def get_games_with_entry(event, user_id=None):
 
 	if user_id:
 		private_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event).exclude(type_of_registration='public')
-		build_games_with_entry(games, private_games, event_data)
+		build_games_with_entry(games, private_games, event_data, user_id)
 
 	return games;
 
