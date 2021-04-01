@@ -89,7 +89,7 @@
                   <v-btn 
                     small
                     class="my-1" 
-                    :class="{'success': joinLabel(item).includes('JOIN'), 'red lighten-1': joinLabel(item) == 'LIVE'}"
+                    :class="{'success': joinLabel(item).includes('JOIN'), 'warning': joinLabel(item) == 'LIVE'}"
                     @click.stop="joinContest(item)"
                   >
                     {{joinLabel(item)}}
@@ -132,7 +132,7 @@
                         <v-btn 
                           small
                           class="my-1 mr-2" 
-                          :class="{'success': joinLabel(curGame).includes('JOIN'), 'red lighten-1': joinLabel(curGame) == 'LIVE'}"
+                          :class="{'success': joinLabel(curGame).includes('JOIN'), 'warning': joinLabel(curGame) == 'LIVE'}"
                           @click.stop="joinContest(curGame)"
                         >
                           {{joinLabel(curGame)}}
@@ -147,7 +147,7 @@
                         <v-btn 
                           small
                           v-if="canJoin(curGame) && joinLabel(curGame) != 'LIVE'"
-                          class="my-1 red lighten-1" 
+                          class="my-1 warning" 
                           :disabled="canJoin(curGame) == 'No enough coins'" 
                           @click.stop="gotoContest(curGame)"
                         >
@@ -168,7 +168,7 @@
             align-with-title
             v-model="tab"
             background-color="transparent"
-            slider-color="red lighten-1"
+            slider-color="highlight"
             color="basil"
           >
             <v-tab
@@ -358,7 +358,7 @@
         this.dlg = true
       },
       canJoin (item) {
-        if (this.hasJoined(item)) {
+        if (item.has_joined) {
           return 'Already Joined'
         }
         let isInvolved = false
@@ -408,27 +408,12 @@
         } 
         return tooltip
       },
-      hasJoined(item) {
-        let joined = false
-        if (this.authUser) {
-          if (item.type_of_registration == 'public') {
-            joined = true
-          } else {
-            item.joined_users != null && item.joined_users.map(user => {
-              if (user.id == this.myId) {
-                joined = true
-              }
-            })
-          }
-        }
-        return joined
-      },
       hasEnoughCoins(item) {
         return this.myCoins >= item.buyin
       },
       joinLabel (item) {
         let label = 'JOIN'
-        if (this.hasJoined(item)) {
+        if (item.has_joined) {
           label = 'EDIT'
         } else {
           if (item.genre != 'free') {

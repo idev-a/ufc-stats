@@ -41,6 +41,7 @@ const getters = {
   launchLogin: state => state.launchLogin,
   isAuthenticated: state => !!state.token && state.token != 'null',
   authUser: state => state.authUser,
+  profile: state => state.profile,
   selectedUserId: state => state.selectedUserId,
   launchProfile: state => state.launchProfile
 };
@@ -127,6 +128,7 @@ const actions = {
       .then(({data}) => {
         commit('setLoading', false)
         commit('setProfile', data)
+        commit(SET_AUTH_USER, data.user)
       })
   },
   logout({ commit }) {

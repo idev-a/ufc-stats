@@ -72,20 +72,43 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         status = 200
         message = 'Successfully Joined'
         try:
-            user = CustomUser.objects.get(pk=request.data['user_id'])
+            if not request.user:
+                raise Exception()
             game = Game.objects.get(pk=request.data['game_id'])
             if game.genre != 'free':
-                if user.coins < game.buyin:
+                if request.user.coins < game.buyin:
                     return Response(dict(message="You don't have enough coins."), 400)
+                
+                # deduct user's coins by buyin
+                request.user.coins -= game.buyin
+                request.user.save()
 
-                user.coins -= game.buyin
-                user.save()
+            # create new entry with the new entry_number if possible
+            entries = Entry.objects.filter(game=game.id).filter(user=request.user.id).order_by('entry_number')
+            entry_number = 0
+            if not entries:
+                entry_number = 1
+            if entries.count() < game.multientry:
+                for x, entry in enumerate(entries):
+                    if entry.entry_number != x+1:
+                        # Just in case the entry with the middle number was eliminated in My Teams page
+                        entry_number = x + 1
+                        break
+                # last position + 1
+                if not entry_number:
+                    entry_number = entries.count() + 1
 
-            game.joined_users.add(user)
+            if entry_number and entries.count() < game.entry_limit:
+                new_entry = Entry(event=game.event, game=game, user=request.user, entry_number=entry_number)
+                new_entry.save()
+
+            # add user to joined_users list in the game
+            game.joined_users.add(request.user)
             game.save()
+
         except Exception as err:
             print(err)
             status = 500
             message = 'Something went wrong.'
 
-        return Response(dict(message=message), status)
+        return Response(dict(message=message, status=status), status)

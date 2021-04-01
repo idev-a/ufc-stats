@@ -20,14 +20,14 @@
           </div>
         </div>
         <v-row no-gutters class="align-center">
-          <v-col cols="auto" class="py-0">
+          <v-col class="py-0">
             <v-autocomplete 
               :loading="loading"
               v-model="curGame"
               :items="games"
               chips
               dense
-              item-value="value"
+              item-value="id"
               item-text="name"
               label="Select Contest"
               class="mt-2 mr-4 hidden-detail"
@@ -45,7 +45,27 @@
               </template>
             </v-autocomplete>
           </v-col>
-          <div class="d-flex align-center ml-auto">
+          <v-spacer />
+          <div v-if="curContest" class="d-flex align-center">
+            <v-btn 
+              v-if="curContest.can_have_entry"
+              class="mr-2 success"
+              small
+              :loading="loading"
+              @click="joinContest"
+            >
+              JOIN
+            </v-btn>
+            <v-btn 
+              v-if="curContest.has_joined"
+              class="mr-2"
+              small
+              :loading="loading"
+              @click="move2Selection"
+            >
+              EDIT
+            </v-btn>
+
             <div v-if="isPrivateContest" class="mr-2">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -68,7 +88,7 @@
             </div>
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
-                <v-btn @click="instructionDlg=true" color="highlight" icon v-on="on"><v-icon>mdi-dots-vertical</v-icon></v-btn>
+                <v-btn @click="instructionDlg=true" color="warning" icon v-on="on"><v-icon>mdi-dots-vertical</v-icon></v-btn>
               </template>
               <span>More</span>
             </v-tooltip>
@@ -170,7 +190,7 @@
           },
           {
             text: 'chat',
-            icon: 'mdi-message'
+            icon: 'mdi-chat-outline'
           }
         ],
         games: [],
@@ -184,6 +204,7 @@
 
     computed: {
       ...mapState(['event']),
+      ...mapState('auth', ['authUser', 'profile']),
 
       contestName () {
         return this.curContest && this.curContest.name || ""
@@ -191,7 +212,7 @@
       curContest () {
         let contest = undefined
         this.games.map(game => {
-          if (game.value == this.curGame) {
+          if (game.id == this.curGame) {
             contest = game
           }
         })
@@ -205,6 +226,20 @@
       },
       curRulesSet () {
         return this.curContest && this.curContest.rules_set.split('\n') || []
+      },
+      joinLabel () {
+        let label = 'JOIN'
+        if (this.curContest.has_joined) {
+          label = 'EDIT'
+        } else if (this.curContest.can_have_entry) {
+          if (this.curContest.genre != 'free') {
+            label += ` | F${this.curContest.buyin}`
+          }
+        }
+        if (this.curContest.id == -1) {
+          label = 'EDIT'
+        }
+        return label
       },
       isPrivateContest () {
         return this.curContest?.type_of_registration == 'private'
@@ -250,6 +285,42 @@
         }
         this.$store.commit('SET_EVENT', data.event)
         this.loading = false
+      },
+      move2Selection () {
+        this.$router.push({ path: `/selection/${this.curContest.id}` })
+      },
+      async joinContest () {
+        let snackbar = {snack: true};
+        if (!this.authUser) {
+          localStorage.setItem('returnUrl', this.$route.path)
+          return this.$store.commit('auth/showLoginDlg')
+        }
+        if (this.curContest.buyin) {
+            if (this.authUser?.coins < this.curContest.buyin) {
+            snackbar = {
+              ...snackbar,
+              message: "You don't have enough coins",
+              status: 'error'
+            }
+            return this.$store.dispatch('snackbar/setSnack', snackbar)
+          } 
+        }
+        let payload = {
+          game_id: this.curContest.id,
+        }
+        this.loading = true
+        const res = await main.joinGame(payload)
+        if (res.status == 200) {
+          this.$store.dispatch('auth/loadProfile')
+          this.$router.push({ path: `/selection/${this.curContest.id}` })
+        }
+        snackbar = {
+          ...snackbar,
+          message: res.data.message,
+          status: res.status == 200 ? 'success': ''
+        }
+        this.loading = false
+        this.$store.dispatch('snackbar/setSnack', snackbar)
       },
       async changeGame (item) {
         this.$router.push({'path': `/contest/${item}`})

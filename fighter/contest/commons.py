@@ -20,6 +20,8 @@ from contest.serializers import (
 	GameSerializer
 )
 
+import pdb
+
 def main_contest():
 	games = Game.objects.filter(event=Event.objects.latest_event()).filter(buyin=0).filter(type_of_registration='public')
 	if games:
@@ -27,18 +29,13 @@ def main_contest():
 	else:
 		return -1
 
-def build_games(games, data, event_data, user_id=None):
-	for _ in data:
-		engaged_teams = 0
-		if user_id:
-			engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).count()
-		games.append(dict(
+def add_game(games, _, event_data, entry=1, has_joined=False, can_have_entry=False):
+	return games.append(dict(
 			id=_.id,
 			name=_.name,
 			group='no important',
-			engaged_teams=engaged_teams,
 			date=_.date,
-			value=_.id,
+			value=f"{_.id}_{entry}",
 			event=event_data,
 			type_of_registration=_.type_of_registration,
 			instructions=_.instructions,
@@ -53,35 +50,38 @@ def build_games(games, data, event_data, user_id=None):
 			joined_users=UserSerializer(_.joined_users, many=True).data,
 			added_prizepool=_.added_prizepool,
 			re_entry=_.re_entry,
-			multientry=_.multientry
+			multientry=_.multientry,
+			entry_number=entry,
+			has_joined=has_joined,
+			can_have_entry=can_have_entry
 		))
+
+def build_games(games, data, event_data, user_id=None):
+	for _ in data:
+		engaged_teams = 0
+		has_joined = False
+		engaged_teams = 0
+		if user_id:
+			engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).count()
+			has_joined = _.joined_users.filter(id=user_id).count() > 0
+		else:
+			engaged_teams = Entry.objects.filter(game=_.id).count()
+			has_joined = engaged_teams > 0
+		if _.name.lower() == 'main contest':
+			has_joined = True
+		
+		can_have_entry = engaged_teams < _.multientry + 1 and engaged_teams < _.entry_limit
+		add_game(games, _, event_data, 1, has_joined, can_have_entry)
 
 def build_games_with_entry(games, data, event_data):
 	for _ in data:
-		for entry in range(1, (_.multientry or 1)+1):
-			games.append(dict(
-				id=_.id,
-				name=_.name,
-				group='no important',
-				date=_.date,
-				value=f"{_.id}_{entry}",
-				event=event_data,
-				type_of_registration=_.type_of_registration,
-				instructions=_.instructions,
-				summary=_.summary,
-				rules_set=_.rules_set,
-				action=_.action,
-				genre=_.genre,
-				entry_limit=_.entry_limit,
-				buyin=_.buyin,
-				prize=_.prize,
-				entrants=UserSerializer(_.entrants, many=True).data,
-				joined_users=UserSerializer(_.joined_users, many=True).data,
-				added_prizepool=_.added_prizepool,
-				re_entry=_.re_entry,
-				multientry=_.multientry,
-				entry_number=entry
-			))
+		if _.name.lower() == 'main contest':
+			add_game(games, _, event_data, 1, True)
+		else:
+			for entry in range(1, (_.multientry or 1)+1):
+				engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
+				if engaged_teams:
+					add_game(games, _, event_data, entry)
 
 def get_games_with_entry(event, user_id=None):
 	'''
@@ -100,11 +100,11 @@ def get_games_with_entry(event, user_id=None):
 
 	if user_id:
 		private_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event).exclude(type_of_registration='public')
-	build_games_with_entry(games, private_games, event_data)
+		build_games_with_entry(games, private_games, event_data)
 
 	return games;
 
-def get_games(event, user_id=None):
+def get_contest_games(event, user_id=None):
 	'''
 		get games for contest
 		For the private games, it will only games where user have already joined
@@ -115,8 +115,8 @@ def get_games(event, user_id=None):
 	build_games(games, public_games, event_data)
 
 	if user_id:
-		private_games = Game.objects.filter(joined_users__pk=user_id).filter(event=event).exclude(type_of_registration='public')
-		build_games(games, private_games, event_data)
+		private_games = Game.objects.filter(entrants=user_id).filter(event=event).exclude(type_of_registration='public')
+		build_games(games, private_games, event_data, user_id)
 
 	return games
 

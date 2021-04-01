@@ -39,7 +39,7 @@ from contest.serializers import (
 )
 
 from contest.exceptions import EntryLimitException
-from contest.commons import get_games, main_contest
+from contest.commons import get_contest_games, main_contest
 
 import pdb
 logger = logging.getLogger(__name__)
@@ -364,7 +364,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
-        games = get_games(latest_event, request.user.id)
+        games = get_contest_games(latest_event, request.user.id)
 
         return Response(dict(
             bout_views=bout_views,

@@ -23,9 +23,9 @@
                 <span>{{ contestDate }}</span>
                 <v-tooltip right>
                   <template v-slot:activator="{ on }">
-                    <v-icon v-on="on" v-if="isTournament" color="info" size=22> mdi-tournament mdi-rotate-270</v-icon>
+                    <v-icon v-on="on" v-if="isTournament" class="ml-1" color="success" size=20> mdi-tournament mdi-rotate-270</v-icon>
                   </template>
-                  <span>Tournament Type</span>
+                  <span>Multi Entry</span>
                 </v-tooltip>
               </div>
               <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
@@ -110,7 +110,7 @@
               <span>Clear Selection</span>
             </v-tooltip>
             <v-tooltip
-              v-if="isTournament"
+              v-if="isTournament && false"
               bottom
             >
               <template v-slot:activator="{ on }">
@@ -128,7 +128,7 @@
               <span>Sumbit & Go Prev Entry</span>
             </v-tooltip>
             <v-tooltip
-              v-if="isTournament"
+              v-if="isTournament && false"
               bottom
             >
               <template v-slot:activator="{ on }">
