@@ -80,7 +80,7 @@ def build_games_with_entry(games, data, event_data, user_id=None):
 		else:
 			for entry in range(1, (_.multientry or 1)+1):
 				if user_id:
-				 	engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).count()
+				 	engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).filter(entry_number=entry).count()
 				else:
 					engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
 				
