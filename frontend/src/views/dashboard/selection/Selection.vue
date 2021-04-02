@@ -343,9 +343,9 @@
         if (this.game_id) {
           link += `/${this.game_id}`
         }
-        // if (this._validRetryNumber()) {
-        //   link += `/${this.entry_number}`
-        // }
+        if (this._validRetryNumber()) {
+          link += `/${this.entry_number}`
+        }
         return link
       }
     },
@@ -398,16 +398,12 @@
         return name
       },
       _validRetryNumber() {
-        if (this.isTournament) {
-          return this.entry_number > 0 && this.entry_number <= this.curContest.multientry
-        } else {
-          return true
-        }
+        return this.curContest.multientry && this.entry_number && this.entry_number <= this.curContest.multientry
       },
       async _submit (callback) {
         if (!this.isAuthenticated) {
-          this.$store.commit('auth/showLoginDlg')
-          return
+          localStorage.setItem('returnUrl', this.$route.path)
+          return this.$store.commit('auth/showLoginDlg')
         }
         if (!this._validRetryNumber()) {
           return

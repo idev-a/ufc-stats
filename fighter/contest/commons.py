@@ -29,7 +29,7 @@ def main_contest():
 	else:
 		return -1
 
-def add_game(games, _, event_data, entry=1, has_joined=False, can_have_entry=False):
+def add_game(games, _, event_data, engaged_teams, entry=1, has_joined=False, can_have_entry=False):
 	return games.append(dict(
 			id=_.id,
 			name=_.name,
@@ -53,12 +53,12 @@ def add_game(games, _, event_data, entry=1, has_joined=False, can_have_entry=Fal
 			multientry=_.multientry,
 			entry_number=entry,
 			has_joined=has_joined,
-			can_have_entry=can_have_entry
+			can_have_entry=can_have_entry,
+			engaged_teams=engaged_teams
 		))
 
 def build_games(games, data, event_data, user_id=None):
 	for _ in data:
-		engaged_teams = 0
 		has_joined = False
 		engaged_teams = 0
 		if user_id:
@@ -67,25 +67,35 @@ def build_games(games, data, event_data, user_id=None):
 		else:
 			engaged_teams = Entry.objects.filter(game=_.id).count()
 			has_joined = engaged_teams > 0
-		if _.name.lower() == 'main contest':
-			has_joined = True
+		# if _.name.lower() == 'main contest':
+		# 	has_joined = True
 		
-		can_have_entry = engaged_teams < _.multientry + 1 and engaged_teams < _.entry_limit
-		add_game(games, _, event_data, 1, has_joined, can_have_entry)
+		has_joined = has_joined and user_id != None
+		can_have_entry = engaged_teams < _.multientry + 1 and engaged_teams < _.entry_limit or user_id == None
+		
+		add_game(games, _, event_data, engaged_teams, 1, has_joined, can_have_entry)
 
 def build_games_with_entry(games, data, event_data, user_id=None):
 	for _ in data:
-		if _.name.lower() == 'main contest':
-			add_game(games, _, event_data, 1, True)
-		else:
-			for entry in range(1, (_.multientry or 1)+1):
-				if user_id:
-				 	engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).filter(entry_number=entry).count()
-				else:
-					engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
-				
-				if engaged_teams:
-					add_game(games, _, event_data, entry)
+		# if _.name.lower() == 'main contest':
+		# 	add_game(games, _, event_data,  1, True)
+		# else:
+		for entry in range(1, (_.multientry or 1)+1):
+			if user_id:
+			 	engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).filter(entry_number=entry).count()
+			else:
+				engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
+			
+			if engaged_teams:
+				add_game(games, _, event_data, engaged_teams, entry)
+
+def get_all_games(event, games):
+	public_games = Game.objects.filter(event_id=event['id'])
+	build_games(games, public_games, event)
+
+def get_public_games(event, games):
+	public_games = Game.objects.filter(event_id=event['id']).filter(type_of_registration='public')
+	build_games(games, public_games, event)
 
 def get_games_with_entry(event, user_id=None):
 	'''
@@ -113,14 +123,16 @@ def get_contest_games(event, user_id=None):
 		get games for contest
 		For the private games, it will only games where user have already joined
 	'''
-	public_games = Game.objects.filter(event=event).filter(type_of_registration='public')
 	games = []
 	event_data = EventSerializer(event).data
-	build_games(games, public_games, event_data)
 
 	if user_id:
+		get_public_games(event_data, games)
+
 		private_games = Game.objects.filter(entrants=user_id).filter(event=event).exclude(type_of_registration='public')
 		build_games(games, private_games, event_data, user_id)
+	else:
+		get_all_games(event_data, games)
 
 	return games
 
@@ -129,14 +141,15 @@ def load_my_games(event, user_id=None):
 		load my games in lobby
 		For the private games, it will all available games for user
 	'''
-	public_games = Game.objects.filter(event=event).filter(type_of_registration='public')
 	games = []
 	event_data = EventSerializer(event).data
-	build_games(games, public_games, event_data)
-
 	if user_id:
+		get_public_games(event_data, games)
+
 		private_games = Game.objects.filter(entrants__pk=user_id).filter(event=event).exclude(type_of_registration='public')
 		build_games(games, private_games, event_data, user_id)
+	else:
+		get_all_games(event_data, games)
 
 	return games
 

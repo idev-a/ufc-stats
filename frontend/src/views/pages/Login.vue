@@ -181,7 +181,7 @@
       authenticating (val) {
         if (!val && !this.error) {
           if (this.$route.name != 'Selection') {
-            this.$router.push({name: 'Selection'})
+            // this.$router.push({name: 'Selection'})
           } else {
             this.$emit('update')
           }

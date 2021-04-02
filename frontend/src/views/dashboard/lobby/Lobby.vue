@@ -146,7 +146,7 @@
                       <div v-on="on">
                         <v-btn 
                           small
-                          v-if="canJoin(curGame) && joinLabel(curGame) != 'LIVE'"
+                          v-if="joinLabel(curGame) != 'LIVE'"
                           class="my-1 warning" 
                           :disabled="canJoin(curGame) == 'No enough coins'" 
                           @click.stop="gotoContest(curGame)"
@@ -367,7 +367,7 @@
             isInvolved = true
           }
         })
-        let isStarted = this.$moment(item.date).isSameOrBefore(this.$moment())
+        let isStarted = this.$moment().isSameOrAfter(this.$moment(item.date))
         if (isStarted) {
           return 'Game started'
         }
@@ -401,7 +401,7 @@
         }
         if (label.includes('JOIN')) {
           tooltip = 'Go to Selection'
-        } else if (label == 'EDIT') {
+        } else if (label == 'VIEW') {
           tooltip = 'Go to Selection'
         } else if (label == 'LIVE') {
           tooltip = 'Go to Contest'
@@ -414,17 +414,17 @@
       joinLabel (item) {
         let label = 'JOIN'
         if (item.has_joined) {
-          label = 'EDIT'
+          label = 'VIEW'
         } else {
           if (item.genre != 'free') {
             label += ` | F${item.buyin}`
           }
         }
         if (item.id == -1) {
-          label = 'EDIT'
+          label = 'VIEW'
         }
-        let isStarted = this.$moment(item.date).isSameOrBefore(this.$moment())
-        if (isStarted && label == 'EDIT') {
+        let isStarted =this.$moment().isSameOrAfter(this.$moment(item.date))
+        if (isStarted && label == 'VIEW') {
           label = 'LIVE'
         }
         return label
@@ -433,14 +433,15 @@
         this.$router.push({ path: `/contest/${item.id}`, query: {tab: 'standings'}})
       },
       async joinContest (item) {
-        const label = this.joinLabel(item)
-        if (label == 'JOIN' && !this.authUser) {
-          return this.$router.push({ path: `/selection/${item.id}` })
+        if (!this.authUser) {
+          localStorage.setItem('returnUrl', this.$route.path)
+          return this.$store.commit('auth/showLoginDlg')
         }
+        const label = this.joinLabel(item)
         if (label == 'LIVE') {
           return this.$router.push({ path: `/contest/${item.id}`, query: {tab: 'standings'}})
         }
-        if (label == 'EDIT') {
+        if (label == 'VIEW') {
           return this.$router.push({ path: `/selection/${item.id}` })
         }
         if (item.id == -1) {
