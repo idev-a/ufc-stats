@@ -71,7 +71,7 @@ def build_games(games, data, event_data, user_id=None):
 		# 	has_joined = True
 		
 		has_joined = has_joined and user_id != None
-		can_have_entry = engaged_teams < _.multientry + 1 and engaged_teams < _.entry_limit or user_id == None
+		can_have_entry = _.multientry != 0 and engaged_teams < _.multientry + 1 and engaged_teams < _.entry_limit
 		
 		add_game(games, _, event_data, engaged_teams, 1, has_joined, can_have_entry)
 

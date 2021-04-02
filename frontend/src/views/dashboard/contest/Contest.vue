@@ -48,24 +48,14 @@
           <v-spacer />
           <div v-if="curContest" class="d-flex align-center">
             <v-btn 
-              v-if="curContest.can_have_entry"
-              class="mr-2 success"
+              class="mr-2"
+              :class="{'success': joinLabel.includes('JOIN'), 'highlight': joinLabel=='LIVE' }"
               small
               :loading="loading"
               @click="joinContest"
             >
-              JOIN
+              {{joinLabel}}
             </v-btn>
-            <v-btn 
-              v-if="curContest.has_joined"
-              class="mr-2"
-              small
-              :loading="loading"
-              @click="move2Selection"
-            >
-              EDIT
-            </v-btn>
-
             <div v-if="isPrivateContest" class="mr-2">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
@@ -229,17 +219,21 @@
       },
       joinLabel () {
         let label = 'JOIN'
-        if (this.curContest.has_joined) {
-          label = 'EDIT'
-        } else if (this.curContest.can_have_entry) {
-          if (this.curContest.genre != 'free') {
-            label += ` | F${this.curContest.buyin}`
-          }
+        if (this.curContest.can_have_entry) {
+          label = 'JOIN AGAIN'
         }
-        if (this.curContest.id == -1) {
-          label = 'EDIT'
+        if (this.curContest.has_joined) {
+          label = 'VIEW'
+        } else if (this.curContest.genre != 'free') {
+          label += ` | F${this.curContest.buyin}`
+        }
+        if (this.isStartedGame) {
+          label = 'LIVE'
         }
         return label
+      },
+      isStartedGame () {
+        return this.$moment().isSameOrAfter(this.$moment(this.curContest.date))
       },
       isPrivateContest () {
         return this.curContest?.type_of_registration == 'private'
@@ -286,14 +280,14 @@
         this.$store.commit('SET_EVENT', data.event)
         this.loading = false
       },
-      move2Selection () {
-        this.$router.push({ path: `/selection/${this.curContest.id}` })
-      },
       async joinContest () {
         let snackbar = {snack: true};
         if (!this.authUser) {
           localStorage.setItem('returnUrl', this.$route.path)
           return this.$store.commit('auth/showLoginDlg')
+        }
+        if (this.joinLabel == 'VIEW' || this.joinLabel == 'LIVE') {
+          return this.$router.push({ path: `/selection/${this.curContest.id}` })
         }
         if (this.curContest.buyin) {
             if (this.authUser?.coins < this.curContest.buyin) {

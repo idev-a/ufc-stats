@@ -89,7 +89,7 @@
                   <v-btn 
                     small
                     class="my-1" 
-                    :class="{'success': joinLabel(item).includes('JOIN'), 'warning': joinLabel(item) == 'LIVE'}"
+                    :class="{'success': joinLabel(item).includes('JOIN'), 'highlight': joinLabel(item) == 'LIVE'}"
                     @click.stop="joinContest(item)"
                   >
                     {{joinLabel(item)}}
@@ -132,7 +132,7 @@
                         <v-btn 
                           small
                           class="my-1 mr-2" 
-                          :class="{'success': joinLabel(curGame).includes('JOIN'), 'warning': joinLabel(curGame) == 'LIVE'}"
+                          :class="{'success': joinLabel(curGame).includes('JOIN'), 'highlight': joinLabel(curGame) == 'LIVE'}"
                           @click.stop="joinContest(curGame)"
                         >
                           {{joinLabel(curGame)}}
@@ -146,12 +146,12 @@
                       <div v-on="on">
                         <v-btn 
                           small
-                          v-if="joinLabel(curGame) != 'LIVE'"
-                          class="my-1 warning" 
+                          v-if="isStartedGame(curGame) && joinLabel(curGame) != 'LIVE'"
+                          class="my-1 highlight" 
                           :disabled="canJoin(curGame) == 'No enough coins'" 
                           @click.stop="gotoContest(curGame)"
                         >
-                          Live
+                          LIVE
                         </v-btn>
                       </div>
                     </template>
@@ -367,8 +367,7 @@
             isInvolved = true
           }
         })
-        let isStarted = this.$moment().isSameOrAfter(this.$moment(item.date))
-        if (isStarted) {
+        if (this.isStartedGame(item)) {
           return 'Game started'
         }
 
@@ -411,6 +410,9 @@
       hasEnoughCoins(item) {
         return this.myCoins >= item.buyin
       },
+      isStartedGame (item) {
+        return this.$moment().isSameOrAfter(this.$moment(item.date))
+      },
       joinLabel (item) {
         let label = 'JOIN'
         if (item.has_joined) {
@@ -423,8 +425,7 @@
         if (item.id == -1) {
           label = 'VIEW'
         }
-        let isStarted =this.$moment().isSameOrAfter(this.$moment(item.date))
-        if (isStarted && label == 'VIEW') {
+        if (this.isStartedGame(item) && label == 'VIEW') {
           label = 'LIVE'
         }
         return label
