@@ -269,7 +269,7 @@
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
-        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started || !this._validRetryNumber()
+        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1
       },
       curContest () {
         let contest = undefined
@@ -398,16 +398,16 @@
         return name
       },
       _validRetryNumber() {
-        return this.curContest.multientry && this.entry_number && this.entry_number <= this.curContest.multientry
+        return this.curContest.re_entry && this.entry_number && this.entry_number <= this.curContest.multientry
       },
       async _submit (callback) {
         if (!this.isAuthenticated) {
           localStorage.setItem('returnUrl', this.$route.path)
           return this.$store.commit('auth/showLoginDlg')
         }
-        if (!this._validRetryNumber()) {
-          return
-        }
+        // if (!this._validRetryNumber()) {
+        //   return
+        // }
         const payload = {
           entry: {
             entry_number: this.entry_number,

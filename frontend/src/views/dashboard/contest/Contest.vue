@@ -219,11 +219,11 @@
       },
       joinLabel () {
         let label = 'JOIN'
-        if (this.curContest.can_have_entry) {
-          label = 'JOIN AGAIN'
-        }
         if (this.curContest.has_joined) {
           label = 'VIEW'
+        } 
+        if (this.curContest.can_have_entry) {
+          label = 'JOIN AGAIN'
         } else if (this.curContest.genre != 'free') {
           label += ` | F${this.curContest.buyin}`
         }
