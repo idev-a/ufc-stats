@@ -343,9 +343,9 @@
         if (this.game_id) {
           link += `/${this.game_id}`
         }
-        if (this._validRetryNumber()) {
-          link += `/${this.entry_number}`
-        }
+        // if (this._validRetryNumber()) {
+        //   link += `/${this.entry_number}`
+        // }
         return link
       }
     },
