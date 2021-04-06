@@ -87,8 +87,8 @@ class GameAdmin(admin.ModelAdmin):
 	form = GameForm
 	list_filter = [GameEventFilter]
 
-	search_fields = ('name', 'event__name', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
-	list_display = ('name', 'event', 'type_of_registration', 'multientry', 'info_entrants', 'summary', 'short_rules_set', 'entry_limit')
+	search_fields = ('name', 'event__name', 'owner__username', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
+	list_display = ('name', 'event', 'owner', 'type_of_registration', 'multientry', 'info_entrants', 'summary', 'short_rules_set', 'entry_limit')
 
 	filter_horizontal = ("joined_users", "entrants")
 

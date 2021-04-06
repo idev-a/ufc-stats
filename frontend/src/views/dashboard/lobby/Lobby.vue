@@ -211,7 +211,7 @@
         class="fq-popup"
       >
         <v-card-title>
-          <div class="font-weight-medium">New Game</div>
+          <div class="font-weight-medium display-1">New Game</div>
           <div class="subtitle">{{latestEvent.name}} ({{latestEvent.date | beautifyDate}})</div>
         </v-card-title>
         <v-card-text>
