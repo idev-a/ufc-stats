@@ -211,7 +211,8 @@
         class="fq-popup"
       >
         <v-card-title>
-          New Game
+          <div class="font-weight-medium">New Game</div>
+          <div class="subtitle">{{latestEvent.name}} ({{latestEvent.date | beautifyDate}})</div>
         </v-card-title>
         <v-card-text>
           <v-form
@@ -222,6 +223,7 @@
             <v-row >
               <v-col
                 cols=12
+                md=8
                 sm=6
               >
                 <v-text-field
@@ -232,22 +234,6 @@
                   single-line
                 />
               </v-col>
-              <v-col
-                cols=12
-                sm=6
-              >
-                <v-autocomplete
-                  v-model="form.event"
-                  :items="upcomingEvents"
-                  :rules="[rules.required]"
-                  item-value="id"
-                  item-text="name"
-                  persistent-hint
-                  label="Upcoming Event"
-                />
-              </v-col>
-            </v-row>
-            <v-row>
               <v-col
                 cols=12
                 md=4
@@ -264,9 +250,10 @@
                   single-line
                 />
               </v-col>
+            </v-row>
+            <v-row>
               <v-col
                 cols=12
-                md=4
                 sm=6
               >
                 <v-text-field
@@ -282,7 +269,6 @@
               </v-col>
               <v-col
                 cols=12
-                md=4
                 sm=6
               >
                 <v-text-field
@@ -452,7 +438,7 @@
   import upperFirst from 'lodash/upperFirst'
 
   import main from '@/api/main'
-  import { beautifyDateTimeMin } from '@/util'
+  import { beautifyDateTimeMin, beautifyDate } from '@/util'
   import GameDetail from './GameDetail'
   import Rules from './Rules'
   import { 
@@ -564,7 +550,7 @@
         ],
         newDlg: false,
         valid: true,
-        upcomingEvents: [],
+        latestEvent: {},
         defaultForm: {
             name: '',
             event: '',
@@ -663,6 +649,7 @@
 
     filters: {
       beautifyDateTimeMin,
+      beautifyDate,
       upperFirst
     },
 
@@ -675,6 +662,7 @@
         this.loading = true
         const { data } = await main.loadGames()
         this.games = data.games
+        this.latestEvent = data.latest_event
         this.upcomingEvents = data.upcoming_events
         this.loading = false
       },
@@ -818,7 +806,11 @@
       async _createGame () {
         this.loading = true
         try {
-          const { data } = await main.createGame(this.form)
+          const payload = {
+            ...this.form,
+            event: this.latestEvent.id
+          }
+          const { data } = await main.createGame(payload)
           this.game_id = data.game_id
           this.snackbar = {
             ...data,

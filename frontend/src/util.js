@@ -42,7 +42,7 @@ export const beautifyDateTimeMin = (date) => {
 
 export const beautifyDate = (date) => {
   if (date) {
-    return moment(date).format('MMM DD, YYYY')
+    return moment(date).format('MMM DD')
   } else {
     return ''
   }

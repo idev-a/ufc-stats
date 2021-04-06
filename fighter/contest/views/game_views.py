@@ -43,21 +43,17 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def load_games(self, request, **kwarg):
         games = []
-        upcoming_events = []
+        latest_event = []
         status = 200
         try:
             event = Event.objects.latest_event()
+            latest_event = EventSerializer(event).data
             games = load_my_games(event, request.user.id)
-            for _ in Event.objects.filter(status='upcoming').filter(action='').order_by('-date'):
-                upcoming_events.append(dict(
-                    id=_.id,
-                    name=_.__str__(),
-                ))
         except Exception as err:
             print(err)
             status = 500
 
-        return Response(dict(games=games, upcoming_events=upcoming_events), status)
+        return Response(dict(games=games, latest_event=latest_event), status)
 
     @action(methods=['get'], detail=False)
     def load_own_games(self, request, **kwarg):

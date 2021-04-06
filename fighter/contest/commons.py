@@ -150,8 +150,8 @@ def load_my_games(event, user_id=None):
 	games = []
 	event_data = EventSerializer(event).data
 	if user_id:
-		public_games = Game.objects.filter(event_id=event['id']).filter(type_of_registration='public').filter(owner__username='admin')
-		build_games(games, public_games, event)
+		public_games = Game.objects.filter(event=event).filter(type_of_registration='public').filter(owner__username='admin')
+		build_games(games, public_games, event_data)
 
 		private_games = Game.objects.filter(entrants__pk=user_id).filter(event=event).exclude(type_of_registration='public').filter(owner__username='admin')
 		build_games(games, private_games, event_data, user_id)
