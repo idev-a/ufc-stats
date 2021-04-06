@@ -96,7 +96,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             status = 500
             message = 'Something went wrong.'
 
-        return Response(dict(message=message, game=game_id), status)
+        return Response(dict(message=message, game_id=game_id), status)
 
     @action(methods=['post'], detail=False)
     def join_game(self, request, **kwarg):
