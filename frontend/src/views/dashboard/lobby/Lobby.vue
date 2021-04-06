@@ -10,6 +10,9 @@
         class="font-weight-medium mb-4"
       >
         <div v-if="$vuetify.breakpoint.mobile" class="mr-5">Lobby</div>
+        <v-spacer v-if="$vuetify.breakpoint.mobile" />
+        <v-btn v-if="$vuetify.breakpoint.mobile" small class="success mr-2" :loading="loading" :disabled="loading || !authUser" @click="loadMyGames"><v-icon left>mdi-filter-variant</v-icon> My Games</v-btn>
+        <v-btn v-if="$vuetify.breakpoint.mobile" small class="success" :loading="loading" :disabled="loading || !authUser" @click="newGame"><v-icon left>mdi-plus</v-icon> New Game</v-btn>
         <div class="d-flex align-center">
           <v-text-field
             v-model="search"
@@ -19,8 +22,7 @@
             class="mb-5"
             single-line
             hide-details
-          ></v-text-field>
-          <v-spacer />
+          />
           <v-select
             v-model="type"
             class="ml-2"
@@ -28,8 +30,7 @@
             hint="Public / Private"
             persistent-hint
             label="Type"
-          >
-          </v-select>
+          />
           <v-select
             v-model="genre"
             class="ml-2"
@@ -40,6 +41,9 @@
           >
           </v-select>
         </div>
+        <v-spacer v-if="!$vuetify.breakpoint.mobile" />
+        <v-btn v-if="!$vuetify.breakpoint.mobile" small class="success mr-2" :loading="loading" :disabled="loading || !authUser" @click="loadMyGames"><v-icon left>mdi-filter-variant</v-icon> My Games</v-btn>
+        <v-btn v-if="!$vuetify.breakpoint.mobile" small class="success" :loading="loading" :disabled="loading || !authUser" @click="newGame"><v-icon left>mdi-plus</v-icon> New Game</v-btn>
       </v-card-title>
       <v-card-text
         class="w-100 lobby-table"
@@ -103,6 +107,7 @@
       </v-card-text>
     </v-card>
 
+    <!-- Game detail dialog -->
     <v-dialog
       v-model="dlg"
       scrollable
@@ -195,6 +200,250 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <!-- New Game Dialog -->
+    <v-dialog
+      v-model="newDlg"
+      max-width=850
+    >
+      <v-card
+        tile
+        class="fq-popup"
+      >
+        <v-card-title>
+          New Game
+        </v-card-title>
+        <v-card-text>
+          <v-form
+            ref="form"
+            v-model="valid"
+            lazy-validation
+          >
+            <v-row >
+              <v-col
+                cols=12
+                sm=6
+              >
+                <v-text-field
+                  v-model="form.name"
+                  :rules="[rules.required]"
+                  label="Name"
+                  clearable
+                  single-line
+                />
+              </v-col>
+              <v-col
+                cols=12
+                sm=6
+              >
+                <v-autocomplete
+                  v-model="form.event"
+                  :items="upcomingEvents"
+                  :rules="[rules.required]"
+                  item-value="id"
+                  item-text="name"
+                  persistent-hint
+                  label="Upcoming Event"
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col
+                cols=12
+                md=4
+                sm=6
+              >
+                <v-text-field
+                  type=number
+                  min=0
+                  v-model="form.multientry"
+                  label="Multi Entry"
+                  hint="Multi Entry"
+                  persistent-hint
+                  clearable
+                  single-line
+                />
+              </v-col>
+              <v-col
+                cols=12
+                md=4
+                sm=6
+              >
+                <v-text-field
+                  type=number
+                  min=0
+                  v-model="form.buyin"
+                  label="Buyin"
+                  hint="Buyin"
+                  persistent-hint
+                  clearable
+                  single-line
+                />
+              </v-col>
+              <v-col
+                cols=12
+                md=4
+                sm=6
+              >
+                <v-text-field
+                  type=number
+                  min=0
+                  v-model="form.added_prizepool"
+                  label="Prize Pool"
+                  hint="Prize Pool"
+                  persistent-hint
+                  clearable
+                  single-line
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col
+                cols=12
+                sm=6
+              >
+                <v-textarea
+                  outlined
+                  v-model="form.instructions"
+                  :rules="[rules.required]"
+                  label="Instructions"
+                  hint="Instructions"
+                  persistent-hint
+                  rows=2
+                  auto-grow
+                  clearable
+                  single-line
+                />
+              </v-col>
+              <v-col
+                cols=12
+                sm=6
+              >
+                <v-textarea
+                  outlined
+                  v-model="form.summary"
+                  :rules="[rules.required]"
+                  label="Summary"
+                  hint="Summary"
+                  persistent-hint
+                  rows=2
+                  auto-grow
+                  clearable
+                  single-line
+                />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col
+                cols=12
+              >
+                <v-textarea
+                  outlined
+                  v-model="form.rules_set"
+                  :rules="[rules.required]"
+                  label="Rules Set"
+                  hint="Rules Set"
+                  persistent-hint
+                  rows=3
+                  auto-grow
+                  clearable
+                  single-line
+                />
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn 
+                small
+                v-on="on"
+                :loading="loading"
+                :disabled="!game_id"
+                @click="copyGameLink"
+              >
+                <v-icon size="24" color="highlight">mdi-google-controller</v-icon>
+              </v-btn>
+            </template>
+            <span>COPY: {{ genGameLink(game_id) }}</span>
+          </v-tooltip>
+          <v-btn text :loading="loading" @click="newDlg=false">Close</v-btn>
+          <v-btn text color="success" :loading="loading" :disabled="loading || !valid" @click="createGame">Create</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- My Own Games -->
+    <v-dialog
+      v-model="newGameDlg"
+    >
+      <v-card
+        id="contest-table"
+        class="fq-popup"
+      >
+        <v-card-title class="d-flex">
+          <div>My Games</div>
+          <v-spacer />
+          <v-text-field
+            v-model="ownSearch"
+            label="Search games"
+            clearable
+            class="mb-5"
+            single-line
+            hide-details
+          />
+        </v-card-title>
+        <v-card-text>
+          <v-data-table
+            :items="myOwnGames"
+            :loading="loading"
+            :headers="ownHeaders"
+            :search="ownSearch"
+            fixed-header
+            :disable-pagination="true"
+            item-key="id"
+            dense
+            height="280px"
+            hide-default-footer
+            mobile-breakpoint="0"
+          > 
+            <template v-slot:item.name="{ item }">
+              <span>{{ item.name | upperFirst }}</span>
+            </template>
+            <template v-slot:item.event="{ item }">
+              <span>{{ item.event.name }}</span>
+            </template>
+            <template v-slot:item.teams="{ item }">
+              <span>{{ teamInfo(item) }}</span>
+            </template>
+            <template v-slot:item.date="{ item }">
+              <span>{{ item.date | beautifyDateTimeMin }}</span>
+            </template>
+            <template v-slot:item.actions="{ item }">
+            <v-tooltip right>
+              <template  v-slot:activator="{ on }">
+                <div v-on="on">
+                  <v-btn 
+                    small
+                    class="success"
+                    @click.stop="copyGameLink(`#gameLink${item.id}`)"
+                  >
+                    COPY
+                  </v-btn>
+                  <input type="hidden" :id="`gameLink${item.id}`" :value="genGameLink(item.id)" name="">
+                </div>
+              </template>
+              <span>Copy Link</span>
+            </v-tooltip>
+          </template>
+          </v-data-table>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+    <!-- hidden -->
+    <input type="hidden" id="gameLink" :value="genGameLink(game_id)" name="">
   </div>
 </template>
 
@@ -206,6 +455,11 @@
   import { beautifyDateTimeMin } from '@/util'
   import GameDetail from './GameDetail'
   import Rules from './Rules'
+  import { 
+    DEFAULT_RULES_SET,
+    DEFAULT_INSTRUCTIONS,
+    DEFAULT_SUMMARY
+  } from '@/constants/constant'
 
   export default {
     name: 'Contest',
@@ -216,6 +470,9 @@
       return {
         loading: false,
         search: '',
+        snackbar: {
+          snack: true
+        },
         dlg: false,
         tab: null,
         games: [],
@@ -254,17 +511,19 @@
           {
             text: 'Actions',
             value: 'actions',
-            align:'center'
+            align:'center',
           },
           {
             text: 'Name',
             value: 'name',
             align: 'center',
+            width: 120
           },
           {
             text: 'Event',
             value: 'event',
             align: 'center',
+            width: 200
           },
           {
             text: 'Type',
@@ -295,13 +554,78 @@
             text: 'When',
             value: 'date',
             align: 'center',
+            width: 120
           },
          
         ],
         tabs: [
           'Contest Details',
           'Rules & Scoring',
-        ]
+        ],
+        newDlg: false,
+        valid: true,
+        upcomingEvents: [],
+        defaultForm: {
+            name: '',
+            event: '',
+            instructions: DEFAULT_INSTRUCTIONS.join('\n'),
+            rules_set: DEFAULT_RULES_SET.join('\n'),
+            summary: DEFAULT_SUMMARY,
+            multientry: 0,
+            buyin: 0,
+            added_prizepool: 100,
+        },
+        form: {
+          name: '',
+          event: '',
+          instructions: '',
+          rules_set: '',
+          summary: '',
+          multientry: 0,
+          buyin: 0,
+          added_prizepool: 100,
+        },
+        game_id: '',
+        myOwnGames: '',
+        ownSearch: '',
+        newGameDlg: false,
+        ownHeaders: [
+          {
+            text: 'Name',
+            value: 'name',
+          },
+          {
+            text: 'Event',
+            value: 'event',
+          },
+          {
+            text: 'Buyin',
+            value: 'buyin'
+          },
+          {
+            text: 'Prize Pool',
+            value: 'prize'
+          },
+          {
+            text: 'Teams',
+            value: 'teams'
+          },
+          {
+            text: 'When',
+            value: 'date',
+            align: 'center',
+          },
+          {
+            text: 'Actions',
+            value: 'actions',
+            align: 'center',
+          },
+        ],
+        rules: {
+          required: value => {
+            return !!value || 'This field is required.'
+          },
+        }
       }
     },
 
@@ -334,7 +658,7 @@
       },
       myCoins () {
         return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
-      }
+      },
     },
 
     filters: {
@@ -351,6 +675,7 @@
         this.loading = true
         const { data } = await main.loadGames()
         this.games = data.games
+        this.upcomingEvents = data.upcoming_events
         this.loading = false
       },
       async loadGameDetail (item) {
@@ -481,6 +806,94 @@
           info = item.engaged_teams
         }
         return info
+      },
+      newGame () {
+        this.form = Object.assign({}, this.defaultForm)
+        this.$refs.form?.resetValidation()
+        this.newDlg = true
+      },
+      async createGame () {
+        await this.confirmAction(this._createGame)
+      },
+      async _createGame () {
+        this.loading = true
+        try {
+          const { data } = await main.createGame(this.form)
+          this.game_id = data.game_id
+          this.snackbar = {
+            ...data,
+            status: 'success',
+            snack: true
+          }
+        } catch (e) {
+          this.snackbar = {
+            message: e.response.data.message,
+            status: 'warning',
+            snack: true
+          }
+        }
+        this.loading = false
+        this.$store.commit('snackbar/setSnack', this.snackbar)
+      },
+      async confirmAction(callback) {
+        await this.$dialog.confirm({
+          text: 'Are you sure?',
+          title: 'Warning',
+          actions: {
+            false: 'No',
+            true: {
+              color: 'red',
+              text: 'Yes',
+              handle: () => {
+                if (callback) {
+                  callback()
+                }
+              }
+            }
+          }
+        })
+      },
+      genGameLink (game_id) {
+        let link = `${process.env.VUE_APP_URL}/contest`
+        if (game_id) {
+          link += `/${game_id}`
+        }
+        return link
+      },
+      copyGameLink (queryId='#gameLink') {
+        let testingCodeToCopy = document.querySelector(queryId)
+        testingCodeToCopy.setAttribute('type', 'text')
+        testingCodeToCopy.select()
+
+        try {
+          var successful = document.execCommand('copy');
+          this.snackbar.message = successful ? 'Copied' : 'Cannot copy';
+          this.snackbar.status = successful ? 'success' : 'warning';
+        } catch (err) {
+          this.snackbar.message = 'Oops, unable to copy';
+        }
+
+        /* unselect the range */
+        testingCodeToCopy.setAttribute('type', 'hidden')
+        window.getSelection().removeAllRanges()
+        this.$store.commit('snackbar/setSnack', this.snackbar)
+      },
+      async loadMyGames () {
+        this.loading = true
+        this.myOwnGames = []
+        this.newGameDlg = true
+        try {
+          const { data } = await main.loadMyGames()
+          this.myOwnGames = data.my_own_games
+        } catch(e) {
+          this.snackbar = {
+            snack: true,
+            message: e.response.data.message,
+            status: 'warning'
+          }
+          this.$store.commit('snackbar/setSnack', this.snackbar)
+        }
+        this.loading = false
       }
     }
   }

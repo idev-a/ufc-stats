@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from django.conf import settings
+from datetime import datetime
 
 from contest.models import (
     Event,
@@ -26,7 +27,7 @@ from contest.serializers import (
     GameSerializer
 )
 
-from contest.commons import load_my_games
+from contest.commons import load_my_games, load_own_games
 
 import pdb
 
@@ -42,30 +43,60 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def load_games(self, request, **kwarg):
         games = []
+        upcoming_events = []
         status = 200
         try:
             event = Event.objects.latest_event()
             games = load_my_games(event, request.user.id)
+            for _ in Event.objects.filter(status='upcoming').filter(action='').order_by('-date'):
+                upcoming_events.append(dict(
+                    id=_.id,
+                    name=_.__str__(),
+                ))
         except Exception as err:
             print(err)
             status = 500
 
-        return Response(dict(games=games), status)
+        return Response(dict(games=games, upcoming_events=upcoming_events), status)
 
     @action(methods=['get'], detail=False)
+    def load_own_games(self, request, **kwarg):
+        my_own_games = []
+        status = 200
+        message = 'Successfully done.'
+        try:
+            if not request.user:
+                raise Exception()
+            my_own_games = load_own_games(request.user.id)
+        except Exception as err:
+            print(err)
+            message = 'Something went wrong.'
+            status = 500
+
+        return Response(dict(my_own_games=my_own_games), status)
+
+    @action(methods=['post'], detail=False)
     def create_game(self, request, **kwarg):
         status = 200
         message = 'Successfully created'
+        game_id = None
         try:
-            event = Event.objects.latest_event()
-            if event:
-                create_main_contest(event)
+            if not request.user:
+                raise Exception()
+            data = request.data
+            data['owner'] = request.user.id
+            game_serializer = GameSerializer(data=data)
+            if game_serializer.is_valid():
+                game = game_serializer.save()
+                game_id = game.id
+            else:
+                raise Exception()
         except Exception as err:
             print(err)
             status = 500
             message = 'Something went wrong.'
 
-        return Response(dict(message=message), status)
+        return Response(dict(message=message, game=game_id), status)
 
     @action(methods=['post'], detail=False)
     def join_game(self, request, **kwarg):

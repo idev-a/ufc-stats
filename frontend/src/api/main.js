@@ -26,8 +26,14 @@ export default {
   loadGames() {
     return session.get('api/games/load_games/')
   },
+  loadMyGames() {
+    return session.get('api/games/load_own_games/')
+  },
   joinGame(payload) {
     return session.post('api/games/join_game/', payload)
+  },
+  createGame(payload) {
+    return session.post('api/games/create_game/', payload)
   },
   // User profile
   getMyContestHistory () {
