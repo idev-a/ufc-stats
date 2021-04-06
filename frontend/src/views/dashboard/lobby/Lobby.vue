@@ -362,7 +362,7 @@
                 v-on="on"
                 :loading="loading"
                 :disabled="!game_id"
-                @click="copyGameLink"
+                @click="copyGameLink('#myGameLink')"
               >
                 <v-icon size="24" color="highlight">mdi-google-controller</v-icon>
               </v-btn>
@@ -372,6 +372,7 @@
           <v-btn text :loading="loading" @click="newDlg=false">Close</v-btn>
           <v-btn text color="success" :loading="loading" :disabled="loading || !valid" @click="createGame">Create</v-btn>
         </v-card-actions>
+        <input type="hidden" id="myGameLink" :value="genGameLink(game_id)" name="">
       </v-card>
     </v-dialog>
 
@@ -443,7 +444,6 @@
       </v-card>
     </v-dialog>
     <!-- hidden -->
-    <input type="hidden" id="gameLink" :value="genGameLink(game_id)" name="">
   </div>
 </template>
 
@@ -860,13 +860,13 @@
         }
         return link
       },
-      copyGameLink (queryId='#gameLink') {
+      copyGameLink (queryId) {
         let testingCodeToCopy = document.querySelector(queryId)
         testingCodeToCopy.setAttribute('type', 'text')
         testingCodeToCopy.select()
 
         try {
-          var successful = document.execCommand('copy');
+          var successful = document.execCommand('copy')
           this.snackbar.message = successful ? 'Copied' : 'Cannot copy';
           this.snackbar.status = successful ? 'success' : 'warning';
         } catch (err) {
