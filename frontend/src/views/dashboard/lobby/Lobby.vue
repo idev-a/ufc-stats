@@ -382,7 +382,7 @@
       >
         <v-card-title class="d-flex">
           <div>
-            <span>My Games</span>
+            <span class="display-2">My Games</span>
             <create-game-btn 
               class="ml-2"
               :loading="loading"
