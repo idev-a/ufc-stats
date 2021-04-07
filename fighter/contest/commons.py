@@ -97,9 +97,9 @@ def get_all_games(event, games):
 	public_games = Game.objects.filter(event_id=event['id']).filter(owner__username='admin')
 	build_games(games, public_games, event)
 
-def get_public_games(event, games):
+def get_public_games(event, games, user_id):
 	public_games = Game.objects.filter(event_id=event['id']).filter(type_of_registration='public')
-	build_games(games, public_games, event)
+	build_games(games, public_games, event, user_id)
 
 def get_own_public_games(games, owner):
 	public_games = Game.objects.filter(type_of_registration='public').filter(owner_id=owner).filter(owner__username='admin')
@@ -135,7 +135,7 @@ def get_contest_games(event, user_id=None):
 	event_data = EventSerializer(event).data
 
 	if user_id:
-		get_public_games(event_data, games)
+		get_public_games(event_data, games, user_id)
 
 		private_games = Game.objects.filter(entrants=user_id).filter(event=event).exclude(type_of_registration='public').filter(owner__username='admin')
 		build_games(games, private_games, event_data, user_id)
@@ -153,7 +153,7 @@ def load_my_games(event, user_id=None):
 	event_data = EventSerializer(event).data
 	if user_id:
 		public_games = Game.objects.filter(event=event).filter(type_of_registration='public').filter(owner__username='admin')
-		build_games(games, public_games, event_data)
+		build_games(games, public_games, event_data, user_id)
 
 		private_games = Game.objects.filter(entrants__pk=user_id).filter(event=event).exclude(type_of_registration='public').filter(owner__username='admin')
 		build_games(games, private_games, event_data, user_id)
