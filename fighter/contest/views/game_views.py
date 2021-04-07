@@ -27,7 +27,7 @@ from contest.serializers import (
     GameSerializer
 )
 
-from contest.commons import load_my_games, load_own_games
+from contest.commons import load_my_games, load_own_games, build_games
 
 import pdb
 
@@ -72,10 +72,25 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         return Response(dict(my_own_games=my_own_games), status)
 
     @action(methods=['post'], detail=False)
+    def delete_game(self, request, **kwarg):
+        status = 200
+        message = 'Successfully done'
+        try:
+            if not request.user or not request.data['game_id']:
+                raise Exception()
+            Game.objects.get(id=request.data['game_id']).delete()
+        except Exception as err:
+            print(err)
+            status = 500
+            message = 'Something went wrong.'
+
+        return Response(dict(message=message), status)
+
+    @action(methods=['post'], detail=False)
     def create_game(self, request, **kwarg):
         status = 200
         message = 'Successfully created'
-        game_id = None
+        games = [{}]
         try:
             if not request.user:
                 raise Exception()
@@ -84,7 +99,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             game_serializer = GameSerializer(data=data)
             if game_serializer.is_valid():
                 game = game_serializer.save()
-                game_id = game.id
+                build_games(games, [game], None, request.user.id)
             else:
                 raise Exception()
         except Exception as err:
@@ -92,7 +107,35 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             status = 500
             message = 'Something went wrong.'
 
-        return Response(dict(message=message, game_id=game_id), status)
+        return Response(dict(message=message, game=games[-1]), status)
+
+    @action(methods=['post'], detail=False)
+    def update_game(self, request, **kwarg):
+        status = 200
+        message = 'Successfully updated'
+        try:
+            if not request.user:
+                raise Exception()
+            data = request.data
+            data['owner'] = request.user.id
+            game = Game.objects.get(id=data['id'])
+            if game:
+                game.name = data['name']
+                game.instructions = data['instructions']
+                game.rules_set = data['rules_set']
+                game.summary = data['summary']
+                game.multientry = data['multientry']
+                game.buyin = data['buyin']
+                game.added_prizepool = data['added_prizepool']
+                game.save()
+            else:
+                raise Exception()
+        except Exception as err:
+            print(err)
+            status = 500
+            message = 'Something went wrong.'
+
+        return Response(dict(message=message), status)
 
     @action(methods=['post'], detail=False)
     def join_game(self, request, **kwarg):

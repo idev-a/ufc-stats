@@ -12,7 +12,12 @@
         <div v-if="$vuetify.breakpoint.mobile" class="mr-5">Lobby</div>
         <v-spacer v-if="$vuetify.breakpoint.mobile" />
         <v-btn v-if="$vuetify.breakpoint.mobile" small class="success mr-2" :loading="loading" :disabled="loading || !authUser" @click="loadMyGames"><v-icon left>mdi-filter-variant</v-icon> My Games</v-btn>
-        <v-btn v-if="$vuetify.breakpoint.mobile" small class="success" :loading="loading" :disabled="loading || !authUser" @click="newGame"><v-icon left>mdi-plus</v-icon> New Game</v-btn>
+        <create-game-btn 
+          v-if="$vuetify.breakpoint.mobile"
+          :loading="loading"
+          :authUser="authUser"
+          @create-new-game="newGame"
+        />
         <div class="d-flex align-center">
           <v-text-field
             v-model="search"
@@ -43,7 +48,12 @@
         </div>
         <v-spacer v-if="!$vuetify.breakpoint.mobile" />
         <v-btn v-if="!$vuetify.breakpoint.mobile" small class="success mr-2" :loading="loading" :disabled="loading || !authUser" @click="loadMyGames"><v-icon left>mdi-filter-variant</v-icon> My Games</v-btn>
-        <v-btn v-if="!$vuetify.breakpoint.mobile" small class="success" :loading="loading" :disabled="loading || !authUser" @click="newGame"><v-icon left>mdi-plus</v-icon> New Game</v-btn>
+        <create-game-btn 
+          v-if="!$vuetify.breakpoint.mobile"
+          :loading="loading"
+          :authUser="authUser"
+          @create-new-game="newGame"
+        />
       </v-card-title>
       <v-card-text
         class="w-100 lobby-table"
@@ -211,7 +221,7 @@
         class="fq-popup"
       >
         <v-card-title>
-          <div class="font-weight-medium display-1">New Game</div>
+          <div class="font-weight-medium display-2">{{defaultIndex == -1 ? 'New Game' : 'Update Game'}}</div>
           <div class="subtitle">{{latestEvent.name}} ({{latestEvent.date | beautifyDate}})</div>
         </v-card-title>
         <v-card-text>
@@ -344,7 +354,6 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn 
-                small
                 v-on="on"
                 :loading="loading"
                 :disabled="!game_id"
@@ -356,7 +365,8 @@
             <span>COPY: {{ genGameLink(game_id) }}</span>
           </v-tooltip>
           <v-btn text :loading="loading" @click="newDlg=false">Close</v-btn>
-          <v-btn text color="success" :loading="loading" :disabled="loading || !valid" @click="createGame">Create</v-btn>
+          <v-btn v-if="defaultIndex==-1" text color="success" :loading="loading" :disabled="loading || !valid" @click="createGame">Create</v-btn>
+          <v-btn v-else text color="success" :loading="loading" :disabled="loading || !valid" @click="updateGame">Update</v-btn>
         </v-card-actions>
         <input type="hidden" id="myGameLink" :value="genGameLink(game_id)" name="">
       </v-card>
@@ -371,7 +381,16 @@
         class="fq-popup"
       >
         <v-card-title class="d-flex">
-          <div>My Games</div>
+          <div>
+            <span>My Games</span>
+            <create-game-btn 
+              class="ml-2"
+              :loading="loading"
+              :authUser="authUser"
+              @create-new-game="newGame"
+              :icon="true"
+            />
+          </div>
           <v-spacer />
           <v-text-field
             v-model="ownSearch"
@@ -409,22 +428,49 @@
               <span>{{ item.date | beautifyDateTimeMin }}</span>
             </template>
             <template v-slot:item.actions="{ item }">
-            <v-tooltip right>
-              <template  v-slot:activator="{ on }">
-                <div v-on="on">
+              <v-tooltip right>
+                <template  v-slot:activator="{ on }">
                   <v-btn 
                     small
-                    class="success"
+                    v-on="on"
                     @click.stop="copyGameLink(`#gameLink${item.id}`)"
+                    icon
                   >
-                    COPY
+                    <v-icon size="24" color="success">mdi-google-controller</v-icon>
                   </v-btn>
                   <input type="hidden" :id="`gameLink${item.id}`" :value="genGameLink(item.id)" name="">
-                </div>
-              </template>
-              <span>Copy Link</span>
-            </v-tooltip>
-          </template>
+                </template>
+                <span>Copy Link</span>
+              </v-tooltip>
+              <v-tooltip right>
+                <template v-slot:activator="{ on }">
+                  <v-btn 
+                    small
+                    v-on="on"
+                    class="ml-2"
+                    @click.stop="updateMyGame(item)"
+                    icon
+                  >
+                    <v-icon size="24" color="info">mdi-pencil-outline</v-icon>
+                  </v-btn>
+                </template>
+                <span>Update Game</span>
+              </v-tooltip>
+              <v-tooltip right>
+                <template  v-slot:activator="{ on }">
+                  <v-btn 
+                    small
+                    v-on="on"
+                    class="ml-2"
+                    @click.stop="deleteMyGame(item.id)"
+                    icon
+                  >
+                    <v-icon size="24" color="highlight">mdi-delete-outline</v-icon>
+                  </v-btn>
+                </template>
+                <span>Delete Game</span>
+              </v-tooltip>
+            </template>
           </v-data-table>
         </v-card-text>
       </v-card>
@@ -441,6 +487,7 @@
   import { beautifyDateTimeMin, beautifyDate } from '@/util'
   import GameDetail from './GameDetail'
   import Rules from './Rules'
+  import CreateGameBtn from './CreateGameBtn'
   import { 
     DEFAULT_RULES_SET,
     DEFAULT_INSTRUCTIONS,
@@ -450,7 +497,7 @@
   export default {
     name: 'Contest',
 
-    components: { GameDetail, Rules },
+    components: { GameDetail, Rules, CreateGameBtn },
 
     data () {
       return {
@@ -551,6 +598,7 @@
         newDlg: false,
         valid: true,
         latestEvent: {},
+        defaultIndex: -1,
         defaultForm: {
             name: '',
             event: '',
@@ -800,6 +848,12 @@
         this.$refs.form?.resetValidation()
         this.newDlg = true
       },
+      updateMyGame(game) {
+        this.defaultIndex = this.myOwnGames.indexOf(game)
+        this.form = Object.assign({}, game)
+        this.$refs.form?.resetValidation()
+        this.newDlg = true
+      },
       async createGame () {
         await this.confirmAction(this._createGame)
       },
@@ -811,7 +865,8 @@
             event: this.latestEvent.id
           }
           const { data } = await main.createGame(payload)
-          this.game_id = data.game_id
+          this.game_id = data.game.id
+          this.myOwnGames.push(data.game)
           this.snackbar = {
             ...data,
             status: 'success',
@@ -827,7 +882,30 @@
         this.loading = false
         this.$store.commit('snackbar/setSnack', this.snackbar)
       },
-      async confirmAction(callback) {
+      async updateGame() {
+        await this.confirmAction(this._updateGame)
+      },
+      async _updateGame() {
+        this.loading = true
+        try {
+          const { data } = await main.updateGame(this.form)
+          this.myOwnGames.splice(this.defaultIndex, 1, this.form)
+          this.snackbar = {
+            ...data,
+            status: 'success',
+            snack: true
+          }
+        } catch (e) {
+          this.snackbar = {
+            message: e.response.data.message,
+            status: 'warning',
+            snack: true
+          }
+        }
+        this.loading = false
+        this.$store.commit('snackbar/setSnack', this.snackbar)
+      },
+      async confirmAction(callback, param) {
         await this.$dialog.confirm({
           text: 'Are you sure?',
           title: 'Warning',
@@ -838,7 +916,7 @@
               text: 'Yes',
               handle: () => {
                 if (callback) {
-                  callback()
+                  callback(param)
                 }
               }
             }
@@ -885,6 +963,33 @@
           }
           this.$store.commit('snackbar/setSnack', this.snackbar)
         }
+        this.loading = false
+      },
+      async deleteMyGame (game_id) {
+        await this.confirmAction(this._deleteMyGame, game_id)
+      },
+      async _deleteMyGame(game_id) {
+        this.loading = true
+        try {
+          const { data } = await main.deleteGame(game_id)
+          this.myOwnGames.forEach((game, i) => {
+            if (game.id == game_id) {
+              this.myOwnGames.splice(i, 1)
+            }
+          })
+          this.snackbar = {
+            snack: true,
+            message: data.message,
+            status: 'success'
+          }
+        } catch(e) {
+          this.snackbar = {
+            snack: true,
+            message: e.response.data.message,
+            status: 'warning'
+          }
+        }
+        this.$store.commit('snackbar/setSnack', this.snackbar)
         this.loading = false
       }
     }

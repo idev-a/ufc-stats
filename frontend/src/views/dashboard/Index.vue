@@ -280,6 +280,10 @@
 
     table { border-collapse: collapse; empty-cells: show; }
 
+    tr:nth-of-type(odd) td {
+      opacity: 0.85;
+    }
+
     td { position: relative; }
 
     tr.strike-through td {

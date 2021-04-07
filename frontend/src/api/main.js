@@ -29,6 +29,12 @@ export default {
   loadMyGames() {
     return session.get('api/games/load_own_games/')
   },
+  deleteGame(game_id) {
+    return session.post('api/games/delete_game/', {game_id})
+  },
+  updateGame(game) {
+    return session.post('api/games/update_game/', game)
+  },
   joinGame(payload) {
     return session.post('api/games/join_game/', payload)
   },
