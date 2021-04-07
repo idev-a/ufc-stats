@@ -64,12 +64,12 @@ def build_games(games, data, event_data=None, user_id=None):
 		has_joined = False
 		engaged_teams = 0
 		if user_id:
-			engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).count()
+			engaged_teams = Entry.objects.filter(user_id=user_id).filter(game_id=_.id).count()
 			has_joined = engaged_teams > 0
 			if _.type_of_registration == 'private':
 				has_joined = has_joined and _.joined_users.filter(id=user_id).count() > 0
 		else:
-			engaged_teams = Entry.objects.filter(game=_.id).count()
+			engaged_teams = Entry.objects.filter(game_id=_.id).count()
 			has_joined = engaged_teams > 0
 		# if _.name.lower() == 'main contest':
 		# 	has_joined = True
@@ -84,9 +84,9 @@ def build_games_with_entry(games, data, event_data, user_id=None):
 	for _ in data:
 		for entry in range(1, (_.multientry or 1)+1):
 			if user_id:
-			 	engaged_teams = Entry.objects.filter(user=user_id).filter(game=_.id).filter(entry_number=entry).count()
+			 	engaged_teams = Entry.objects.filter(user_id=user_id).filter(game_id=_.id).filter(entry_number=entry).count()
 			else:
-				engaged_teams = Entry.objects.filter(game=_.id).filter(entry_number=entry).count()
+				engaged_teams = Entry.objects.filter(game_id=_.id).filter(entry_number=entry).count()
 			
 			if _.name.lower() == 'main contest':
 				add_game(games, _, event_data, engaged_teams, 1, True)
