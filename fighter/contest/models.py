@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 from django import forms
+from django.conf import settings
 
 from .managers import CustomUserManager, EntryManager, EventManager
 from .constants import (
@@ -175,7 +176,7 @@ class Bout(models.Model):
 # multiple games
 class Game(models.Model):
 	owner = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='game_owners',
 		default=1,
@@ -195,8 +196,8 @@ class Game(models.Model):
 
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
-	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
-	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
+	entrants = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='game_entrants')
+	joined_users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='game_joined_users')
 	instructions = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_INSTRUCTIONS))
 	rules_set = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_RULES_SET))
 	summary = models.TextField(max_length=1000, blank=False, default='FIGHTQUAKE contest')
@@ -288,7 +289,7 @@ class Entry(models.Model):
 		on_delete=models.CASCADE,
 	)
 	user = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='users',
 	)
@@ -378,7 +379,7 @@ class ChatMessage(models.Model):
 		on_delete=models.CASCADE
 	)
 	sender = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		related_name="senders",
 		on_delete=models.CASCADE
 	)
@@ -433,7 +434,7 @@ class Ticket(models.Model):
 	resolved = models.DateTimeField(null=True, blank=True)
 
 	creator = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='ticketCreators',
 		default=None,
@@ -442,7 +443,7 @@ class Ticket(models.Model):
 	)
 
 	agency = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='agencies',
 		default=None,
