@@ -43,7 +43,7 @@
         return this.$vuetify.breakpoint.mobile ? 340 : 370
       },
       game_id () {
-        return +this.$route.params.game_id
+        return +this.$route.params.game_id || -1
       },
       entry_number () {
         return +this.$route.params.entry_number || 1

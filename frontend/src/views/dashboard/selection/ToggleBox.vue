@@ -25,8 +25,7 @@
             @change="changeContests"
           >
             <fighter 
-              :id="bout.fighter1"
-              :fighters="fighters"
+              :item="bout.fighter1"
               :eventStated="eventStarted"
               :first-name="true"
             />
@@ -38,8 +37,7 @@
             </div>
 
             <fighter 
-              :id="bout.fighter2"
-              :fighters="fighters"
+              :item="bout.fighter2"
               :eventStated="eventStarted"
               :first-name="true"
             />
@@ -60,7 +58,7 @@
 
     components: { Fighter },
 
-    props: ['bouts', 'eventStarted', 'fighters', 'loading', 'initial'],
+    props: ['bouts', 'eventStarted', 'loading', 'initial'],
 
     data () {
       return {

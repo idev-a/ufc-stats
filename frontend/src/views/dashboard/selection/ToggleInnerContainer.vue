@@ -11,7 +11,6 @@
     </v-card-title>
     <v-card-text>
       <toggle-box
-        :fighters="fighters"
         :bouts="bouts"
         :initial="true"
       />
@@ -30,7 +29,7 @@
   export default {
     name: "ToggleInnerContrainer",
 
-    props: ['bouts', 'fighters'],
+    props: ['bouts'],
 
     components: {ToggleBox},
   }

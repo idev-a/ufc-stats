@@ -222,7 +222,7 @@
       >
         <v-card-title>
           <div class="font-weight-medium display-2">{{defaultIndex == -1 ? 'New Game' : 'Update Game'}}</div>
-          <div class="subtitle">{{latestEvent.name}} ({{latestEvent.date | beautifyDate}})</div>
+          <div v-if="!isAdmin" class="subtitle">{{latestEvent.name}} ({{latestEvent.date | beautifyDate}})</div>
         </v-card-title>
         <v-card-text>
           <v-form
@@ -233,7 +233,7 @@
             <v-row >
               <v-col
                 cols=12
-                md=8
+                md=4
                 sm=6
               >
                 <v-text-field
@@ -246,7 +246,38 @@
               </v-col>
               <v-col
                 cols=12
-                md=4
+                md=6
+                sm=6
+                v-if="isAdmin"
+              >
+                <v-autocomplete
+                  v-model="form.event"
+                  :items="upcomingEvents"
+                  item-value="id"
+                  item-text="name"
+                  chips
+                  :rules="[rules.required]"
+                  label="Upcoming Event"
+                >
+                  <template v-slot:selection="data">
+                    <v-chip
+                      v-bind="data.attrs"
+                      :input-value="data.selected"
+                      @click="data.select"
+                    >
+                      {{ data.item.name }} ({{data.item.date | beautifyDate}})
+                    </v-chip>
+                  </template>
+                  <template v-slot:item="data">
+                    <v-list-item-content>
+                      {{ data.item.name }} ({{data.item.date | beautifyDate}})
+                    </v-list-item-content>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+              <v-col
+                cols=12
+                md=2
                 sm=6
               >
                 <v-text-field
@@ -260,10 +291,42 @@
                   single-line
                 />
               </v-col>
-            </v-row>
-            <v-row>
               <v-col
                 cols=12
+                v-if="isAdmin"
+              >
+                <v-autocomplete
+                  v-model="form.bouts"
+                  :items="bouts"
+                  multiple
+                  item-value="id"
+                  item-text="name"
+                  chips
+                  hide-selected
+                  :rules="[rules.required]"
+                  label="Fight"
+                >
+                  <template v-slot:selection="data">
+                    <v-chip
+                      v-bind="data.attrs"
+                      :input-value="data.selected"
+                      close
+                      @click="data.select"
+                      @click:close="remove(data.item)"
+                    >
+                      {{ data.item.fighter1.initials }} <b class="mx-1">vs.</b> {{ data.item.fighter2.initials }}
+                    </v-chip>
+                  </template>
+                  <template v-slot:item="data">
+                    <v-list-item-content>
+                      {{ data.item.fighter1.initials }} vs. {{ data.item.fighter2.initials }}
+                    </v-list-item-content>
+                  </template>
+                </v-autocomplete>
+              </v-col>
+              <v-col
+                cols=12
+                md=4
                 sm=6
               >
                 <v-text-field
@@ -279,6 +342,7 @@
               </v-col>
               <v-col
                 cols=12
+                md=4
                 sm=6
               >
                 <v-text-field
@@ -448,6 +512,8 @@
                     small
                     v-on="on"
                     class="ml-2"
+                    :loading="loading"
+                    :disabled="item.event.action!=''"
                     @click.stop="updateMyGame(item)"
                     icon
                   >
@@ -462,6 +528,8 @@
                     small
                     v-on="on"
                     class="ml-2"
+                    :loading="loading"
+                    :disabled="item.event.action!=''"
                     @click.stop="deleteMyGame(item.id)"
                     icon
                   >
@@ -608,6 +676,7 @@
             multientry: 0,
             buyin: 0,
             added_prizepool: 100,
+            bouts: []
         },
         form: {
           name: '',
@@ -618,11 +687,14 @@
           multientry: 0,
           buyin: 0,
           added_prizepool: 100,
+          bouts: []
         },
         game_id: '',
-        myOwnGames: '',
+        myOwnGames: [],
         ownSearch: '',
         newGameDlg: false,
+        upcomingEvents: [],
+        bouts: [],
         ownHeaders: [
           {
             text: 'Name',
@@ -693,6 +765,9 @@
       myCoins () {
         return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
       },
+      isAdmin () {
+        return this.authUser?.roles.includes('admin')
+      }
     },
 
     filters: {
@@ -712,6 +787,7 @@
         this.games = data.games
         this.latestEvent = data.latest_event
         this.upcomingEvents = data.upcoming_events
+        this.bouts = data.bouts
         this.loading = false
       },
       async loadGameDetail (item) {
@@ -845,6 +921,8 @@
       },
       newGame () {
         this.form = Object.assign({}, this.defaultForm)
+        this.form.event = this.latestEvent.id
+        this.form.bouts = this.bouts.map(bout => { return bout.id })
         this.$refs.form?.resetValidation()
         this.newDlg = true
       },
@@ -862,7 +940,6 @@
         try {
           const payload = {
             ...this.form,
-            event: this.latestEvent.id
           }
           const { data } = await main.createGame(payload)
           this.game_id = data.game.id
@@ -878,9 +955,10 @@
             status: 'warning',
             snack: true
           }
+        } finally {
+          this.loading = false
+          this.$store.commit('snackbar/setSnack', this.snackbar)
         }
-        this.loading = false
-        this.$store.commit('snackbar/setSnack', this.snackbar)
       },
       async updateGame() {
         await this.confirmAction(this._updateGame)
@@ -991,7 +1069,14 @@
         }
         this.$store.commit('snackbar/setSnack', this.snackbar)
         this.loading = false
-      }
+      },
+      remove (item) {
+        this.form.bouts.map((bout, i) => {
+          if (bout == item.id) {
+            this.form.bouts.splice(i, 1)
+          }
+        })
+      },
     }
   }
 </script>

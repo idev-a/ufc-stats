@@ -19,6 +19,9 @@ class MyAccountAdapter(DefaultAccountAdapter):
 		if referred_by:
 			user.referred_by = referred_by
 		user.save()
+		user.roles.add(data.get('roles', 'user'))
+		user.save()
+		
 		return user
 
 # class MyTwitterAdapter(TwitterOAuthAdapter):

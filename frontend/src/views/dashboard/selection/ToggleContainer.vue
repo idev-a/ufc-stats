@@ -10,7 +10,6 @@
       @close="$emit('close')"
       @ok="$emit('ok')"
       :bouts="bouts"
-      :fighters="fighters"
     />
     <dialog-drag 
       v-else
@@ -27,7 +26,6 @@
         @close="$emit('close')"
         @ok="$emit('ok')"
         :bouts="bouts"
-        :fighters="fighters"
       />
     </dialog-drag>
   </v-container>
@@ -43,7 +41,7 @@
 
     components: { DialogDrag, ToggleInnerContainer },
 
-    props: ['bouts', 'fighters'],
+    props: ['bouts'],
 
     computed: {
       ...mapState(['lastLeft']),

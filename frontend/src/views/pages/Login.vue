@@ -62,7 +62,7 @@
                   <v-text-field
                     ref="email"
                     v-model="form.email"
-                    :rules="[rules.required, rules.email]"
+                    :rules="[rules.required]"
                     :loading="authenticating"
                     hide-details="auto"
                     class="mb-5"

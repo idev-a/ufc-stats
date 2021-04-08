@@ -54,8 +54,7 @@
                   @change="changeContests"
                 >
                   <fighter 
-                    :id="item.fighter1"
-                    :fighters="fighters"
+                    :item="item.fighter1"
                     :eventStarted="eventStarted"
                     :firstName="true"
                   />
@@ -67,8 +66,7 @@
                   </div>
 
                   <fighter 
-                    :id="item.fighter2"
-                    :fighters="fighters"
+                    :item="item.fighter2"
                     :eventStarted="eventStarted"
                     :firstName="true"
                   />
@@ -310,7 +308,7 @@
         return this.deadline2 && !this.eventStarted && diff == 0
       },
       totalFighters () {
-        return this.fighters?.length || 0
+        return this.bouts?.length * 2 || 0
       },
       needsInstruction () {
         return true
@@ -378,7 +376,6 @@
       async getLatestEvent () {
         const { data } = await main.getLatestEvent(this.curGame, +this.entry_number)
         this.bouts = data.bouts
-        this.fighters = data.fighters
         this.games = data.games
         if (data.games.length > 0 && this.curGame == '-1_1') {
           this.curGame = data.games[0].value
@@ -462,8 +459,12 @@
 
       async submit (data) {
         const self = this
+        let path = '/contest'
+        if (this.game_id != -1) {
+          path += `/${this.game_id}`
+        }
         await this._submit((data) => {
-          setTimeout(function(){ self.$router.push({'path': `/contest/${self.game_id}`}); }, 1200);
+          setTimeout(function(){ self.$router.push({path}); }, 1200);
         })
       },
       clearSelection () {

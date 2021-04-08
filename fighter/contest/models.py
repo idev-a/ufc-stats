@@ -18,10 +18,23 @@ from .constants import (
 	EVENT_STATUS_TYPE,
 	BOUT_STATUS_TYPE,
 	TICKET_STATUS_TYPE,
-	REGISTRATION_TYPES
+	REGISTRATION_TYPES,
+	ROLE_CHOICES
 )
 
 import pdb
+
+class Role(models.Model):
+  '''
+  The Role entries are managed by the system,
+  automatically created via a Django data migration.
+  '''
+
+  id = models.CharField(choices=ROLE_CHOICES, max_length=20, primary_key=True)
+
+  def __str__(self):
+      return self.get_id_display()
+
 
 # Customize User model
 class CustomUser(AbstractUser):
@@ -29,6 +42,8 @@ class CustomUser(AbstractUser):
 	REQUIRED_FIELDS = []
 
 	objects = CustomUserManager()
+
+	roles = models.ManyToManyField(Role, default='user')
 
 	displayname = models.CharField(blank=True, null=True, max_length=100, unique=True, validators=[MinLengthValidator(3)])
 	avatar = models.CharField(blank=True, null=True, max_length=500)
@@ -172,6 +187,12 @@ class Game(models.Model):
 		on_delete=models.CASCADE,
 	)
 
+	bouts = models.ManyToManyField(
+		Bout,
+		related_name='game_bouts', 
+		blank=True,
+	)
+
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
 	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
@@ -209,6 +230,8 @@ class Game(models.Model):
 	added_prizepool = models.PositiveIntegerField(blank=True, null=True, default=100)
 
 	entry_limit = models.PositiveIntegerField(blank=True, null=True, default=10)
+
+	
 
 	@property
 	def re_entry(self):

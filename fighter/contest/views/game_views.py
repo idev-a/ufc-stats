@@ -43,17 +43,24 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def load_games(self, request, **kwarg):
         games = []
-        latest_event = []
+        latest_event = {}
+        upcoming_events = []
+        bouts = []
         status = 200
         try:
             event = Event.objects.latest_event()
             latest_event = EventSerializer(event).data
+            bouts = BoutSerializer(Bout.objects.filter(event__id=latest_event['id']), many=True).data
+            for bout in bouts:
+                bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
+                bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
+            upcoming_events = EventSerializer(Event.objects.filter(status='upcoming').order_by('-date'), many=True).data
             games = load_my_games(event, request.user.id)
         except Exception as err:
             print(err)
             status = 500
 
-        return Response(dict(games=games, latest_event=latest_event), status)
+        return Response(dict(games=games, latest_event=latest_event, upcoming_events=upcoming_events, bouts=bouts), status)
 
     @action(methods=['get'], detail=False)
     def load_own_games(self, request, **kwarg):
@@ -90,7 +97,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def create_game(self, request, **kwarg):
         status = 200
         message = 'Successfully created'
-        games = [{}]
+        games = []
         try:
             if not request.user:
                 raise Exception()
@@ -182,3 +189,4 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             message = 'Something went wrong.'
 
         return Response(dict(message=message, status=status, entry_number=entry_number), status)
+

@@ -46,7 +46,7 @@
           style="overflow-y: auto; height: 250px;"
           dense>
             <v-list-item
-              v-for="(id, i) in item.fighters"
+              v-for="(fighter, i) in item.fighters"
               :key="i"
               dense
             >
@@ -54,13 +54,13 @@
                 {{i+1}}
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title v-text="_fighter(id).initials"></v-list-item-title>
+                <v-list-item-title v-text="fighter.initials"></v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon>
-                <v-list-item-title v-text="_fighter(id).division"></v-list-item-title>
+                <v-list-item-title v-text="fighter.division"></v-list-item-title>
               </v-list-item-icon>
               <v-list-item-avatar>
-                <v-btn @click="removeFighter(id, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
+                <v-btn @click="removeFighter(fighter, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
               </v-list-item-avatar>
             </v-list-item>
         </v-list-item-group>
@@ -99,7 +99,6 @@
       @click:outside="closeDlg(item)"
     >
       <toggle-container
-        :fighters="fighters"
         :bouts="item.bouts"
         @close="closeDlg(item)"
         @ok="okDlg"
@@ -209,12 +208,12 @@
         this.item.fighters = JSON.parse(JSON.stringify(this.oldItem.fighters))
         this.item.bouts = JSON.parse(JSON.stringify(this.oldItem.bouts))
       },
-      removeFighter (id, i) {
+      removeFighter (fighter, i) {
         this.item.fighters.splice(i, 1)
         this.item.bouts.forEach(bout => {
-          const index = bout.survivors.indexOf(id)
+          const index = bout.survivors.indexOf(fighter.id)
           if (index > -1) {
-            bout.survivors.splice(bout.survivors.indexOf(id), 1)
+            bout.survivors.splice(bout.survivors.indexOf(fighter.id), 1)
           }
         })
       },

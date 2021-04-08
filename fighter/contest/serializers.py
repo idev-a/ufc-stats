@@ -36,6 +36,10 @@ class CustomRegisterSerializer(RegisterSerializer):
 		required=False,
 		max_length=100,
 	)
+	roles = serializers.CharField(
+		required=False,
+		max_length=100,
+	)
 	avatar = serializers.CharField(
 		required=False,
 		max_length=500,
@@ -48,6 +52,7 @@ class CustomRegisterSerializer(RegisterSerializer):
 	def get_cleaned_data(self):
 		data_dict = super().get_cleaned_data()
 		data_dict['displayname'] = self.validated_data.get('displayname', '')
+		data_dict['roles'] = self.validated_data.get('roles', 'user')
 		data_dict['avatar'] = self.validated_data.get('avatar', '')
 		data_dict['referred_by'] = self.validated_data.get('referred_by', '')
 		return data_dict

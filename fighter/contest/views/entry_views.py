@@ -485,7 +485,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def bout_not_cancelled(self, _data, fighter):
         is_exist = False
         for bout in _data.get('bouts', []):
-            if fighter.id in [bout['fighter1'], bout['fighter2']]:
+            if fighter.id == bout['fighter1']['id'] or fighter.id == bout['fighter2']['id']:
                 is_exist = True
                 bout.get('survivors', []).append(fighter.id)
                 bout.get('contests_orig', []).append(fighter.id)
@@ -493,20 +493,19 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         return is_exist
 
     def add_fighters(self, event, data):
-        bouts = Bout.objects.filter(event__id=event.id)
-        bouts_dict = BoutSerializer(bouts, many=True).data
-        for _bout in bouts_dict:
-            _bout['survivors'] = []
+        bouts = BoutSerializer(Bout.objects.filter(event__id=event.id), many=True).data
         for bout in bouts:
-            fighter = FighterSerializer(bout.fighter1).data
-            fighter['division'] = bout.division
-            if fighter not in data['fighters']:
-                data['fighters'].append(fighter)
-            fighter = FighterSerializer(bout.fighter2).data
-            fighter['division'] = bout.division
-            if fighter not in data['fighters']:
-                data['fighters'].append(fighter)
-        return bouts_dict
+            bout['survivors'] = []
+            bout['contests_orig'] = []
+            fighter1 = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
+            fighter1['division'] = bout['division']
+            bout['fighter1'] = fighter1
+            data['fighters'].append(fighter1)
+            fighter2 = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
+            fighter2['division'] = bout['division']
+            bout['fighter2'] = fighter2
+            data['fighters'].append(fighter2)
+        return bouts
 
     def is_new_team_data(self, _data, cur_data):
         is_new = True
@@ -567,9 +566,9 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         cur_data.get('game',{})['genre'] = game.genre if game else 'free'
                         cur_data.get('game',{})['entry_number'] = entry_number
                     if sel.survivor1 and self.bout_not_cancelled(cur_data, sel.survivor1):
-                        cur_data.get('fighters',[]).append(sel.survivor1.id)
+                        cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor1).data)
                     if sel.survivor2 and self.bout_not_cancelled(cur_data, sel.survivor2):
-                        cur_data.get('fighters',[]).append(sel.survivor2.id)
+                        cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor2).data)
             else:
                 return Response(dict(live_data={}, recent_data={}), status=400)
         except Exception as err:

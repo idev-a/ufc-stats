@@ -8,6 +8,7 @@ from .models import (
 	Entry,
 	Selection,
 	CustomUser,
+	Role,
 	Game,
 	ChatRoom,
 	ChatFile,
@@ -19,12 +20,21 @@ from .models import (
 from .forms import GameForm
 
 # Register your models here.
+@admin.register(Role)
+class RoleAdmin(admin.ModelAdmin):
+	list_per_page = 20
+
+	search_fields = ('id', )
+	list_display = ('id', )
+
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
 	list_per_page = 20
 
 	search_fields = ('username', 'displayname', 'email', )
 	list_display = ('username', 'email', 'displayname', "date_joined", "coins", 'referred_by', 'id', )
+
+	filter_horizontal = ("roles", )
 
 	class Meta:
 		ordering = ("email", 'date_joined', )
@@ -90,7 +100,7 @@ class GameAdmin(admin.ModelAdmin):
 	search_fields = ('name', 'event__name', 'owner__username', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
 	list_display = ('name', 'event', 'owner', 'type_of_registration', 'multientry', 'info_entrants', 'summary', 'short_rules_set', 'entry_limit')
 
-	filter_horizontal = ("joined_users", "entrants")
+	filter_horizontal = ("joined_users", "entrants", "bouts")
 
 	class Meta:
 		ordering = ('event', 'date', )

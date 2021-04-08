@@ -65,7 +65,6 @@
                   :key="item.key"
                   :item_index="x"
                   :option="option"
-                  :fighters="curData.fighters"
                   @update-loading="updateLoading"
                   @update-teams="updateTeams"
                   @withdraw-team="withdrawTeam"
