@@ -16,3 +16,5 @@ fighter/.env
 
 frontend/node_modules
 frontend/.env
+
+fighter/contest/migrations
