@@ -766,7 +766,7 @@
         return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
       },
       isAdmin () {
-        return this.authUser?.roles.includes('admin')
+        return this.authUser?.roles?.includes('admin')
       }
     },
 
