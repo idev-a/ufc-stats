@@ -152,6 +152,7 @@ class Scraper:
 		logger.info(f'[scraper] parse_bout_list --- {json.dumps(meta)}')
 		event_id = meta['event_id']
 		event = Event.objects.get(pk=event_id)
+		event.title = response.css('span.b-content__title-highlight::text').get()
 		trs = response.css('table.b-fight-details__table tr.b-fight-details__table-row')
 		if trs:
 			new_bouts = []

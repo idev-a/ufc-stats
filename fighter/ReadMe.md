@@ -10,4 +10,4 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 <!-- dump table -->
-pg_dump -U postgres -a -t contest_game_joined_users_id_seq cc_temp | psql -U postgres -d contest; 
+pg_dump -U postgres -a -t authtoken_token cc_temp | psql -U postgres -d contest; 

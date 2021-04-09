@@ -56,6 +56,20 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     # permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['post'], detail=False)
+    def get_event_bouts(self, request, **kwarg):
+        status = 200
+        bouts = []
+        try:
+            bouts = BoutSerializer(Bout.objects.filter(event__id=request.data['id']), many=True).data
+            for bout in bouts:
+                bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
+                bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
+        except Exception as e:
+            status = 400
+
+        return Response(dict(bouts=bouts), status)
+
+    @action(methods=['post'], detail=False)
     def get_latestevent(self, request, **kwarg):
         try:
             latest_event = Event.objects.latest_event()

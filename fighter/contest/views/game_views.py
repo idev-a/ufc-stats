@@ -126,14 +126,11 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             data['owner'] = request.user.id
             game = Game.objects.get(id=data['id'])
             if game:
-                game.name = data['name']
-                game.instructions = data['instructions']
-                game.rules_set = data['rules_set']
-                game.summary = data['summary']
-                game.multientry = data['multientry']
-                game.buyin = data['buyin']
-                game.added_prizepool = data['added_prizepool']
-                game.save()
+                game_serializer = GameSerializer(data=data)
+                if game_serializer.is_valid():
+                    game = game_serializer.update(game, game_serializer.validated_data)
+                else:
+                    raise Exception()
             else:
                 raise Exception()
         except Exception as err:
