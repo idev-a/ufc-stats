@@ -25,7 +25,6 @@ from contest.models import (
     Selection,
     Entry,
     Game,
-    CustomUser,
 )
 from contest.serializers import (
     UserSerializer,

@@ -24,7 +24,6 @@ from contest.models import (
     Selection,
     Entry,
     Game,
-    CustomUser,
     ChatRoom,
     ChatFile, 
     ChatMessage

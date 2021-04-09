@@ -13,7 +13,6 @@ from contest.models import (
     Fighter,
     Selection,
     Entry,
-    CustomUser,
     Game
 )
 from contest.serializers import (

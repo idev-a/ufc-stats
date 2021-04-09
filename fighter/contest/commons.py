@@ -6,7 +6,6 @@ from contest.models import (
 	Fighter,
 	Selection,
 	Entry,
-	CustomUser,
 	Game
 )
 from contest.serializers import (
@@ -25,17 +24,22 @@ import pdb
 def main_contest():
 	games = Game.objects.filter(event=Event.objects.latest_event()).filter(buyin=0).filter(type_of_registration='public').filter(owner__username='admin').filter(name__iexact='main contest')
 	if games:
-	    return games.first()
+		return games.first()
 	else:
 		return -1
 
 def add_game(games, _, event_data, engaged_teams, entry=1, has_joined=False, can_have_entry=False):
 	if not event_data:
 		event_data = EventSerializer(_.event).data
+	bouts = BoutSerializer(Bout.objects.filter(event__id=event_data['id']), many=True).data
+	for bout in bouts:
+		bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
+		bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
 	return games.append(dict(
 			id=_.id,
 			name=_.name,
 			owner=_.owner.username,
+			bouts=bouts,
 			group='no important',
 			date=_.date,
 			value=f"{_.id}_{entry}",
