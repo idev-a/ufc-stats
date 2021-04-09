@@ -105,7 +105,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 displayname=user.displayname,
                 date_joined=user.date_joined,
                 initials=user.initials,
-                coins=user.coins
+                coins=user.coins,
+                roles=user.roles
             )
 
             # contest history
