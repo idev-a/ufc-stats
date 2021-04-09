@@ -366,8 +366,15 @@
         if (scrollTop + clientHeight >= scrollHeight) {
         }
       },
-      startCountDown(val) {
-        this.deadline2 = this.$moment(`${val}`).format(fmt)
+      startCountDown() {
+        let val = '';
+        if (this.curContest.owner == 'admin') {
+          val = this.curContest.event.date
+        } else {
+          const date = this.$moment(this.curContest.event.date).format('YYYY-MM-DD')
+          val = `${date} ${this.curContest.custom_date}`
+        }
+        this.deadline2 = this.$moment(val).format(fmt)
       },
       async getLatestData() {
         await this.getLatestEvent()
@@ -384,8 +391,8 @@
               this.curGame = game.value
             }
           })
-          this.startCountDown(this.curContest.event.date)
         }
+        this.startCountDown()
       },
       gameName (item) {
         let name = item.name

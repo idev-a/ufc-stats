@@ -44,6 +44,7 @@ def add_game(games, _, event_data, engaged_teams, entry=1, has_joined=False, can
 			date=_.date,
 			value=f"{_.id}_{entry}",
 			event=event_data,
+			custom_date=_.custom_date,
 			type_of_registration=_.type_of_registration,
 			instructions=_.instructions,
 			summary=_.summary,

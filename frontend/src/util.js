@@ -19,6 +19,11 @@ export const beautifyEmail = (email) => {
 export const beautifyDuration = (duration) => {
   return moment(duration, 'x').format('HH:mm:ss')
 }
+
+export const beautifyTime = (date) => {
+  return moment(date, 'HH:mm:ss').format('HH:mm')
+}
+
 export const beautifyDateTimeFromUnix = (timestamp) => {
   return moment(timestamp, 'x').format('DD MMM YYYY, HH:mm:ss')
 }
@@ -33,7 +38,7 @@ export const beautifyDateTime = (date) => {
 
 export const beautifyDateTimeMin = (date) => {
   if (date) {
-    return moment(date).tz('America/Los_Angeles').format('DD MMM YYYY, HH:mm z')
+    return moment(date).format('DD MMM, HH:mm')
   } else {
     return ""
   }

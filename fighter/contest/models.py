@@ -232,7 +232,8 @@ class Game(models.Model):
 
 	entry_limit = models.PositiveIntegerField(blank=True, null=True, default=10)
 
-	
+	# custom date for the custom game
+	custom_date = models.TimeField(blank=True, null=True)
 
 	@property
 	def re_entry(self):

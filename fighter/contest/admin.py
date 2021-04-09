@@ -94,11 +94,11 @@ class GameEventFilter(AutocompleteFilter):
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
 	list_per_page = 20
-	form = GameForm
+	# form = GameForm
 	list_filter = [GameEventFilter]
 
 	search_fields = ('name', 'event__name', 'owner__username', 'type_of_registration', 'genre', 'entrants__username', 'summary', 'rules_set', )
-	list_display = ('name', 'event', 'owner', 'type_of_registration', 'multientry', 'info_entrants', 'summary', 'short_rules_set', 'entry_limit')
+	list_display = ('name', 'event', 'owner', 'custom_date', 'type_of_registration', 'multientry', 'info_entrants', 'summary', 'short_rules_set', 'entry_limit')
 
 	filter_horizontal = ("joined_users", "entrants", "bouts")
 
@@ -106,7 +106,6 @@ class GameAdmin(admin.ModelAdmin):
 		ordering = ('event', 'date', )
 
 # Chat
-
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):
 	list_per_page = 20

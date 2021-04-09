@@ -360,6 +360,43 @@
                   single-line
                 />
               </v-col>
+              <v-col
+                cols=12
+                md=4
+                sm=6
+              >
+                <v-menu
+                  ref="customDateMenu"
+                  v-model="customDateMenu2"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  :return-value.sync="form.custom_date"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="290px"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      v-model="form.custom_date"
+                      label="Custom Date"
+                      prepend-icon="mdi-clock-time-four-outline"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-time-picker
+                    v-if="customDateMenu2"
+                    v-model="form.custom_date"
+                    scrollable
+                    ampm-in-title
+                    color="success"
+                    header-color="success"
+                    @click:minute="$refs.customDateMenu.save(form.custom_date)"
+                  ></v-time-picker>
+                </v-menu>
+              </v-col>
             </v-row>
             <v-row>
               <v-col
@@ -489,6 +526,9 @@
             <template v-slot:item.event="{ item }">
               <span>{{ item.event.name }}</span>
             </template>
+            <template v-slot:item.custom_date="{ item }">
+              <span>{{ item.custom_date | beautifyTime }}</span>
+            </template>
             <template v-slot:item.teams="{ item }">
               <span>{{ teamInfo(item) }}</span>
             </template>
@@ -556,7 +596,7 @@
   import upperFirst from 'lodash/upperFirst'
 
   import main from '@/api/main'
-  import { beautifyDateTimeMin, beautifyDate } from '@/util'
+  import { beautifyDateTimeMin, beautifyDate, beautifyTime } from '@/util'
   import GameDetail from './GameDetail'
   import Rules from './Rules'
   import CreateGameBtn from './CreateGameBtn'
@@ -674,6 +714,7 @@
         defaultForm: {
             name: '',
             event: '',
+            custom_date: '',
             instructions: DEFAULT_INSTRUCTIONS.join('\n'),
             rules_set: DEFAULT_RULES_SET.join('\n'),
             summary: DEFAULT_SUMMARY,
@@ -685,6 +726,7 @@
         form: {
           name: '',
           event: '',
+          custom_date: '',
           instructions: '',
           rules_set: '',
           summary: '',
@@ -698,6 +740,7 @@
         ownSearch: '',
         newGameDlg: false,
         upcomingEvents: [],
+        customDateMenu2: false,
         bouts: [],
         ownHeaders: [
           {
@@ -707,6 +750,10 @@
           {
             text: 'Event',
             value: 'event',
+          },
+          {
+            text: 'Custom Date',
+            value: 'custom_date',
           },
           {
             text: 'Buyin',
@@ -770,6 +817,7 @@
         return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
       },
       isAdmin () {
+        console.log(this.authUser?.roles)
         return this.authUser?.roles?.includes('admin')
       }
     },
@@ -777,7 +825,8 @@
     filters: {
       beautifyDateTimeMin,
       beautifyDate,
-      upperFirst
+      upperFirst,
+      beautifyTime
     },
 
     mounted() {
