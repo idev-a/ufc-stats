@@ -153,6 +153,7 @@ class Scraper:
 		event_id = meta['event_id']
 		event = Event.objects.get(pk=event_id)
 		event.title = response.css('span.b-content__title-highlight::text').get()
+		event.save()
 		trs = response.css('table.b-fight-details__table tr.b-fight-details__table-row')
 		if trs:
 			new_bouts = []
