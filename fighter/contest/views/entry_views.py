@@ -491,19 +491,23 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 break
         return is_exist
 
-    def add_fighters(self, event, data):
-        bouts = BoutSerializer(Bout.objects.filter(event__id=event.id), many=True).data
+    def add_fighters(self, game, data):
+        bouts = BoutSerializer(game.bouts, many=True).data
+        if not bouts:
+            bouts = BoutSerializer(Bout.objects.filter(event__id=game.event.id), many=True).data
         for bout in bouts:
             bout['survivors'] = []
             bout['contests_orig'] = []
             fighter1 = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
             fighter1['division'] = bout['division']
             bout['fighter1'] = fighter1
-            data['fighters'].append(fighter1)
+            if fighter1 not in data['fighters']:
+                data['fighters'].append(fighter1)
             fighter2 = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
             fighter2['division'] = bout['division']
             bout['fighter2'] = fighter2
-            data['fighters'].append(fighter2)
+            if fighter2 not in data['fighters']:
+                data['fighters'].append(fighter2)
         return bouts
 
     def is_new_team_data(self, _data, cur_data):
@@ -523,7 +527,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         '''
         status = 200
         live_data = {'fighters': [], 'teams': []}
-        recent_data = {'fighters': [], 'teams': []}
+        recent_data = {'fighters': [],'teams': []}
         option = request.data.get('option', 30)
         min_dt = datetime.now() - timedelta(days=option)
         date_range = (min_dt, datetime.now())
@@ -531,7 +535,6 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             if request.user:
                 latest_event = Event.objects.latest_event()
-                live_bouts_dict = self.add_fighters(latest_event, live_data)
 
                 for sel in selections:
                     event = sel.entry.event
@@ -540,19 +543,21 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     key = game.id if game else f'e_{event.id}'
                     if entry_number:
                         key = f"{key}_{entry_number}"
+                    
                     # main contest, live contest
                     cur_data = {'key':key, 'game': {}, 'fighters': []}
                     is_new = True
                     if event.id == latest_event.id:
                         is_new, cur_data = self.is_new_team_data(live_data, cur_data)
                         if is_new:
+                            live_bouts_dict = self.add_fighters(game, live_data)
                             cur_data['bouts'] = copy.deepcopy(live_bouts_dict)
                             live_data['teams'].append(cur_data)
                     else:
                         # recent games
-                        recent_bouts_dict = self.add_fighters(event, recent_data)
                         is_new, cur_data = self.is_new_team_data(recent_data, cur_data)
                         if is_new:
+                            recent_bouts_dict = self.add_fighters(game, recent_data)
                             cur_data['bouts'] = copy.deepcopy(recent_bouts_dict)
                             recent_data['teams'].append(cur_data)
 
@@ -565,9 +570,13 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         cur_data.get('game',{})['genre'] = game.genre if game else 'free'
                         cur_data.get('game',{})['entry_number'] = entry_number
                     if sel.survivor1 and self.bout_not_cancelled(cur_data, sel.survivor1):
-                        cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor1).data)
+                        _fighter = FighterSerializer(sel.survivor1).data
+                        _fighter['division'] = sel.bout.division
+                        cur_data.get('fighters',[]).append(_fighter)
                     if sel.survivor2 and self.bout_not_cancelled(cur_data, sel.survivor2):
-                        cur_data.get('fighters',[]).append(FighterSerializer(sel.survivor2).data)
+                        _fighter = FighterSerializer(sel.survivor2).data
+                        _fighter['division'] = sel.bout.division
+                        cur_data.get('fighters',[]).append(_fighter)
             else:
                 return Response(dict(live_data={}, recent_data={}), status=400)
         except Exception as err:

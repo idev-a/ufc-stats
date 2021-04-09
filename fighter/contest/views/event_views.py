@@ -74,15 +74,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             latest_event = Event.objects.latest_event()
             if latest_event:
-                bouts = BoutSerializer(Bout.objects.filter(event__id=latest_event.id), many=True).data
                 games = []
-                fighters = []
-                for bout in bouts:
-                    bout['survivors'] = []
-                    bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
-                    bout['fighter1']['division'] = bout['division']
-                    bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
-                    bout['fighter2']['division'] = bout['division']
                 if request.user.id:
                     game_id = int(request.data['game_id'])
                     entry_number = int(request.data['entry_number'])
@@ -96,6 +88,15 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         pass
                     if cur_game and cur_game != -1:
                         latest_event = cur_game.event
+                    bouts = BoutSerializer(cur_game.bouts, many=True).data
+                    if not bouts:
+                        bouts = BoutSerializer(Bout.objects.filter(event__id=latest_event.id), many=True).data
+                    for bout in bouts:
+                        bout['survivors'] = []
+                        bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
+                        bout['fighter1']['division'] = bout['division']
+                        bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
+                        bout['fighter2']['division'] = bout['division']
                     if my_entry:
                         latest_event = my_entry.event
                         for bout in bouts:

@@ -141,10 +141,6 @@
     },
 
     methods: {
-      _fighter (id) {
-        const fighters = this.fighters.filter(fighter => fighter.id == id)
-        return fighters[0] || {}
-      },
       contestName(game) {
         let name = game.name
         if (game.entry_number) {
@@ -226,17 +222,28 @@
         })
         this.editDlg = false
       },
+      _survivor(id) {
+        let survivor;
+        this.fighters.map(fighter => {
+          if (fighter.id == id) {
+            survivor = fighter
+          } 
+        })
+        return survivor
+      },
       okDlg () {
         this.editDlg = false
         this.item.bouts.forEach(bout => {
           if (bout.survivors.length == 1) {
-            if (!this.item.fighters.includes(bout.survivors[0])) {
-              this.item.fighters.push(bout.survivors[0])
+            const survivor = this._survivor(bout.survivors[0])
+            if (!this.item.fighters.includes(survivor)) {
+              this.item.fighters.push(survivor)
             }
           }
           if (bout.survivors.length == 2) {
-            if (!this.item.fighters.includes(bout.survivors[1])) {
-              this.item.fighters.push(bout.survivors[1])
+            const survivor = this._survivor(bout.survivors[1])
+            if (!this.item.fighters.includes(survivor)) {
+              this.item.fighters.push(survivor)
             }
           }
         })

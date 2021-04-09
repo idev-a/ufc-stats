@@ -61,6 +61,7 @@
               >
                 <team-card 
                   :loading="loading"
+                  :fighters="curData.fighters"
                   :item="item"
                   :key="item.key"
                   :item_index="x"
