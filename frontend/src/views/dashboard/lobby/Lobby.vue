@@ -215,6 +215,7 @@
     <v-dialog
       v-model="newDlg"
       max-width=850
+      @click:outside="clickNewDlgOutside"
     >
       <v-card
         tile
@@ -240,6 +241,8 @@
                   v-model="form.name"
                   :rules="[rules.required]"
                   label="Name"
+                  hint="Name"
+                  persistent-hint
                   clearable
                   single-line
                 />
@@ -258,6 +261,7 @@
                   chips
                   :rules="[rules.required]"
                   label="Upcoming Event"
+                  @change="changeEvent"
                 >
                   <template v-slot:selection="data">
                     <v-chip
@@ -428,7 +432,7 @@
             </template>
             <span>COPY: {{ genGameLink(game_id) }}</span>
           </v-tooltip>
-          <v-btn text :loading="loading" @click="newDlg=false">Close</v-btn>
+          <v-btn text :loading="loading" @click="clickNewDlgOutside">Close</v-btn>
           <v-btn v-if="defaultIndex==-1" text color="success" :loading="loading" :disabled="loading || !valid" @click="createGame">Create</v-btn>
           <v-btn v-else text color="success" :loading="loading" :disabled="loading || !valid" @click="updateGame">Update</v-btn>
         </v-card-actions>
@@ -513,7 +517,7 @@
                     v-on="on"
                     class="ml-2"
                     :loading="loading"
-                    :disabled="item.event.action!=''"
+                    :disabled="item.event.status=='old'"
                     @click.stop="updateMyGame(item)"
                     icon
                   >
@@ -529,7 +533,7 @@
                     v-on="on"
                     class="ml-2"
                     :loading="loading"
-                    :disabled="item.event.action!=''"
+                    :disabled="item.event.action=='old'"
                     @click.stop="deleteMyGame(item.id)"
                     icon
                   >
@@ -929,6 +933,9 @@
       updateMyGame(game) {
         this.defaultIndex = this.myOwnGames.indexOf(game)
         this.form = Object.assign({}, game)
+        this.game_id = game.id
+        this.form.event = this.form.event.id
+        this.form.bouts = this.form.bouts.map(bout => { return bout.id })
         this.$refs.form?.resetValidation()
         this.newDlg = true
       },
@@ -1077,6 +1084,20 @@
           }
         })
       },
+      async changeEvent (id) {
+        this.loading = true
+        const { data } = await main.getEventBouts(id)
+        this.bouts = data.bouts
+        this.form.bouts = this.bouts.map(bout => { return bout.id })
+        this.loading = false
+      },
+      clickNewDlgOutside () {
+        if (this.newDlg) {
+          this.newDlg=false
+        }
+        this.defaultIndex = -1
+        this.game_id = -1
+      }
     }
   }
 </script>

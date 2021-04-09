@@ -41,6 +41,9 @@ export default {
   createGame(payload) {
     return session.post('api/games/create_game/', payload)
   },
+  getEventBouts(id) {
+    return session.post('api/events/get_event_bouts/', {id})
+  },
   // User profile
   getMyContestHistory () {
     return session.post('api/entries/get_contest_history/')
