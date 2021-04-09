@@ -78,6 +78,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 if request.user.id:
                     game_id = int(request.data['game_id'])
                     entry_number = int(request.data['entry_number'])
+                    cur_game = None
                     try:
                         if game_id == -1:
                             cur_game = main_contest()
