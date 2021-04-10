@@ -158,7 +158,7 @@ class Scraper:
 		if trs:
 			new_bouts = []
 			cnt_completed = 0
-			for tr in trs[1:]:
+			for x, tr in enumerate(trs[1:]):
 				fight_detail = strip_list1(tr.xpath('.//td[1]//text()').getall())
 				detail_link = tr.xpath('@data-link').get()
 				fighters = strip_list1(tr.xpath('.//td[2]/p/a/text()').getall())
@@ -181,7 +181,8 @@ class Scraper:
 					go_the_distance=go_the_distance,
 					detail_link=detail_link,
 					status='pending',
-					event=event_id
+					event=event_id,
+					order=x+1
 				)
 				bout, is_notified = self.save_bout(item)
 				new_bouts.append(bout.id)
@@ -309,10 +310,7 @@ class Scraper:
 		except:
 			pass
 
-		if bout:
-			bout_serializer = BoutSerializer(bout, data=item)
-		else:
-			bout_serializer = BoutSerializer(data=item)
+		bout_serializer = BoutSerializer(data=item)
 		if bout_serializer.is_valid():
 			bout = bout_serializer.save()
 		else:

@@ -60,7 +60,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         status = 200
         bouts = []
         try:
-            bouts = BoutSerializer(Bout.objects.filter(event__id=request.data['id']), many=True).data
+            bouts = BoutSerializer(Bout.objects.filter(event__id=request.data['id']).order_by('order'), many=True).data
             for bout in bouts:
                 bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
                 bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
@@ -98,6 +98,7 @@ class EventViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         bout['fighter1']['division'] = bout['division']
                         bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
                         bout['fighter2']['division'] = bout['division']
+                    bouts = sorted(bouts, key=lambda x: (x['order']))
                     if my_entry:
                         latest_event = my_entry.event
                         for bout in bouts:

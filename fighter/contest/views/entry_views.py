@@ -280,6 +280,7 @@ def get_fight_views(selections):
                 method=_bout.method,
                 round=_bout.round,
                 time=_bout.time,
+                order=_bout.order
             )
     
         view['entries_1'] = _count_entries(selection.bout.fighter1.id, selections)
@@ -287,8 +288,7 @@ def get_fight_views(selections):
 
         bout_views[view_id] = view
 
-    _bouts = bout_views.values()
-    return sorted(_bouts, key = lambda _bout: _bout['id'])
+    return sorted(bout_views.values(), key = lambda _bout: _bout['order'])
 
 def get_leaderboard_view(entries):
     data = {}
@@ -508,6 +508,8 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             bout['fighter2'] = fighter2
             if fighter2 not in data['fighters']:
                 data['fighters'].append(fighter2)
+
+        bouts = sorted(bouts, key=lambda x: (x['order']))
         return bouts
 
     def is_new_team_data(self, _data, cur_data):

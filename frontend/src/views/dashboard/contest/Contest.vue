@@ -240,7 +240,18 @@
         return this.curContest?.type_of_registration == 'private'
       },
       eventStarted () {
-        return this.curContest && this.curContest.action != ''
+        if (!this.curContest) {
+          return false
+        }
+        let val = '';
+        if (this.curContest.owner == 'admin') {
+          val = this.curContest.event.date
+        } else {
+          const date = this.$moment(this.curContest.event.date).format('YYYY-MM-DD')
+          val = `${date} ${this.curContest.custom_date}`
+        }
+        const diff = this.$moment(val).diff(this.$moment(), 'seconds')
+        return diff <= 0
       },
       _entrants () {
         const val = this.curContest?.joined_users?.length || 0

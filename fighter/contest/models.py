@@ -162,6 +162,7 @@ class Bout(models.Model):
 	time = models.CharField(max_length=20, blank=True, default='00:00')
 	go_the_distance = models.BooleanField(null=True, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
+	order = models.PositiveIntegerField(blank=True, null=True, default=1)
 
 	@property
 	def division(self):

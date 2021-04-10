@@ -301,7 +301,8 @@
         return beautifyDate(this.curContest.date)
       },
       eventStarted () {
-        return this.curContest?.action != '' || this.countdownEnd
+        const diff = this.$moment(this.deadline2).diff(this.$moment(), 'seconds')
+        return this.countdownEnd
       },
       countable () {
         const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')

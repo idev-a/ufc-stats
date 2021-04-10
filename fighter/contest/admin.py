@@ -61,7 +61,7 @@ class FighterAdmin(admin.ModelAdmin):
 @admin.register(Bout)
 class BoutAdmin(admin.ModelAdmin):
 	list_per_page = 20
-	search_fields = ('division', 'method', 'status', 'event__name', 'fighter1__name', 'fighter2__name')
+	search_fields = ('method', 'status', 'event__name', 'fighter1__name', 'fighter2__name')
 	list_display = ('fighter1', 'fighter2', 'event', "method", "division", 'status', 'round', 'time', 'id')
 
 	class Meta:
