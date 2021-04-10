@@ -549,7 +549,7 @@
                   </v-btn>
                   <!-- <input type="hidden" :id="`gameLink${item.id}`" :value="genGameLink(item.id)" name=""> -->
                 </template>
-                <span>Copy Link</span>
+                <span>Go Contest</span>
               </v-tooltip>
               <v-tooltip right>
                 <template v-slot:activator="{ on }">
