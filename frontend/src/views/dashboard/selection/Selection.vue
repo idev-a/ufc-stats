@@ -480,9 +480,9 @@
       },
       changeContests() {
         this.squadSize = 0
-        for (const bout in this.survivors) {
+        this.bouts?.map(bout => {
           this.squadSize += bout.survivors.length
-        }
+        })
       },
       async gotoPrevEntry () {
         await this._submit((data) => {

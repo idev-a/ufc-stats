@@ -258,11 +258,8 @@ class Game(models.Model):
 
 	@property
 	def prize(self):
-		_prize = 0
-		if self.genre == 'paid':
-			real_users = Entry.objects.filter(game_id=self.id).count()
-			_prize = real_users * self.buyin + self.added_prizepool
-		return _prize
+		real_users = Entry.objects.filter(game_id=self.id).count()
+		return real_users * self.buyin + self.added_prizepool
 
 	def info_entrants(self):
 		return f'{self.joined_users.count()}/{self.entrants.count()}'

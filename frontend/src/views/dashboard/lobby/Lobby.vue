@@ -542,12 +542,12 @@
                   <v-btn 
                     small
                     v-on="on"
-                    @click.stop="copyGameLink(`#gameLink${item.id}`)"
+                    @click.stop="gotoContest(item)"
                     icon
                   >
                     <v-icon size="24" color="success">mdi-google-controller</v-icon>
                   </v-btn>
-                  <input type="hidden" :id="`gameLink${item.id}`" :value="genGameLink(item.id)" name="">
+                  <!-- <input type="hidden" :id="`gameLink${item.id}`" :value="genGameLink(item.id)" name=""> -->
                 </template>
                 <span>Copy Link</span>
               </v-tooltip>
