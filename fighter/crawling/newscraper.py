@@ -310,7 +310,10 @@ class Scraper:
 		except:
 			pass
 
-		bout_serializer = BoutSerializer(data=item)
+		if bout:
+			bout_serializer = BoutSerializer(bout, data=item)
+		else:
+			bout_serializer = BoutSerializer(data=item)
 		if bout_serializer.is_valid():
 			bout = bout_serializer.save()
 		else:
