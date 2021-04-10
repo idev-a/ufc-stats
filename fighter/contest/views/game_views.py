@@ -49,7 +49,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             event = Event.objects.latest_event()
             latest_event = EventSerializer(event).data
-            bouts = BoutSerializer(Bout.objects.filter(event__id=latest_event['id']), many=True).data
+            bouts = BoutSerializer(Bout.objects.filter(event__id=latest_event['id']).order_by('order'), many=True).data
             for bout in bouts:
                 bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
                 bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
