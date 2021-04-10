@@ -96,7 +96,7 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def create_game(self, request, **kwarg):
         status = 200
         message = 'Successfully created'
-        games = []
+        games = [{}]
         try:
             if not request.user:
                 raise Exception()
@@ -124,11 +124,13 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 raise Exception()
             data = request.data
             data['owner'] = request.user.id
+            data['joined_users'] = [_['id'] for _ in data['joined_users']]
+            data['entrants'] = [_['id'] for _ in data['entrants']]
             game = Game.objects.get(id=data['id'])
             if game:
-                game_serializer = GameSerializer(data=data)
+                game_serializer = GameSerializer(game, data=data)
                 if game_serializer.is_valid():
-                    game = game_serializer.update(game, game_serializer.validated_data)
+                    game = game_serializer.save()
                 else:
                     raise Exception()
             else:
@@ -176,8 +178,9 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 new_entry.save()
 
                 # add user to joined_users list in the game
-                game.joined_users.add(request.user)
-                game.save()
+                if game.genre != 'free':
+                    game.joined_users.add(request.user)
+                    game.save()
 
         except Exception as err:
             print(err)

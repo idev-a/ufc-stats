@@ -818,7 +818,6 @@
         return this.authUser?.coins || this.authUser?.fq_points || this.profile?.user?.coins || 0
       },
       isAdmin () {
-        console.log(this.authUser?.roles)
         return this.authUser?.roles?.includes('admin')
       }
     },
@@ -997,6 +996,15 @@
         try {
           const payload = {
             ...this.form,
+          }
+          if (!payload.custom_date) {
+            let _event
+            this.upcomingEvents.map(event => {
+              if (event.id == payload.event) {
+                _event = event
+              }
+            })
+            payload.custom_date = this.$moment(_event.date).format('HH:mm:ss')
           }
           const { data } = await main.createGame(payload)
           this.game_id = data.game.id

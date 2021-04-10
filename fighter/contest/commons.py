@@ -31,10 +31,13 @@ def main_contest():
 def add_game(games, _, event_data, engaged_teams, entry=1, has_joined=False, can_have_entry=False):
 	if not event_data:
 		event_data = EventSerializer(_.event).data
-	bouts = BoutSerializer(Bout.objects.filter(event__id=event_data['id']), many=True).data
+	bouts = BoutSerializer(Bout.objects.filter(event__id=event_data['id']).order_by('order'), many=True).data
 	for bout in bouts:
 		bout['fighter1'] = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
 		bout['fighter2'] = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
+	custom_date = _.custom_date
+	if not custom_date:
+		custom_date = _.event.date.strftime('%hh:%mm:%ss')
 	return games.append(dict(
 			id=_.id,
 			name=_.name,
@@ -44,7 +47,7 @@ def add_game(games, _, event_data, engaged_teams, entry=1, has_joined=False, can
 			date=_.date,
 			value=f"{_.id}_{entry}",
 			event=event_data,
-			custom_date=_.custom_date,
+			custom_date=custom_date,
 			type_of_registration=_.type_of_registration,
 			instructions=_.instructions,
 			summary=_.summary,
