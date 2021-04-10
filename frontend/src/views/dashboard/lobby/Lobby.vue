@@ -170,7 +170,7 @@
                         </v-btn>
                       </div>
                     </template>
-                    <span>Go to Contest</span>
+                    <span>Go Contest</span>
                   </v-tooltip>
                 </div>
               </v-list-item-action>
@@ -889,11 +889,11 @@
           }
         }
         if (label.includes('JOIN')) {
-          tooltip = 'Go to Selection'
-        } else if (label == 'VIEW') {
-          tooltip = 'Go to Selection'
+          tooltip = 'Go Selection'
+        } else if (label == 'EDIT') {
+          tooltip = 'Go Selection'
         } else if (label == 'LIVE') {
-          tooltip = 'Go to Contest'
+          tooltip = 'Go Contest'
         } 
         return tooltip
       },
@@ -906,16 +906,16 @@
       joinLabel (item) {
         let label = 'JOIN'
         if (item.has_joined) {
-          label = 'VIEW'
+          label = 'EDIT'
         } else {
           if (item.genre != 'free') {
             label += ` | F${item.buyin}`
           }
         }
         if (item.id == -1) {
-          label = 'VIEW'
+          label = 'EDIT'
         }
-        if (this.isStartedGame(item) && label == 'VIEW') {
+        if (this.isStartedGame(item) && label == 'EDIT') {
           label = 'LIVE'
         }
         return label
@@ -929,10 +929,10 @@
           return this.$store.commit('auth/showLoginDlg')
         }
         const label = this.joinLabel(item)
-        if (label == 'LIVE') {
+        if (label == 'EDIT') {
           return this.$router.push({ path: `/contest/${item.id}`, query: {tab: 'standings'}})
         }
-        if (label == 'VIEW') {
+        if (label == 'LIVE') {
           return this.$router.push({ path: `/selection/${item.id}` })
         }
         if (item.id == -1) {
