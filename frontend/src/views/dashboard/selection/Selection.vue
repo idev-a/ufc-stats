@@ -302,7 +302,7 @@
       },
       eventStarted () {
         const diff = this.$moment(this.deadline2).diff(this.$moment(), 'seconds')
-        return this.countdownEnd
+        return this.countdownEnd || diff <= 0
       },
       countable () {
         const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')
