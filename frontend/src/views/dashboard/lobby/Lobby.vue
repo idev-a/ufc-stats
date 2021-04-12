@@ -81,7 +81,7 @@
             <span>{{ item.event.name }}</span>
           </template>
           <template v-slot:item.type_of_registration="{ item }">
-            <span>{{ item.type_of_registration | upperFirst }}</span>
+            <span>{{ item.owner == 'admin' ? item.type_of_registration : 'custom' | upperFirst }}</span>
           </template>
           <template v-slot:item.genre="{ item }">
             <span>{{ item.genre | upperFirst }}</span>
@@ -462,7 +462,7 @@
               <v-btn 
                 v-on="on"
                 :loading="loading"
-                :disabled="!game_id"
+                :disabled="game_id < 0"
                 @click="copyGameLink('#myGameLink')"
               >
                 <v-icon size="24" color="highlight">mdi-google-controller</v-icon>
@@ -929,10 +929,10 @@
           return this.$store.commit('auth/showLoginDlg')
         }
         const label = this.joinLabel(item)
-        if (label == 'EDIT') {
+        if (label == 'LIVE') {
           return this.$router.push({ path: `/contest/${item.id}`, query: {tab: 'standings'}})
         }
-        if (label == 'LIVE') {
+        if (label == 'EDIT') {
           return this.$router.push({ path: `/selection/${item.id}` })
         }
         if (item.id == -1) {
@@ -975,6 +975,7 @@
       newGame () {
         this.form = Object.assign({}, this.defaultForm)
         this.form.event = this.latestEvent.id
+        this.game_id = -1
         this.form.bouts = this.bouts.map(bout => { return bout.id })
         this.$refs.form?.resetValidation()
         this.newDlg = true
@@ -1068,7 +1069,7 @@
       },
       genGameLink (game_id) {
         let link = `${process.env.VUE_APP_URL}/contest`
-        if (game_id) {
+        if (game_id > 0) {
           link += `/${game_id}`
         }
         return link
