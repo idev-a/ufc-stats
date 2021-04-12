@@ -100,15 +100,7 @@ class UserViewSet(viewsets.ModelViewSet):
             else:
                 data['total_win_p'] = "0"
             # user
-            data['user'] = dict(
-                id=user.id,
-                displayname=user.displayname,
-                date_joined=user.date_joined,
-                initials=user.initials,
-                coins=user.coins,
-                roles=user.roles
-            )
-
+            data['user'] = UserSerializer(user).data
             # contest history
             entries = Entry.objects.filter(user_id=user.id)
             for _ in entries:
