@@ -491,10 +491,12 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 break
         return is_exist
 
-    def add_fighters(self, game, data):
-        bouts = BoutSerializer(game.bouts, many=True).data
+    def add_fighters(self, game, event, data):
+        bouts = []
+        if game:
+            bouts = BoutSerializer(game.bouts, many=True).data
         if not bouts:
-            bouts = BoutSerializer(Bout.objects.filter(event__id=game.event.id), many=True).data
+            bouts = BoutSerializer(Bout.objects.filter(event__id=event.id), many=True).data
         for bout in bouts:
             bout['survivors'] = []
             bout['contests_orig'] = []
@@ -552,14 +554,14 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     if event.id == latest_event.id:
                         is_new, cur_data = self.is_new_team_data(live_data, cur_data)
                         if is_new:
-                            live_bouts_dict = self.add_fighters(game, live_data)
+                            live_bouts_dict = self.add_fighters(game, event, live_data)
                             cur_data['bouts'] = copy.deepcopy(live_bouts_dict)
                             live_data['teams'].append(cur_data)
                     else:
                         # recent games
                         is_new, cur_data = self.is_new_team_data(recent_data, cur_data)
                         if is_new:
-                            recent_bouts_dict = self.add_fighters(game, recent_data)
+                            recent_bouts_dict = self.add_fighters(game, event, recent_data)
                             cur_data['bouts'] = copy.deepcopy(recent_bouts_dict)
                             recent_data['teams'].append(cur_data)
 
