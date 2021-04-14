@@ -6,7 +6,7 @@
     >
       <v-card-text>
         <ul class="instruction-list">
-          <li v-for="(rule, x) in rules_set">{{x+1}}. {{rule}}</li>
+          <li v-for="(rule, x) in rules_set" :key="x">{{x+1}}. {{rule}}</li>
         </ul>
       </v-card-text>
     </v-card>

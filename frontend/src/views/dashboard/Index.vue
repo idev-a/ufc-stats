@@ -236,6 +236,12 @@
 
 
 <style lang="scss">
+  .blue-card {
+
+    background-color: #212121ab !important;
+    backdrop-filter: blur(5px) !important;
+  }
+
   .top-btn {
     padding: 10px 10px !important; margin: 0 1px;
   }
@@ -279,6 +285,10 @@
     }
 
     table { border-collapse: collapse; empty-cells: show; }
+
+    tr:nth-of-type(odd) td {
+      opacity: 0.85;
+    }
 
     td { position: relative; }
 
@@ -331,7 +341,7 @@
         border-radius: 5px;
         background-color: #d3d3d3;
         color: black;
-        width: 122px !important;
+        width: 99px !important;
       }
 
       .between-fighters {

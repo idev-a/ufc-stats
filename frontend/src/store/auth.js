@@ -41,6 +41,7 @@ const getters = {
   launchLogin: state => state.launchLogin,
   isAuthenticated: state => !!state.token && state.token != 'null',
   authUser: state => state.authUser,
+  profile: state => state.profile,
   selectedUserId: state => state.selectedUserId,
   launchProfile: state => state.launchProfile
 };
@@ -87,10 +88,13 @@ const actions = {
 
       commit('showLoginDlg', false)
       // return url
-      if (localStorage.getItem('returnUrl')) {
-        router.push({path: localStorage.getItem('returnUrl')})
-      } else if (localStorage.getItem('twitterReturn')) {
-        window.location.href = localStorage.getItem('twitterReturn')
+      const returnUrl = localStorage.getItem('returnUrl')
+      const twitterUrl = localStorage.getItem('twitterReturn')
+      if (returnUrl && router.history.current.path != returnUrl) {
+        router.push({path: returnUrl})
+        localStorage.removeItem('returnUrl')
+      } else if (twitterUrl) {
+        window.location.href = twitterUrl
       }
 
       // if (popup) {
@@ -127,6 +131,7 @@ const actions = {
       .then(({data}) => {
         commit('setLoading', false)
         commit('setProfile', data)
+        commit(SET_AUTH_USER, data.user)
       })
   },
   logout({ commit }) {

@@ -2,7 +2,7 @@
   <v-tooltip top>
     <template v-slot:activator="{ on }">
       <v-btn
-        :value="id"
+        :value="item.id"
         :disabled="eventStarted"
         small
         text
@@ -26,29 +26,23 @@
   export default {
     name: 'Fighter',
 
-    props: ['fighters', 'id', 'eventStarted', 'initial', 'firstName'],
+    props: ['item', 'eventStarted', 'initial', 'firstName'],
 
     methods: {
-      _fighter () {
-        const fighters = this.fighters.filter(fighter => fighter.id == this.id)
-        return fighters[0]
-      },
       _fighterName () {
-        const fighter = this._fighter()
-        let name = this.initial ? fighter.initials : fighter.name 
-        const _split = fighter.name.trim().split(' ')
+        let name = this.initial ? this.item.initials : this.item.name 
+        const _split = this.item.name.trim().split(' ')
         return this.firstName ? _split[_split.length-1] : name
       },
       _color () {
-        return this._fighter().gender == 'F' ? 'pink' : 'teal darken-4'
+        return this.item.gender == 'F' ? 'pink' : 'teal darken-4'
       },
       _fightFullGender() {
-        return this._fighter().gender == 'M' ? 'Male' : 'Female'
+        return this.item.gender == 'M' ? 'Male' : 'Female'
       },
       _fighterGenderIcon () {
-        const fighter = this._fighter(this.id)
         let gender = 'mdi-human-male'
-        if (fighter.gender == 'F') {
+        if (this.item.gender == 'F') {
           gender = 'mdi-human-female'
         }
         return gender

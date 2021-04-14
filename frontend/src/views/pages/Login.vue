@@ -62,7 +62,7 @@
                   <v-text-field
                     ref="email"
                     v-model="form.email"
-                    :rules="[rules.required, rules.email]"
+                    :rules="[rules.required]"
                     :loading="authenticating"
                     hide-details="auto"
                     class="mb-5"
@@ -181,7 +181,7 @@
       authenticating (val) {
         if (!val && !this.error) {
           if (this.$route.name != 'Selection') {
-            this.$router.push({name: 'Selection'})
+            // this.$router.push({name: 'Selection'})
           } else {
             this.$emit('update')
           }

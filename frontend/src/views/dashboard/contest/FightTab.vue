@@ -124,7 +124,7 @@
             hide-default-footer
           > 
             <template v-slot:item.users="{ item }">
-              <v-chip class="mr-1 mb-1 body-1" v-for="user in item.users">{{ user }}</v-chip>
+              <v-chip class="mr-1 mb-1 body-1" v-for="user in item.users" :key="user.id">{{ user }}</v-chip>
             </template>
           </v-data-table>
         </v-card-text>

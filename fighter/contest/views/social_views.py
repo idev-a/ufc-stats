@@ -170,7 +170,7 @@ class TwitterWebhookEndpoint(APIView):
         owner = None
         message = 'Successfully created. Enjoy your game.'
         try:
-            owner = CustomUser.objects.get(username=owner_id)
+            owner = settings.AUTH_USER_MODEL.objects.get(username=owner_id)
         except:
             message = "You are not allowed to create a game. Please register account first."
             self.reply(message, reply_id)
@@ -210,7 +210,7 @@ class TwitterWebhookEndpoint(APIView):
         non_users = []
         for id in entrants:
             try:
-                user = CustomUser.objects.get(username=id)
+                user = settings.AUTH_USER_MODEL.objects.get(username=id)
                 game.entrants.add(user)
                 game.joined_users.add(user)
             except:

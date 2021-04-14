@@ -8,168 +8,95 @@
       :loading="loading"
       class="lighten-4 ma-0 pa-0 selection-card fq-popup"
     >
-      <v-row dense no-gutters>
-        <v-col cols=12 md=6>
-          <v-card-title 
-            v-if="curContest" 
-            class="font-weight-medium mb-0"
-          >
-            <div class="text-center w-100">
-              <div class="d-flex justify-center relative">
-                <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
-                <money :curContest="curContest" />
-              </div>
-              <div class="subtitle-2 ">
-                <span>{{ contestDate }}</span>
-                <v-tooltip right>
-                  <template v-slot:activator="{ on }">
-                    <v-icon v-on="on" v-if="isTournament" color="info" size=22> mdi-tournament mdi-rotate-270</v-icon>
-                  </template>
-                  <span>Tournament Type</span>
-                </v-tooltip>
-              </div>
-              <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
-              <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
-              <div class="overline">{{totalFighters}} FIGHTERS ( <b class="silver--text">SQUAD SIZE: {{squadSize}}</b> )</div>
-            </div>
-          </v-card-title>
-          <v-card-text
-            class="py-3 relative"
-          >
-            <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
-            <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
-            <div
-              id="scrollContainer"
-              @scroll="onScroll"
-            >
-              <template v-for="item in bouts">
-                <v-btn-toggle
-                  v-model="item.survivors"
-                  :disabled="loading"
-                  :key="item.id"
-                  dense
-                  multiple
-                  class="justify-space-between mb-2 mx-1"
-                  tile
-                  @change="changeContests"
-                >
-                  <fighter 
-                    :id="item.fighter1"
-                    :fighters="fighters"
-                    :eventStarted="eventStarted"
-                    :firstName="true"
-                  />
-
-                  <div 
-                    class="between-fighters"
-                  >
-                    ({{ item.division }})
-                  </div>
-
-                  <fighter 
-                    :id="item.fighter2"
-                    :fighters="fighters"
-                    :eventStarted="eventStarted"
-                    :firstName="true"
-                  />
-
-                </v-btn-toggle>
-              </template>
-            </div>
-            <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
-          </v-card-text>
-          <div class="d-flex justify-center my-2 mr-2">
-            <v-tooltip bottom>
+      <v-card-title 
+        v-if="curContest" 
+        class="font-weight-medium mb-0"
+      >
+        <div class="text-center w-100">
+          <div class="d-flex justify-center relative">
+            <div class="font-weight-medium text-uppercase">{{ contestName }}</div>
+            <money :curContest="curContest" />
+          </div>
+          <div class="subtitle-2 ">
+            <span>{{ contestDate }}</span>
+            <v-tooltip right>
               <template v-slot:activator="{ on }">
-                <v-btn 
-                  class="success mr-2" 
-                  :disabled="submitDisabled"
-                  :loading="loading"
-                  small
-                  v-on="on"
-                  @click="submit"
-                >
-                  Submit
-                </v-btn>
+                <v-icon v-on="on" v-if="isTournament" class="ml-1" color="success" size=20> mdi-tournament mdi-rotate-270</v-icon>
               </template>
-              <span>Submit & Go Contest</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn 
-                  class="grey darken-2 mr-2" 
-                  :disabled="!squadSize || eventStarted" 
-                  :loading="loading"
-                  small 
-                  v-on="on"
-                  @click="clearSelection"
-                >
-                  <v-icon small left>mdi-cancel</v-icon>Clear
-                </v-btn>
-              </template>
-              <span>Clear Selection</span>
-            </v-tooltip>
-            <v-tooltip
-              v-if="isTournament"
-              bottom
-            >
-              <template v-slot:activator="{ on }">
-                <v-btn 
-                  class="info mr-2" 
-                  :disabled="!hasPrevRetryNumber" 
-                  :loading="loading"
-                  small 
-                  v-on="on"
-                  @click="gotoPrevEntry"
-                >
-                  <v-icon small>mdi-step-backward</v-icon>
-                </v-btn>
-              </template>
-              <span>Sumbit & Go Prev Entry</span>
-            </v-tooltip>
-            <v-tooltip
-              v-if="isTournament"
-              bottom
-            >
-              <template v-slot:activator="{ on }">
-                <v-btn 
-                  class="info mr-2" 
-                  :disabled="!hasNextRetryNumber" 
-                  :loading="loading"
-                  small 
-                  v-on="on"
-                  @click="gotoNextEntry"
-                >
-                  <v-icon small>mdi-step-forward</v-icon>
-                </v-btn>
-              </template>
-              <span>Sumbit & Go Next Entry</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-btn 
-                  small
-                  v-on="on"
-                  @click="copyLink"
-                >
-                  <v-icon size="24" color="twitter">mdi-twitter</v-icon>
-                </v-btn>
-              </template>
-              <span>COPY: {{tweetShareLink}}</span>
+              <span>Multi Entry</span>
             </v-tooltip>
           </div>
-          
-        </v-col>
-        <v-col cols=12 md=6>
-          <v-card-title 
-          >
+          <div v-if="eventStarted" class="red--text lighten-1 h6">({{curContest.action}})</div>
+          <flip-countdown :showDays="false" @stopTimer="disableSelection" v-if="countable" :deadline="deadline2"></flip-countdown>
+          <div class="overline">{{totalFighters}} FIGHTERS ( <b class="silver--text">SQUAD SIZE: {{squadSize}}</b> )</div>
+        </div>
+      </v-card-title>
+      <v-card-text
+        v-if="viewMode==0"
+      >
+        <fighter-card
+          :key="key"
+          :bouts="bouts"
+          @changeContests="changeContests"
+        />
+      </v-card-text>
+      <v-card-text
+        v-else
+        class="py-3 relative"
+      >
+        <v-icon v-if="_down" class="arrow-down" color="red">mdi-arrow-down-drop-circle-outline</v-icon>
+        <v-btn v-if="_side" class="arrow-side" :class="sideCollapseClass" @click="collapseSide" fab small color="#eeea"><v-icon color="red">mdi-arrow-collapse-right</v-icon></v-btn>
+        
+        <div
+          id="scrollContainer"
+          @scroll="onScroll"
+        >
+          <template v-for="item in bouts">
+            <v-btn-toggle
+              v-model="item.survivors"
+              :disabled="loading"
+              :key="item.id"
+              dense
+              multiple
+              class="justify-space-between mb-2 mx-1"
+              tile
+              @change="changeContests"
+            >
+              <fighter 
+                :item="item.fighter1"
+                :eventStarted="eventStarted"
+                :firstName="true"
+              />
+
+              <div 
+                class="between-fighters"
+              >
+                ({{ item.division }})
+              </div>
+
+              <fighter 
+                :item="item.fighter2"
+                :eventStarted="eventStarted"
+                :firstName="true"
+              />
+
+            </v-btn-toggle>
+          </template>
+        </div>
+        <v-icon v-if="_up" class="arrow-up" color="red">mdi-arrow-up-drop-circle-outline</v-icon>
+      </v-card-text>
+      <v-card-text 
+      >
+        <v-row no-gutters class="align-center">
+          <v-col cols="auto">
             <v-autocomplete 
               :loading="loading"
               v-model="curGame"
               :items="games"
               chips
-              label="Select Contest"
+              label="Select Entry"
               class="mx-5"
+              return-object
               @change="changeGame"
             >
               <template v-slot:selection="data">
@@ -192,27 +119,112 @@
                 </template>
               </template>
             </v-autocomplete>
-          </v-card-title>
-          <contest-summary :key="key" :rulesSet="rulesSet" :summary="summary" v-if="needsInstruction" />
-        </v-col>
-      </v-row>
-    </v-card>
+          </v-col>
+          <v-col
+            class="ml-auto align-center d-flex"
+            cols="auto"
+          >
+            <v-btn-toggle v-model="viewMode">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" small>
+                    <v-icon>mdi-view-carousel-outline</v-icon>
+                  </v-btn>
+                </template>
+                <span>Carousel View</span>
+              </v-tooltip>
 
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" small>
+                    <v-icon>mdi-format-list-bulleted-square</v-icon>
+                  </v-btn>
+                </template>
+                <span>List View</span>
+              </v-tooltip>
+            </v-btn-toggle>
+
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on }">
+                <v-btn @click="summaryDlg=true" class="ml-3" v-on="on" small>
+                  <v-icon>mdi-help-circle-outline</v-icon>
+                </v-btn>
+              </template>
+              <span>Summary & Rules</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <!-- <div class="d-flex justify-center my-2 mr-2"> -->
+        <v-card-actions>
+          <v-spacer />
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn 
+              class="success mr-2" 
+              :disabled="submitDisabled"
+              :loading="loading"
+              small
+              v-on="on"
+              @click="submit"
+            >
+              Submit
+            </v-btn>
+          </template>
+          <span>Submit & Go Contest</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn 
+              class="grey darken-2 mr-2" 
+              :disabled="!squadSize || eventStarted" 
+              :loading="loading"
+              small 
+              v-on="on"
+              @click="clearSelection"
+            >
+              <v-icon small left>mdi-cancel</v-icon>Clear
+            </v-btn>
+          </template>
+          <span>Clear Selection</span>
+        </v-tooltip>
+
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn 
+              small
+              v-on="on"
+              @click="copyLink"
+            >
+              <v-icon size="24" color="twitter">mdi-twitter</v-icon>
+            </v-btn>
+          </template>
+          <span>COPY: {{tweetShareLink}}</span>
+        </v-tooltip>
+      <!-- </div> -->
+    </v-card-actions>
+    </v-card>
+    <v-dialog
+      max-width="600"
+      v-model="summaryDlg"
+    >
+      <contest-summary :key="key" :rulesSet="rulesSet" :summary="summary" v-if="needsInstruction" />
+    </v-dialog>
     <!-- hidden -->
     <input type="hidden" id="twitterLink" :value="tweetShareLink" name="">
   </div>
 </template>
 
 <script>
-  let ROOT_PATH = 'http://localhost:8085'
+  import { mapState, mapGetters } from 'vuex'
   import main from '@/api/main'
   import { beautifyDate, equals } from '@/util'
   import { DEFAULT_INSTRUCTIONS, DEFAULT_RULES_SET, DEFAULT_SUMMARY } from '@/constants/constant'
-  import { mapState, mapGetters } from 'vuex'
-  import FlipCountdown from "./Countdown";
-  import Money from "./Money";
-  import Fighter from "./Fighter";
-  import ContestSummary from "./ContestSummary";
+  import FlipCountdown from "./Countdown"
+  import Money from "./Money"
+  import Fighter from "./Fighter"
+  import ContestSummary from "./ContestSummary"
+  import FighterCard from "./FighterCard"
 
   const fmt = "YYYY-MM-DD HH:mm:ss";
   export default {
@@ -222,7 +234,8 @@
       FlipCountdown,
       ContestSummary,
       Money,
-      Fighter
+      Fighter,
+      FighterCard
     },
 
     props: ['game_id', 'entry_number'],
@@ -236,10 +249,12 @@
     data () {
       return {
         logo: 'https://vuejs.org/images/logo.png',
+        viewMode: 0,
         deadline2: '',
         dlg: true,
         loading: false,
         countdownEnd: false,
+        summaryDlg: false,
         bouts: [],
         fighters: [],
         selectedItem: -1,
@@ -268,7 +283,7 @@
       ...mapState('auth', ['authUser']),
       ...mapGetters('auth', ['isAuthenticated']),
       submitDisabled() {
-        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1 || this.event.started || !this._validRetryNumber()
+        return this.loading || !this.event || this.eventStarted || this.bouts.length < 1
       },
       curContest () {
         let contest = undefined
@@ -302,14 +317,15 @@
         return beautifyDate(this.curContest.date)
       },
       eventStarted () {
-        return this.curContest?.action != '' || this.countdownEnd
+        const diff = this.$moment(this.deadline2).diff(this.$moment(), 'seconds')
+        return this.countdownEnd || diff <= 0
       },
       countable () {
         const diff = this.$moment(this.deadline2).diff(this.$moment(), 'days')
         return this.deadline2 && !this.eventStarted && diff == 0
       },
       totalFighters () {
-        return this.fighters?.length || 0
+        return this.bouts?.length * 2 || 0
       },
       needsInstruction () {
         return true
@@ -338,20 +354,20 @@
         return DEFAULT_SUMMARY
       },
       tweetShareLink () {
-        let link = `${process.env.VUE_APP_URL}/contest/${this.curGame}`
-        if (this.curGame == -1) {
-          link = `${process.env.VUE_APP_URL}/contest`
+        let link = `${process.env.VUE_APP_URL}/contest`
+        if (this.game_id) {
+          link += `/${this.game_id}`
         }
-        if (this._validRetryNumber()) {
-          link += `/${this.entry_number}`
-        }
+        // if (this._validRetryNumber()) {
+        //   link += `/${this.entry_number}`
+        // }
         return link
       }
     },
 
     async mounted () {
-      this.curGame = this.game_id  || -1
-      
+      this.curGame = `${this.game_id||-1}_${this.entry_number||1}`
+
       this.loading = true
       this.rulesSet = this.defaultRulesSet
       this.instructions = this.defaultInstructions
@@ -367,8 +383,15 @@
         if (scrollTop + clientHeight >= scrollHeight) {
         }
       },
-      startCountDown(val) {
-        this.deadline2 = this.$moment(`${val}`).format(fmt)
+      startCountDown() {
+        let val = '';
+        if (this.curContest.owner == 'admin') {
+          val = this.curContest.event.date
+        } else {
+          const date = this.$moment(this.curContest.event.date).format('YYYY-MM-DD')
+          val = `${date} ${this.curContest.custom_date}`
+        }
+        this.deadline2 = this.$moment(val).format(fmt)
       },
       async getLatestData() {
         await this.getLatestEvent()
@@ -377,46 +400,44 @@
       async getLatestEvent () {
         const { data } = await main.getLatestEvent(this.curGame, +this.entry_number)
         this.bouts = data.bouts
-        this.fighters = data.fighters
         this.games = data.games
-        if (data.games.length > 0 && this.curGame == -1) {
-          this.curGame = data.games[0].id
+        if (data.games.length > 0 && this.curGame == '-1_1') {
+          this.curGame = data.games[0].value
           data.games.forEach(game => {
             if (game.name.trim().toLowerCase() == 'main contest') {
-              this.curGame = game.id
+              this.curGame = game.value
             }
           })
-          this.startCountDown(this.curContest.event.date)
         }
+        this.key++
+        this.startCountDown()
       },
       gameName (item) {
         let name = item.name
         if (item.re_entry) {
-          name += ` (${item.multientry} Entries)`
+          name += ` (${item.entry_number})`
         }
         return name
       },
       _validRetryNumber() {
-        if (this.isTournament) {
-          return this.entry_number > 0 && this.entry_number <= this.curContest.multientry
-        } else {
-          return true
-        }
+        return this.curContest.re_entry && this.entry_number && this.entry_number <= this.curContest.multientry
+      },
+      updateSurvivors() {
+
       },
       async _submit (callback) {
         if (!this.isAuthenticated) {
-          this.$store.commit('auth/showLoginDlg')
-          return
+          localStorage.setItem('returnUrl', this.$route.path)
+          return this.$store.commit('auth/showLoginDlg')
         }
-        if (!this._validRetryNumber()) {
-          return
-        }
+        // if (!this._validRetryNumber()) {
+        //   return
+        // }
         const payload = {
           entry: {
             entry_number: this.entry_number,
-            game: this.curGame,
+            game: this.curGame.split('_')[0],
             event: this.curContest.event.id,
-            user: this.authUser.pk || this.authUser.id,
           },
           selections: []
         }
@@ -466,8 +487,12 @@
 
       async submit (data) {
         const self = this
+        let path = '/contest'
+        if (this.game_id != -1) {
+          path += `/${this.game_id}`
+        }
         await this._submit((data) => {
-          setTimeout(function(){ self.$router.push({'path': `/contest/${self.curGame}`}); }, 1200);
+          setTimeout(function(){ self.$router.push({path}); }, 1200);
         })
       },
       clearSelection () {
@@ -475,40 +500,29 @@
       },
       changeContests() {
         this.squadSize = 0
-        for (const bout in this.survivors) {
+        this.bouts?.map(bout => {
           this.squadSize += bout.survivors.length
-        }
+        })
       },
       async gotoPrevEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.curGame}/${this.entry_number-1}`})
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number-1}`})
         })
       },
       async gotoNextEntry () {
         await this._submit((data) => {
-          this.$router.push({ path: `/selection/${this.curGame}/${this.entry_number+1}`})
+          this.$router.push({ path: `/selection/${this.game_id}/${this.entry_number+1}`})
         })
       },
       disableSelection () {
         this.countdownEnd = true
       },
       async changeGame (item) {
-        return this.$router.push({ path: `/selection/${item}`})
-
-        // this.loading = true
-        // await this.getLatestData(item)
-        // if (item == -1) {
-        //   this.instructions = this.defaultInstructions
-        //   this.summary = this.defaultSummary
-        //   this.rulesSet = this.defaultRulesSet
-        // } else {
-        //   this.instructions = this.curContest.instructions.split('\n')
-        //   this.rulesSet = this.curContest.rules_set.split('\n')
-        //   this.summary = this.curContest.summary
-        //   this.key++
-        // }
-        // this.startCountDown(this.curContest.date)
-        // this.loading = false
+        let path = `/selection/${item.id}`
+        if (item.re_entry) {
+          path += `/${item.entry_number}`
+        }
+        return this.$router.push({ path })
       },
       collapseSide () {
         this.side = !this.side

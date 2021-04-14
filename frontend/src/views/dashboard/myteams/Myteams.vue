@@ -47,7 +47,7 @@
         <v-data-iterator
           :items="curData.teams"
           item-key="key"
-          :items-per-page="5"
+          :items-per-page="10"
         > 
           <template v-slot:default="{ items }">
             <v-row>
@@ -61,12 +61,14 @@
               >
                 <team-card 
                   :loading="loading"
+                  :fighters="curData.fighters"
                   :item="item"
                   :key="item.key"
                   :item_index="x"
-                  :fighters="curData.fighters"
-                  @updateLoading="updateLoading"
-                  @updateTeams="updateTeams"
+                  :option="option"
+                  @update-loading="updateLoading"
+                  @update-teams="updateTeams"
+                  @withdraw-team="withdrawTeam"
                 />
               </v-col>
             </v-row>
@@ -152,6 +154,9 @@
       },
       updateTeams (item, idx) {
         this.curData.teams.splice(idx, 1, item)
+      },
+      withdrawTeam (idx) {
+        this.curData.teams.splice(idx, 1)
       },
       updateItemsPerPage (number) {
         this.itemsPerPage = number

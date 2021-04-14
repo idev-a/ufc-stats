@@ -29,6 +29,9 @@ import VueNativeSock from 'vue-native-websocket'
 import Meta from 'vue-meta'
 import VuetifyDialog from 'vuetify-dialog'
 import 'vuetify-dialog/dist/vuetify-dialog.css'
+import Carousel3d from 'vue-carousel-3d';
+
+Vue.use(Carousel3d);
 // import VueGtag from "vue-gtag";
 
 // Vue.use(VueGtag, {

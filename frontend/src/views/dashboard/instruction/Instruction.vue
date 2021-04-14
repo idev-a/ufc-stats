@@ -3,7 +3,7 @@
     v-model="insideValue"
     width="600px"
   >
-    <InstructionBody :instructions="instructions" :rulesSet="rulesSet" />
+    <instruction-body :instructions="instructions" :rulesSet="rulesSet" />
   </v-dialog>
 </template>
 

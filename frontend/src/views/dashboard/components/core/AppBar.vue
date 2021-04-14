@@ -363,7 +363,7 @@
 
     computed: {
       ...mapState(['drawer', 'notifications']),
-      ...mapState('auth', ['authUser']),
+      ...mapState('auth', ['authUser', 'profile']),
       ...mapGetters('auth', ['isAuthenticated']),
 
       notificationLengh () {

@@ -59,7 +59,7 @@ class ChatRoomViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         idx = request.query_params.get('idx', 0)
         res = ChatRoom.objects.all().order_by('-last_updated').filter(id__gt=idx)
         rooms = ChatRoomSerializer(res, many=True).data
-        users = CustomUser.objects.all()
+        users = settings.AUTH_USER_MODEL.objects.all()
         for _ in rooms:
             _['_id'] = _['id']
             for user in users:

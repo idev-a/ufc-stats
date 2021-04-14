@@ -27,6 +27,11 @@ WEIGHT_MAPPING = {
 	'Super Heavyweight': '265',
 }
 
+ROLE_CHOICES = (
+	('user', 'User'),
+	('admin', 'Admin'),
+)
+
 ACTION_TYPE = [
 	('started', 'Started'),
 	('completed', 'Completed'),

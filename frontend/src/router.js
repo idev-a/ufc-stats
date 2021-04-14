@@ -63,7 +63,6 @@ let router = new Router({
           name: 'Contest',
           path: 'contest/:game_id?',
           component: () => import('@/views/dashboard/contest/ContestContainer'),
-          beforeEnter: requireAuthenticated
         },
         {
           name: 'Leaderboard',

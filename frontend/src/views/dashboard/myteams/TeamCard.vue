@@ -3,25 +3,24 @@
     <v-card
       outlined
       :loading="loading"
-      class="pa-2 mt-0"
+      class="pa-2 mt-0 blue-card"
     >
-      <div class="font-weight-medium display-1  text-center text-center mt-2 text-uppercase">
+      <div class="font-weight-medium display-1 d-flex align-center mt-2 text-uppercase">
         <span>{{contestName(item.game)}}</span>
-        <v-tooltip  top>
+        <v-tooltip top>
           <template v-slot:activator="{ on }">
-            <v-btn v-if="false" fab x-small v-on="on" @click="unregister" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
+            <v-btn v-if="option=='live'" fab x-small v-on="on" @click="withdrawTeam" class="ml-auto" ><v-icon color="warning">mdi-delete-outline</v-icon></v-btn>
           </template>
-          <span>Unregister Entry</span>
+          <span>Withdraw Team</span>
         </v-tooltip>
       </div>
-      <div class="subtitle-2 text-center">
+      <div class="subtitle-2 ml-2 silver--text">
         {{ item.game.event.date | beautifyDateTimeMin }}
       </div>
 
       <v-list 
         dense
-        class="team-list"
-       
+        class="team-list py-0 mt-3"
       >
         <v-list-item
           class="border item-header"
@@ -38,15 +37,15 @@
             <span>Name</span>
           </v-list-item-content>
           <v-list-item-icon>
-            Gender
+            Division
           </v-list-item-icon>
-          <v-list-item-icon></v-list-item-icon>
+          <v-list-item-avatar />
         </v-list-item>
         <v-list-item-group 
           style="overflow-y: auto; height: 250px;"
           dense>
             <v-list-item
-              v-for="(id, i) in item.fighters"
+              v-for="(fighter, i) in item.fighters"
               :key="i"
               dense
             >
@@ -54,14 +53,14 @@
                 {{i+1}}
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title v-text="_fighter(id).initials"></v-list-item-title>
+                <v-list-item-title v-text="fighter.initials"></v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon>
-                {{_fighter(id).gender}}
+                <v-list-item-title v-text="fighter.division"></v-list-item-title>
               </v-list-item-icon>
-              <v-list-item-icon>
-                <v-btn @click="removeFighter(id, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
-              </v-list-item-icon>
+              <v-list-item-avatar>
+                <v-btn @click="removeFighter(fighter, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
+              </v-list-item-avatar>
             </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -99,7 +98,6 @@
       @click:outside="closeDlg(item)"
     >
       <toggle-container
-        :fighters="fighters"
         :bouts="item.bouts"
         @close="closeDlg(item)"
         @ok="okDlg"
@@ -118,7 +116,7 @@
   export default {
     name: 'TeamCard',
 
-    props: ['loading', 'item', 'fighters', 'item_index'],
+    props: ['loading', 'option', 'item', 'fighters', 'item_index'],
 
     data () {
       return {
@@ -142,10 +140,6 @@
     },
 
     methods: {
-      _fighter (id) {
-        const fighters = this.fighters.filter(fighter => fighter.id == id)
-        return fighters[0] || {}
-      },
       contestName(game) {
         let name = game.name
         if (game.entry_number) {
@@ -178,9 +172,8 @@
         const payload = {
           entry: {
             game: this.item.game.id,
+            entry_number: this.item.game.entry_number,
             event: this.item.game.event.id,
-            user: this.authUser.pk || this.authUser.id,
-            entry_number: this.item.game.entry_number
           },
           selections: []
         }
@@ -192,17 +185,17 @@
           })
         })
 
-        this.$emit('updateLoading', true)
+        this.$emit('update-loading', true)
         const { data } = await main.createEntries(payload)
         this.snackbar = {
           ...data,
           snack: true
         }
-        this.$emit('updateLoading', false)
+        this.$emit('update-loading', false)
         this.$store.commit('snackbar/setSnack', this.snackbar)
 
         if (data.status == 'success'){
-          this.$emit('updateTeams', this.item, this.item_index)
+          this.$emit('update-teams', this.item, this.item_index)
           this.oldItem = JSON.parse(JSON.stringify(this.item))
         }
       },
@@ -210,12 +203,12 @@
         this.item.fighters = JSON.parse(JSON.stringify(this.oldItem.fighters))
         this.item.bouts = JSON.parse(JSON.stringify(this.oldItem.bouts))
       },
-      removeFighter (id, i) {
+      removeFighter (fighter, i) {
         this.item.fighters.splice(i, 1)
         this.item.bouts.forEach(bout => {
-          const index = bout.survivors.indexOf(id)
+          const index = bout.survivors.indexOf(fighter.id)
           if (index > -1) {
-            bout.survivors.splice(bout.survivors.indexOf(id), 1)
+            bout.survivors.splice(bout.survivors.indexOf(fighter.id), 1)
           }
         })
       },
@@ -228,26 +221,54 @@
         })
         this.editDlg = false
       },
+      _survivor(id) {
+        let survivor;
+        this.fighters.map(fighter => {
+          if (fighter.id == id) {
+            survivor = fighter
+          } 
+        })
+        return survivor
+      },
       okDlg () {
         this.editDlg = false
         this.item.bouts.forEach(bout => {
           if (bout.survivors.length == 1) {
-            if (!this.item.fighters.includes(bout.survivors[0])) {
-              this.item.fighters.push(bout.survivors[0])
+            const survivor = this._survivor(bout.survivors[0])
+            if (!this.item.fighters.includes(survivor)) {
+              this.item.fighters.push(survivor)
             }
           }
           if (bout.survivors.length == 2) {
-            if (!this.item.fighters.includes(bout.survivors[1])) {
-              this.item.fighters.push(bout.survivors[1])
+            const survivor = this._survivor(bout.survivors[1])
+            if (!this.item.fighters.includes(survivor)) {
+              this.item.fighters.push(survivor)
             }
           }
         })
       },
-      async unregister () {
-        await this.confirmAction(this._unregister)
+      async withdrawTeam () {
+        await this.confirmAction(this._withdrawTeam)
       },
-      async _unregister () {
+      async _withdrawTeam () {
+        const payload = {
+          game: this.item.game.id,
+          entry_number: this.item.game.entry_number
+        }
 
+        this.$emit('update-loading', true)
+        const { data } = await main.withdrawTeam(payload)
+        this.snackbar = {
+          ...data,
+          status: data.status == 200 ? 'success': 'warning',
+          snack: true
+        }
+        this.$emit('update-loading', false)
+        this.$store.commit('snackbar/setSnack', this.snackbar)
+
+        if (data.status == 200){
+          this.$emit('withdraw-team', this.item_index)
+        }
       }
     }
   }

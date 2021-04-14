@@ -7,6 +7,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 from django import forms
+from django.conf import settings
 
 from .managers import CustomUserManager, EntryManager, EventManager
 from .constants import (
@@ -18,10 +19,23 @@ from .constants import (
 	EVENT_STATUS_TYPE,
 	BOUT_STATUS_TYPE,
 	TICKET_STATUS_TYPE,
-	REGISTRATION_TYPES
+	REGISTRATION_TYPES,
+	ROLE_CHOICES
 )
 
 import pdb
+
+class Role(models.Model):
+  '''
+  The Role entries are managed by the system,
+  automatically created via a Django data migration.
+  '''
+
+  id = models.CharField(choices=ROLE_CHOICES, max_length=20, primary_key=True)
+
+  def __str__(self):
+      return self.get_id_display()
+
 
 # Customize User model
 class CustomUser(AbstractUser):
@@ -29,6 +43,8 @@ class CustomUser(AbstractUser):
 	REQUIRED_FIELDS = []
 
 	objects = CustomUserManager()
+
+	roles = models.ManyToManyField(Role, default='user')
 
 	displayname = models.CharField(blank=True, null=True, max_length=100, unique=True, validators=[MinLengthValidator(3)])
 	avatar = models.CharField(blank=True, null=True, max_length=500)
@@ -146,6 +162,7 @@ class Bout(models.Model):
 	time = models.CharField(max_length=20, blank=True, default='00:00')
 	go_the_distance = models.BooleanField(null=True, blank=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
+	order = models.PositiveIntegerField(blank=True, null=True, default=1)
 
 	@property
 	def division(self):
@@ -160,7 +177,7 @@ class Bout(models.Model):
 # multiple games
 class Game(models.Model):
 	owner = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='game_owners',
 		default=1,
@@ -172,10 +189,16 @@ class Game(models.Model):
 		on_delete=models.CASCADE,
 	)
 
+	bouts = models.ManyToManyField(
+		Bout,
+		related_name='game_bouts', 
+		blank=True,
+	)
+
 	name = models.CharField(max_length=100, blank=False, default='')
 	type_of_registration = models.CharField(choices=REGISTRATION_TYPES, max_length=50, blank=True, default='public')
-	entrants = models.ManyToManyField(CustomUser, blank=True, related_name='game_entrants')
-	joined_users = models.ManyToManyField(CustomUser, blank=True, related_name='game_joined_users')
+	entrants = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='game_entrants')
+	joined_users = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='game_joined_users')
 	instructions = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_INSTRUCTIONS))
 	rules_set = models.TextField(max_length=1000, blank=False, default='\n'.join(DEFAULT_RULES_SET))
 	summary = models.TextField(max_length=1000, blank=False, default='FIGHTQUAKE contest')
@@ -210,6 +233,9 @@ class Game(models.Model):
 
 	entry_limit = models.PositiveIntegerField(blank=True, null=True, default=10)
 
+	# custom date for the custom game
+	custom_date = models.TimeField(blank=True, null=True)
+
 	@property
 	def re_entry(self):
 		return self.multientry > 0
@@ -232,11 +258,8 @@ class Game(models.Model):
 
 	@property
 	def prize(self):
-		_prize = 0
-		if self.genre == 'paid':
-			real_users = Entry.objects.filter(game_id=self.id).count()
-			_prize = real_users * self.buyin + self.added_prizepool
-		return _prize
+		real_users = Entry.objects.filter(game_id=self.id).count()
+		return real_users * self.buyin + self.added_prizepool
 
 	def info_entrants(self):
 		return f'{self.joined_users.count()}/{self.entrants.count()}'
@@ -265,7 +288,7 @@ class Entry(models.Model):
 		on_delete=models.CASCADE,
 	)
 	user = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='users',
 	)
@@ -355,7 +378,7 @@ class ChatMessage(models.Model):
 		on_delete=models.CASCADE
 	)
 	sender = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		related_name="senders",
 		on_delete=models.CASCADE
 	)
@@ -410,7 +433,7 @@ class Ticket(models.Model):
 	resolved = models.DateTimeField(null=True, blank=True)
 
 	creator = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='ticketCreators',
 		default=None,
@@ -419,7 +442,7 @@ class Ticket(models.Model):
 	)
 
 	agency = models.ForeignKey(
-		CustomUser,
+		settings.AUTH_USER_MODEL,
 		on_delete=models.CASCADE,
 		related_name='agencies',
 		default=None,

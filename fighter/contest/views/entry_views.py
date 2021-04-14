@@ -26,7 +26,6 @@ from contest.models import (
     Selection,
     Entry,
     Game,
-    CustomUser,
 )
 from contest.serializers import (
     UserSerializer,
@@ -39,7 +38,8 @@ from contest.serializers import (
     EntrySerializer,
 )
 
-from contest.commons import get_games, main_contest
+from contest.exceptions import EntryLimitException
+from contest.commons import get_contest_games, main_contest
 
 import pdb
 logger = logging.getLogger(__name__)
@@ -281,6 +281,7 @@ def get_fight_views(selections):
                 method=_bout.method,
                 round=_bout.round,
                 time=_bout.time,
+                order=_bout.order
             )
     
         view['entries_1'] = _count_entries(selection.bout.fighter1.id, selections)
@@ -288,8 +289,7 @@ def get_fight_views(selections):
 
         bout_views[view_id] = view
 
-    _bouts = bout_views.values()
-    return sorted(_bouts, key = lambda _bout: _bout['id'])
+    return sorted(bout_views.values(), key = lambda _bout: _bout['order'])
 
 def get_leaderboard_view(entries):
     data = {}
@@ -364,7 +364,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 
         bout_views = get_fight_views(selections)
         entry_views = get_entry_views(selections)
-        games = get_games(latest_event, request.user.id)
+        games = get_contest_games(latest_event, request.user.id)
 
         return Response(dict(
             bout_views=bout_views,
@@ -485,26 +485,35 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     def bout_not_cancelled(self, _data, fighter):
         is_exist = False
         for bout in _data.get('bouts', []):
-            if fighter.id in [bout['fighter1'], bout['fighter2']]:
+            if fighter.id == bout['fighter1']['id'] or fighter.id == bout['fighter2']['id']:
                 is_exist = True
                 bout.get('survivors', []).append(fighter.id)
                 bout.get('contests_orig', []).append(fighter.id)
                 break
         return is_exist
 
-    def add_fighters(self, event, data):
-        bouts = Bout.objects.filter(event__id=event.id)
-        bouts_dict = BoutSerializer(bouts, many=True).data
-        for _bout in bouts_dict:
-            _bout['survivors'] = []
+    def add_fighters(self, game, event, data):
+        bouts = []
+        if game:
+            bouts = BoutSerializer(game.bouts, many=True).data
+        if not bouts:
+            bouts = BoutSerializer(Bout.objects.filter(event__id=event.id), many=True).data
         for bout in bouts:
-            fighter = FighterSerializer(bout.fighter1).data
-            if fighter not in data['fighters']:
-                data['fighters'].append(fighter)
-            fighter = FighterSerializer(bout.fighter2).data
-            if fighter not in data['fighters']:
-                data['fighters'].append(fighter)
-        return bouts_dict
+            bout['survivors'] = []
+            bout['contests_orig'] = []
+            fighter1 = FighterSerializer(Fighter.objects.get(id=bout['fighter1'])).data
+            fighter1['division'] = bout['division']
+            bout['fighter1'] = fighter1
+            if fighter1 not in data['fighters']:
+                data['fighters'].append(fighter1)
+            fighter2 = FighterSerializer(Fighter.objects.get(id=bout['fighter2'])).data
+            fighter2['division'] = bout['division']
+            bout['fighter2'] = fighter2
+            if fighter2 not in data['fighters']:
+                data['fighters'].append(fighter2)
+
+        bouts = sorted(bouts, key=lambda x: (x['order']))
+        return bouts
 
     def is_new_team_data(self, _data, cur_data):
         is_new = True
@@ -523,7 +532,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         '''
         status = 200
         live_data = {'fighters': [], 'teams': []}
-        recent_data = {'fighters': [], 'teams': []}
+        recent_data = {'fighters': [],'teams': []}
         option = request.data.get('option', 30)
         min_dt = datetime.now() - timedelta(days=option)
         date_range = (min_dt, datetime.now())
@@ -531,7 +540,6 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
         try:
             if request.user:
                 latest_event = Event.objects.latest_event()
-                live_bouts_dict = self.add_fighters(latest_event, live_data)
 
                 for sel in selections:
                     event = sel.entry.event
@@ -540,19 +548,21 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                     key = game.id if game else f'e_{event.id}'
                     if entry_number:
                         key = f"{key}_{entry_number}"
+                    
                     # main contest, live contest
                     cur_data = {'key':key, 'game': {}, 'fighters': []}
                     is_new = True
                     if event.id == latest_event.id:
                         is_new, cur_data = self.is_new_team_data(live_data, cur_data)
                         if is_new:
+                            live_bouts_dict = self.add_fighters(game, event, live_data)
                             cur_data['bouts'] = copy.deepcopy(live_bouts_dict)
                             live_data['teams'].append(cur_data)
                     else:
                         # recent games
-                        recent_bouts_dict = self.add_fighters(event, recent_data)
                         is_new, cur_data = self.is_new_team_data(recent_data, cur_data)
                         if is_new:
+                            recent_bouts_dict = self.add_fighters(game, event, recent_data)
                             cur_data['bouts'] = copy.deepcopy(recent_bouts_dict)
                             recent_data['teams'].append(cur_data)
 
@@ -565,9 +575,13 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                         cur_data.get('game',{})['genre'] = game.genre if game else 'free'
                         cur_data.get('game',{})['entry_number'] = entry_number
                     if sel.survivor1 and self.bout_not_cancelled(cur_data, sel.survivor1):
-                        cur_data.get('fighters',[]).append(sel.survivor1.id)
+                        _fighter = FighterSerializer(sel.survivor1).data
+                        _fighter['division'] = sel.bout.division
+                        cur_data.get('fighters',[]).append(_fighter)
                     if sel.survivor2 and self.bout_not_cancelled(cur_data, sel.survivor2):
-                        cur_data.get('fighters',[]).append(sel.survivor2.id)
+                        _fighter = FighterSerializer(sel.survivor2).data
+                        _fighter['division'] = sel.bout.division
+                        cur_data.get('fighters',[]).append(_fighter)
             else:
                 return Response(dict(live_data={}, recent_data={}), status=400)
         except Exception as err:
@@ -585,6 +599,24 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             update_rank(event_id)
         return Response(dict(message='ok'))
 
+    @action(methods=['post'], detail=False)
+    def withdraw_team(self, request, **kwarg):
+        message = 'Successfully done'
+        status = 200
+        if not request.user:
+            status = 400
+            raise Exception()
+        try:
+            entries = Entry.objects.filter(user_id=request.user.id, game_id=request.data['game'], entry_number=request.data['entry_number'])
+            for entry in entries:
+                entry.delete()
+        except Exception as err:
+            print(err)
+            status = 500
+            message = 'Something wrong happened.'
+
+        return Response({ 'message': message, 'status': status }, status=status)    
+
     def create(self, request):
         try:
             data= request.data['entry']
@@ -592,23 +624,28 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             entry_serializer = None
             is_exist = False
             message = 'Successfully done.'
-            entry = None
             total_entries = 0
             game_id = int(data['game'])
+            if not request.user:
+                raise Exception('No User')
+            data['user'] = request.user.id
+            entry = None
             try:
                 if game_id == -1:
                     game = Game.objects.main_contest()
                 else:
                     game = Game.objects.get(id=game_id)
                 total_entries = Entry.objects.filter(game=game.id).count()
-                entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=game.id)
+                if not data['entry_number']:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=game.id)
+                else:
+                    entry = Entry.objects.get(event_id=data['event'], user_id=data['user'], game_id=game.id, entry_number=data['entry_number'])
             except Exception as err:
                 print(err)
                 pass
-
+            if game and game.re_entry and data['entry_number'] > game.multientry:
+                raise Exception("Invalid entry number")
             if entry:
-                if entry.game and entry.game.re_entry and data['entry_number'] > entry.game.multientry:
-                    raise Exception("Invalid entry number")
                 is_exist = True
                 message = 'Successfully edited.'
                 data['last_edited'] = datetime.now()
@@ -616,6 +653,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             else:
                 if total_entries >= game.entry_limit:
                     raise EntryLimitException()
+                
                 if data['game'] == -1:
                     data['game'] = None
                 entry_serializer = EntrySerializer(data=data)
