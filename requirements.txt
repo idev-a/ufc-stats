@@ -22,4 +22,5 @@ drf-flex-fields==0.8.8
 tweepy==3.10.0 
 django-admin-autocomplete-filter==0.6.1
 sendgrid==6.6.0
-selenium
+sgselenium==0.0.15
+imagekitio==2.2.7

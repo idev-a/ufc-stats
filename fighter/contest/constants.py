@@ -68,3 +68,5 @@ GENRE_TYPES = [
 	('free', 'Free'),
 	('paid', 'Paid')
 ]
+
+DEFAULT_PROFILE = 'https://ik.imagekit.io/cuhwrvztecz/0sHOA324_200x200_nYjw_BM9ezv7.jpg'

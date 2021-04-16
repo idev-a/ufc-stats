@@ -20,7 +20,8 @@ from .constants import (
 	BOUT_STATUS_TYPE,
 	TICKET_STATUS_TYPE,
 	REGISTRATION_TYPES,
-	ROLE_CHOICES
+	ROLE_CHOICES,
+	DEFAULT_PROFILE
 )
 
 import pdb
@@ -98,7 +99,7 @@ class Fighter(models.Model):
 	name = models.CharField(max_length=100, blank=False, default='')
 	title = models.CharField(max_length=100, blank=True, default='')
 	gender = models.CharField(choices=GENDER_TYPE, max_length=10, default='M')
-	image = models.URLField(max_length=500, blank=True, default='https://ik.imagekit.io/cuhwrvztecz/0sHOA324_200x200_nYjw_BM9ezv7.jpg')
+	image = models.URLField(max_length=500, blank=True, default=DEFAULT_PROFILE)
 
 	@property
 	def initials(self):

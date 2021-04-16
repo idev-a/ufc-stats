@@ -21,10 +21,14 @@ from datetime import datetime
 import argparse
 import re
 from selenium import webdriver
+from sgselenium import SgChrome
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 import base64
+from imagekitio import ImageKit
+from decouple import config
 
 from contest.models import (
 	Event,
@@ -40,6 +44,7 @@ from contest.serializers import (
 from contest.views.entry_views import update_rank
 from contest.commons import create_main_contest
 from contest.utils import _valid, convert_date, strip_list1
+from contest.constants import DEFAULT_PROFILE
 
 import pdb
 from contest.logger import logger
@@ -74,6 +79,11 @@ class Scraper:
 
 	def __init__(self):
 		self.session = requests.Session()
+		self.imagekit = ImageKit(
+		    private_key=config('IMAGEKIT_PRIVATE_KEY'),
+		    public_key=config('IMAGEKIT_PUBLIC_KEY'),
+		    url_endpoint=config('IMAGEKIT_URL_ENDPOINT')
+		)
 
 	def notify_user(self, data): 
 		logger.info(f'[scraper] notify_user {json.dumps(data)}')
@@ -118,9 +128,23 @@ class Scraper:
 
 			time.sleep(10)
 
-	def start_espn(self):
+	def has_avatar(self, _fighters, fighter):
+		is_exist = False
+		_fighter = None
+		for _ in _fighters:
+			if _.name == fighter['name']:
+				_fighter = _
+				if _.image != DEFAULT_PROFILE:
+					is_exist = True
+					break
+		return is_exist, _fighter
+
+
+	def start_mma(self):
 		fighters = []
-		with webdriver.Chrome(executable_path=self.selenium_path) as driver:
+		options = Options()
+		# options.add_argument('--headless')
+		with SgChrome(executable_path=self.selenium_path) as driver:
 			url = self.fighters_url
 			total = 0
 			while True:
@@ -141,18 +165,20 @@ class Scraper:
 					for fighter in block:
 						if not fighter.img:
 							continue
-						img = 'https:' + fighter.img['data-src']
-						if img.endswith('dflt-m.png'):
+						img_url = 'https:' + fighter.img['data-src']
+						if img_url.endswith('dflt-m.png'):
 							continue
-						base64_img = base64.b64encode(self.session.get(img, headers=_header_mma).content)
+						base64_img = base64.b64encode(self.session.get(img_url, headers=_header_mma).content)
 						name = fighter.h2.text.strip()
+						file_name = f"{name.replace(' ', '_').lower()}.jpg"
 						fighters.append(dict(
 							name=name,
-							img=img,
+							file_name=file_name,
+							img_url=img_url,
 							base64_img=base64_img
 						))
-				except:
-					pdb.set_trace()
+				except Exception as err:
+					logger.warning(str(err))
 				next_page = driver.find_elements_by_xpath('//div[@id="pgr2"]//a')[-1]
 				if 'next page' not in next_page.text.lower():
 					break
@@ -160,8 +186,27 @@ class Scraper:
 
 			# soup = bs(driver.page_source, 'lxml')
 
+		logger.info(f'Uploading images - Total {len(fighters)}')
 		_fighters = Fighter.objects.all()
-		for fighter in fighters:
+		try:
+			for fighter in fighters:
+				is_exist, _fighter = self.has_avatar(_fighters, fighter)
+				if not is_exist:
+					if not _fighter:
+						logger.warning(f'[scraper] [mma] [Missing Fighter] {fighter["name"]}')
+						continue
+					upload = self.imagekit.upload(
+						file=fighter['base64_img'],
+						file_name=fighter['file_name'],
+						options={
+							"folder":'avatar'
+						}
+					)
+					logger.info(f"[scraper][mma] {fighter['name']} avatar uploaded")
+					_fighter.image = upload['response']['url']
+					_fighter.save()
+		except Exception as err:
+			logger.warning(f'[scraper] [mma] {str(err)}')
 
 
 	def info_from_espn(self):
@@ -430,6 +475,6 @@ if __name__ == '__main__':
 	elif kind == 'bout':
 		scraper.start_bouts()
 
-	elif kind == 'espn':
-		scraper.start_espn()
+	elif kind == 'mma':
+		scraper.start_mma()
 
