@@ -85,7 +85,7 @@ class Scraper:
 		self.parse_event(Selector(text=res.content))
 
 	def start_bouts(self):
-		while True:
+		# while True:
 			logger.info('[scraper] started ***************')
 			# scan db to get the scraped events to get the stats
 			events = Event.objects.filter(status='upcoming')
@@ -101,7 +101,7 @@ class Scraper:
 				# 	event.save()
 				self.parse_bout_list(Selector(text=res.content), meta)
 
-			time.sleep(10)
+			# time.sleep(10)
 
 	def info_from_espn(self):
 		name = date = _time = ''
