@@ -2,7 +2,7 @@
   <carousel-3d :controls-visible="true" :controls-width="40" :border="0" :controls-color="'red'" :display="3" >
     <slide v-for="(bout, i) in bouts" :index="i">
         <div class="font-weight-medium display-2">Fight {{i+1}}</div>
-        <v-item-group @change="$emit('changeContests')" v-model="bout.survivors" multiple>
+        <v-item-group @change="$emit('changeContests')" v-model="bout.survivors" mandatory multiple>
           <div class="d-flex align-center">
             <v-item :value="bout.fighter1.id" v-slot="{ active, toggle }">
               <fighter-clip

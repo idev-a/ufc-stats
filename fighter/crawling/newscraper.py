@@ -20,6 +20,11 @@ from bs4 import BeautifulSoup as bs
 from datetime import datetime
 import argparse
 import re
+from selenium import webdriver
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+import base64
 
 from contest.models import (
 	Event,
@@ -52,10 +57,20 @@ _headers = {
 	"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36"
 }
 
+_header_mma = {
+	"accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+	"accept-language": "en-US,en;q=0.9,ko;q=0.8",
+	"user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36"
+}
+
+
 class Scraper:
 	upcoming_url = 'http://ufcstats.com/statistics/events/upcoming'
 	completed_url = 'http://ufcstats.com/statistics/events/completed'
 	espn_url = 'https://www.espn.com/mma/fightcenter'
+	fighters_url = "https://www.mma-core.com/fighters"
+	BASE_PATH = os.path.abspath(os.curdir)
+	selenium_path = f"{BASE_PATH}/chromedriver.exe"
 
 	def __init__(self):
 		self.session = requests.Session()
@@ -102,6 +117,52 @@ class Scraper:
 				self.parse_bout_list(Selector(text=res.content), meta)
 
 			time.sleep(10)
+
+	def start_espn(self):
+		fighters = []
+		with webdriver.Chrome(executable_path=self.selenium_path) as driver:
+			url = self.fighters_url
+			total = 0
+			while True:
+				driver.get(url)
+				WebDriverWait(driver, 20).until(
+					EC.presence_of_element_located(
+						(
+							By.XPATH,
+							"//div[contains(@class, 'pstlst')]//div[@class='pst']//a//img",
+						)
+					)
+				)
+				soup = bs(driver.page_source, 'lxml')
+				try:
+					block = soup.select('div.pstlst div.pst')
+					total += len(block)
+					logger.info(f"[Total {total}][fighters] {len(block)} found")
+					for fighter in block:
+						if not fighter.img:
+							continue
+						img = 'https:' + fighter.img['data-src']
+						if img.endswith('dflt-m.png'):
+							continue
+						base64_img = base64.b64encode(self.session.get(img, headers=_header_mma).content)
+						name = fighter.h2.text.strip()
+						fighters.append(dict(
+							name=name,
+							img=img,
+							base64_img=base64_img
+						))
+				except:
+					pdb.set_trace()
+				next_page = driver.find_elements_by_xpath('//div[@id="pgr2"]//a')[-1]
+				if 'next page' not in next_page.text.lower():
+					break
+				url = next_page.get_attribute('href')
+
+			# soup = bs(driver.page_source, 'lxml')
+
+		_fighters = Fighter.objects.all()
+		for fighter in fighters:
+
 
 	def info_from_espn(self):
 		name = date = _time = ''
@@ -368,4 +429,7 @@ if __name__ == '__main__':
 		scraper.start_events()
 	elif kind == 'bout':
 		scraper.start_bouts()
+
+	elif kind == 'espn':
+		scraper.start_espn()
 
