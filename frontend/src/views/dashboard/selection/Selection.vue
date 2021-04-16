@@ -32,7 +32,7 @@
         </div>
       </v-card-title>
       <v-card-text
-        v-if="viewMode==0"
+        v-if="viewMode==1"
       >
         <fighter-card
           :key="key"
@@ -249,7 +249,7 @@
     data () {
       return {
         logo: 'https://vuejs.org/images/logo.png',
-        viewMode: 1,
+        viewMode: 0,
         deadline2: '',
         dlg: true,
         loading: false,
