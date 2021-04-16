@@ -21,7 +21,7 @@ from datetime import datetime
 import argparse
 import re
 from selenium import webdriver
-from sgselenium import SgChrome
+from sgselenium import SgFirefox
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -75,7 +75,7 @@ class Scraper:
 	espn_url = 'https://www.espn.com/mma/fightcenter'
 	fighters_url = "https://www.mma-core.com/fighters"
 	BASE_PATH = os.path.abspath(os.curdir)
-	selenium_path = f"{BASE_PATH}/chromedriver.exe"
+	selenium_path = f"{BASE_PATH}/firefoxdriver.exe"
 
 	def __init__(self):
 		self.session = requests.Session()
@@ -144,7 +144,7 @@ class Scraper:
 		fighters = []
 		options = Options()
 		# options.add_argument('--headless')
-		with SgChrome(executable_path=self.selenium_path) as driver:
+		with SgFirefox(executable_path=self.selenium_path) as driver:
 			url = self.fighters_url
 			total = 0
 			while True:
