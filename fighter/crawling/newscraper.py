@@ -75,7 +75,7 @@ class Scraper:
 	espn_url = 'https://www.espn.com/mma/fightcenter'
 	fighters_url = "https://www.mma-core.com/fighters"
 	BASE_PATH = os.path.abspath(os.curdir)
-	selenium_path = f"{BASE_PATH}/firefoxdriver.exe"
+	selenium_path = f"{BASE_PATH}/firefoxdriver"
 
 	def __init__(self):
 		self.session = requests.Session()
