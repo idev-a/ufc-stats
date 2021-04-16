@@ -128,19 +128,19 @@
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on" small>
-                    <v-icon>mdi-view-carousel-outline</v-icon>
+                    <v-icon>mdi-format-list-bulleted-square</v-icon>
                   </v-btn>
                 </template>
-                <span>Carousel View</span>
+                <span>List View</span>
               </v-tooltip>
 
               <v-tooltip bottom>
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on" small>
-                    <v-icon>mdi-format-list-bulleted-square</v-icon>
+                    <v-icon>mdi-view-carousel-outline</v-icon>
                   </v-btn>
                 </template>
-                <span>List View</span>
+                <span>Carousel View</span>
               </v-tooltip>
             </v-btn-toggle>
 
@@ -249,7 +249,7 @@
     data () {
       return {
         logo: 'https://vuejs.org/images/logo.png',
-        viewMode: 0,
+        viewMode: 1,
         deadline2: '',
         dlg: true,
         loading: false,
