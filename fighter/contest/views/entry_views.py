@@ -164,7 +164,6 @@ def get_entry_views(selections):
                 'win': _s1.id == winner.get('id'),
                 'lose': _s1.id == loser.get('id'),
                 'draw': bout.status == 'drawn',
-                'entry_cnt': len(_count_entries(_s1 and _s1.id, selections))
             }
         survivor2 = {}
         if selection.survivor2:
@@ -175,7 +174,6 @@ def get_entry_views(selections):
                 'win': _s2.id == winner.get('id'),
                 'lose': _s2.id == loser.get('id'),
                 'draw': bout.status == 'drawn',
-                'entry_cnt': len(_count_entries(_s2 and _s2.id, selections))  
             }
 
         if 'DEC' not in bout.method:
@@ -255,6 +253,7 @@ def get_entry_views(selections):
 
 def get_fight_views(selections):
     bout_views = {}
+    died_users = []
     for selection in selections:
         # fight/bout view
         _bout = selection.bout
@@ -268,6 +267,8 @@ def get_fight_views(selections):
             died = None
             if 'DEC' not in _bout.method:
                 died = _bout.loser and _bout.loser.name
+                if died and user['username'] not in died_users:
+                    died_users.append(user['username'])
             view = dict(
                 id=_bout.id,
                 fighter1=_bout.fighter1.name,
@@ -288,7 +289,7 @@ def get_fight_views(selections):
 
         bout_views[view_id] = view
 
-    return sorted(bout_views.values(), key = lambda _bout: _bout['order'])
+    return sorted(bout_views.values(), key = lambda _bout: _bout['order']), died_users
 
 def get_leaderboard_view(entries):
     data = {}
@@ -361,7 +362,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             
         selections = Selection.objects.filter(entry__game_id=game_id)
 
-        bout_views = get_fight_views(selections)
+        bout_views, died_users = get_fight_views(selections)
         entry_views = get_entry_views(selections)
         games = get_contest_games(latest_event, request.user.id)
 
@@ -369,6 +370,7 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             bout_views=bout_views,
             entry_views=entry_views,
             event=EventSerializer(latest_event).data,
+            died_users=died_users,
             games=games
         ))
 
@@ -445,11 +447,12 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 )
                 selections = Selection.objects.filter(entry__event_id=event_id, entry__game_id=game_id)
 
-            bout_views = get_fight_views(selections)
+            bout_views, died_users = get_fight_views(selections)
             entry_views = get_entry_views(selections)
             return Response(dict(
                 bout_views=bout_views,
                 entry_views=entry_views,
+                died_users=died_users,
                 game=game,
             ), status=200)
         except Exception as err:
@@ -607,6 +610,10 @@ class EntryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
             raise Exception()
         try:
             entries = Entry.objects.filter(user_id=request.user.id, game_id=request.data['game'], entry_number=request.data['entry_number'])
+            game = Game.objects.get(id=request.data['game'])
+            if game.buyin:
+                request.user.coins += game.buyin
+                request.user.save()
             for entry in entries:
                 entry.delete()
         except Exception as err:

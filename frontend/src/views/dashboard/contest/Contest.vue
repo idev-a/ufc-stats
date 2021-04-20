@@ -114,7 +114,7 @@
         >
           <!-- fight/bout view -->
           <v-tab-item value="fights">
-            <fight-tab :boutViews="boutViews" :loading="loading"/>
+            <fight-tab :boutViews="boutViews" :diedUsers="diedUsers" :loading="loading"/>
           </v-tab-item>
 
           <!-- Entry view -->
@@ -169,6 +169,7 @@
         tab: 'standings',
         boutViews: [],
         entryViews: [],
+        diedUsers: [],
         tabs: [
           {
             text: 'fights',
@@ -280,6 +281,7 @@
         const { data } = await main.getLatestContest(game_id)
         this.boutViews = data.bout_views
         this.entryViews = data.entry_views
+        this.diedUsers = data.died_users
         this.games = data.games
         if (data.games.length > 0 && this.curGame == -1) {
           this.curGame = data.games[0].id

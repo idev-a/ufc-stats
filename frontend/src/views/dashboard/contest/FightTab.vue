@@ -124,7 +124,9 @@
             hide-default-footer
           > 
             <template v-slot:item.users="{ item }">
-              <v-chip class="mr-1 mb-1 body-1" v-for="user in item.users" :key="user.id">{{ user }}</v-chip>
+              <template v-for="user in item.users">
+                <v-chip class="mr-1 mb-1 body-1" :key="user.id" :color="{'highlight': diedUsers.includes(user)}" >{{ user }}</v-chip>
+              </template>
             </template>
           </v-data-table>
         </v-card-text>
@@ -140,7 +142,7 @@
 
     components: { WinChip },
 
-    props: ['boutViews', 'loading'],
+    props: ['boutViews', 'diedUsers', 'loading'],
 
     data () {
       return {

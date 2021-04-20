@@ -131,7 +131,9 @@ const actions = {
       .then(({data}) => {
         commit('setLoading', false)
         commit('setProfile', data)
-        commit(SET_AUTH_USER, data.user)
+        if (payload == -1) {
+          commit(SET_AUTH_USER, data.user)
+        }
       })
   },
   logout({ commit }) {

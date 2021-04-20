@@ -50,7 +50,7 @@ class CustomUser(AbstractUser):
 	avatar = models.CharField(blank=True, null=True, max_length=500)
 	first_name = models.CharField(blank=True, null=True, max_length=100)
 	last_name = models.CharField(blank=True, null=True, max_length=100)
-	coins = models.PositiveIntegerField(blank=True, null=True, default=1000)
+	coins = models.PositiveIntegerField(blank=True, null=True, default=0)
 	referred_by = models.ForeignKey(
 		'self',
 		on_delete=models.CASCADE,

@@ -80,13 +80,13 @@
           </template>
           <span>Add Fighters</span>
         </v-tooltip>
-        <v-tooltip right>
+        <v-tooltip v-if="false" right>
           <template v-slot:activator="{ on }">
             <v-btn fab x-small class="mr-2" v-on="on" :disabled="noChangeFighters" @click="_confirmTeam"><v-icon color="success">mdi-database-outline</v-icon></v-btn>
           </template>
           <span>Confirm</span>
         </v-tooltip>
-        <v-tooltip right>
+        <v-tooltip v-if="false" right>
           <template v-slot:activator="{ on }">
             <v-btn fab x-small v-on="on" @click="refreshTeam"><v-icon color="gold">mdi-refresh</v-icon></v-btn>
           </template>
@@ -96,11 +96,11 @@
     </v-card>
     <v-dialog
       v-model="editDlg"
-      @click:outside="closeDlg(item)"
+      @click:outside="closeDlg"
     >
       <toggle-container
         :bouts="item.bouts"
-        @close="closeDlg(item)"
+        @close="closeDlg"
         @ok="okDlg"
       />
     </v-dialog>
@@ -209,15 +209,18 @@
         this.item.bouts.forEach(bout => {
           const index = bout.survivors.indexOf(fighter.id)
           if (index > -1) {
-            bout.survivors.splice(bout.survivors.indexOf(fighter.id), 1)
+            bout.survivors.splice(index, 1)
           }
+          bout.contests_orig = bout.survivors
         })
+
+        this._confirmTeam()
       },
       addFighters () {
         this.editDlg = true
       },
-      closeDlg (item) {
-        item.bouts.forEach(bout => {
+      closeDlg () {
+        this.item.bouts.forEach(bout => {
           bout.survivors = bout.contests_orig
         })
         this.editDlg = false
@@ -231,22 +234,31 @@
         })
         return survivor
       },
+      hasFighter(survivor) {
+        let hasOne = false
+        this.item.fighters.map(fighter => {
+          if (fighter.id == survivor.id) {
+            hasOne = true
+          }
+        })
+        return hasOne
+      },
       okDlg () {
         this.editDlg = false
+        this.item.fighters = []
         this.item.bouts.forEach(bout => {
           if (bout.survivors.length == 1) {
             const survivor = this._survivor(bout.survivors[0])
-            if (!this.item.fighters.includes(survivor)) {
-              this.item.fighters.push(survivor)
-            }
+            this.item.fighters.push(survivor)
           }
           if (bout.survivors.length == 2) {
             const survivor = this._survivor(bout.survivors[1])
-            if (!this.item.fighters.includes(survivor)) {
-              this.item.fighters.push(survivor)
-            }
+            this.item.fighters.push(survivor)
           }
+          bout.contests_orig = bout.survivors
         })
+
+        this._confirmTeam()
       },
       async withdrawTeam () {
         await this.confirmAction(this._withdrawTeam)
@@ -270,6 +282,8 @@
         if (data.status == 200){
           this.$emit('withdraw-team', this.item_index)
         }
+
+        this.$store.dispatch('auth/loadProfile')
       }
     }
   }
