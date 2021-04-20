@@ -93,7 +93,10 @@ def build_games(games, data, event_data=None, user_id=None):
                 has_joined = (
                     has_joined and _.joined_users.filter(id=user_id).count() > 0
                 )
-        engaged_teams = Entry.objects.filter(game_id=_.id).count()
+        engaged_teams = 0
+        for entry in Entry.objects.filter(game_id=_.id):
+            if Selection.objects.filter(entry_id=entry.id):
+                engaged_teams += 1
         # if _.name.lower() == 'main contest':
         # 	has_joined = True
 

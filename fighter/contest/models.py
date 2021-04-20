@@ -161,7 +161,7 @@ class Bout(models.Model):
 	method = models.CharField(max_length=100, blank=True, default='')
 	round = models.PositiveIntegerField(blank=True, null=True, default=1)
 	time = models.CharField(max_length=20, blank=True, default='00:00')
-	go_the_distance = models.BooleanField(null=True, blank=True)
+	go_the_distance = models.BooleanField(null=True)
 	detail_link = models.URLField(max_length=500, blank=True, default='')
 	order = models.PositiveIntegerField(blank=True, null=True, default=1)
 
@@ -259,7 +259,10 @@ class Game(models.Model):
 
 	@property
 	def prize(self):
-		real_users = Entry.objects.filter(game_id=self.id).count()
+		real_users = 0
+		for entry in Entry.objects.filter(game_id=self.id):
+			if Selection.objects.filter(entry_id=entry.id):
+				real_users += 1
 		return real_users * self.buyin + self.added_prizepool
 
 	def info_entrants(self):
@@ -401,13 +404,13 @@ class ChatMessage(models.Model):
 	)
 	content = models.TextField(default='', blank=True, null=True)
 	timestamp = models.DateTimeField(null=True, blank=True)
-	new = models.BooleanField(null=True, blank=True)
-	system = models.BooleanField(null=True, blank=True)
-	saved = models.BooleanField(null=True, blank=True)
-	seen = models.BooleanField(null=True, blank=True)
-	distributed = models.BooleanField(null=True, blank=True)
-	disable_actions = models.BooleanField(null=True, blank=True)
-	disable_reactions = models.BooleanField(null=True, blank=True)
+	new = models.BooleanField(null=True)
+	system = models.BooleanField(null=True)
+	saved = models.BooleanField(null=True)
+	seen = models.BooleanField(null=True)
+	distributed = models.BooleanField(null=True)
+	disable_actions = models.BooleanField(null=True)
+	disable_reactions = models.BooleanField(null=True)
 	deleted = models.DateTimeField(null=True, blank=True)
 	edited = models.DateTimeField(null=True, blank=True)
 
