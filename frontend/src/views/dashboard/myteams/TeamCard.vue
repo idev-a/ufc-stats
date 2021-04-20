@@ -60,7 +60,7 @@
                 <v-list-item-title v-text="fighter.division"></v-list-item-title>
               </v-list-item-icon>
               <v-list-item-avatar>
-                <v-btn @click="removeFighter(fighter, i)" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
+                <v-btn v-if="option =='live'" @click="removeFighter(fighter, i)" :disabled="loading" small icon><v-icon color="warning">mdi-close</v-icon></v-btn>
               </v-list-item-avatar>
             </v-list-item>
         </v-list-item-group>
@@ -76,7 +76,7 @@
         </v-tooltip>
         <v-tooltip right>
           <template v-slot:activator="{ on }">
-            <v-btn fab x-small class="mr-2" v-on="on" @click="addFighters"><v-icon color="gold">mdi-plus</v-icon></v-btn>
+            <v-btn fab x-small class="mr-2" v-on="on" :disabled="option !='live' || loading" @click="addFighters"><v-icon color="gold">mdi-plus</v-icon></v-btn>
           </template>
           <span>Add Fighters</span>
         </v-tooltip>

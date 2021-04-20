@@ -125,7 +125,7 @@
           > 
             <template v-slot:item.users="{ item }">
               <template v-for="user in item.users">
-                <v-chip class="mr-1 mb-1 body-1" :key="user.id" :color="{'highlight': diedUsers.includes(user)}" >{{ user }}</v-chip>
+                <v-chip class="mr-1 mb-1 body-1" :key="user" :color="diedUsers.includes(user) ? 'died' : ''">{{ user }}</v-chip>
               </template>
             </template>
           </v-data-table>
