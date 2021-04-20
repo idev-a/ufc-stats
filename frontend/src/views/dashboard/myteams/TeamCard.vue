@@ -68,7 +68,7 @@
       <v-card-actions>
         <div class="warning--text subtitle-2"><span>Total</span>&nbsp;{{item.fighters.length}}</div>
         <v-spacer />
-        <v-tooltip left>
+        <v-tooltip v-if="false" left>
           <template v-slot:activator="{ on }">
             <v-btn fab x-small disabled class="mr-2" v-on="on"><v-icon color="gold">mdi-pencil-outline</v-icon></v-btn>
           </template>
@@ -234,20 +234,11 @@
         })
         return survivor
       },
-      hasFighter(survivor) {
-        let hasOne = false
-        this.item.fighters.map(fighter => {
-          if (fighter.id == survivor.id) {
-            hasOne = true
-          }
-        })
-        return hasOne
-      },
       okDlg () {
         this.editDlg = false
         this.item.fighters = []
         this.item.bouts.forEach(bout => {
-          if (bout.survivors.length == 1) {
+          if (bout.survivors.length >= 1) {
             const survivor = this._survivor(bout.survivors[0])
             this.item.fighters.push(survivor)
           }
