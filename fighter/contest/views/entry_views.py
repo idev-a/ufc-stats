@@ -267,7 +267,7 @@ def get_entry_views(selections):
                 prev_entry["survived"] != entry["survived"]
                 or prev_entry["wins"] != entry["wins"]
             ):
-                ranking += 1
+                ranking = x+1
         entry["ranking"] = ranking
         # not sure whether entry model should be updated at this time regarding ranking
         _entry = get_object_or_404(Entry, pk=entry["id"])
