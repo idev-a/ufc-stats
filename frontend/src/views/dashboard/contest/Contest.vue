@@ -220,9 +220,6 @@
       },
       joinLabel () {
         let label = 'JOIN'
-        if (this.curContest.has_joined) {
-          label = 'VIEW'
-        } 
         if (this.curContest.can_have_entry) {
           label = 'JOIN AGAIN'
         } 
@@ -232,6 +229,9 @@
         if (this.isStartedGame) {
           label = 'LIVE'
         }
+        if (this.curContest.has_joined && !this.isStartedGame) {
+          label = 'EDIT'
+        } 
         return label
       },
       isStartedGame () {
@@ -300,7 +300,7 @@
           localStorage.setItem('returnUrl', this.$route.path)
           return this.$store.commit('auth/showLoginDlg')
         }
-        if (this.joinLabel == 'VIEW' || this.joinLabel == 'LIVE') {
+        if (this.joinLabel == 'EDIT' || this.joinLabel == 'LIVE') {
           return this.$router.push({ path: `/selection/${this.curContest.id}` })
         }
         if (this.curContest.buyin) {
