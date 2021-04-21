@@ -403,6 +403,7 @@
               <v-col
                 cols=12
                 sm=6
+                v-if="false"
               >
                 <v-textarea
                   outlined
@@ -419,7 +420,6 @@
               </v-col>
               <v-col
                 cols=12
-                sm=6
               >
                 <v-textarea
                   outlined
@@ -435,7 +435,7 @@
                 />
               </v-col>
             </v-row>
-            <v-row>
+            <v-row v-if="false">
               <v-col
                 cols=12
               >
