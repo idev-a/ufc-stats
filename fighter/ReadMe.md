@@ -11,7 +11,7 @@ COMMENT ON SCHEMA public IS 'standard public schema';
 
 psql -d cc_temp -f contest.sql
 <!-- dump table -->
-pg_dump -U postgres -a -t socialaccount_socialtoken cc_temp | psql -U postgres -d contest; 
+pg_dump -U postgres -a -t authtoken_token cc_temp | psql -U postgres -d contest; 
 
 <!-- migration order -->
 contest_chatfile
@@ -38,6 +38,7 @@ account_emailaddress
 account_emailconfirmation
 auth_group
 auth_group_permissions
+authtoken_token
 socialaccount_socialaccount
 socialaccount_socialapp
 socialaccount_socialapp_sites

@@ -1,0 +1,18 @@
+<!-- gunicorn.service -->
+[Unit]
+Description=gunicorn daemon
+Requires=gunicorn.socket
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/ufc-stats/fighter
+ExecStart=/home/ubuntu/ufc-stats/fighter/venv/bin/gunicorn \
+	--access-logfile - \
+	--workers 3 \
+	--bind unix:/run/gunicorn.sock \
+	fighter.wsgi:application   
+
+[Install]           
+WantedBy=multi-user.target                          

@@ -1,0 +1,15 @@
+
+<!-- Daphne deploy -->
+[Unit]              
+Description=fightquake Daphne Service           
+After=network.target 
+
+[Service]
+Type=simple
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/ufc-stats/fighter
+ExecStart=/home/ubuntu/ufc-stats/fighter/venv/bin/daphne -b 0.0.0.0 -p 9001  fighter.asgi:application
+
+[Install]           
+WantedBy=multi-user.target 

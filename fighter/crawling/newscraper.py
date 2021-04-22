@@ -60,7 +60,7 @@ class Scraper:
 	def __init__(self):
 		self.session = requests.Session()
 
-	def notify_user(self, data): 
+	def notify_user(self, data, type='live_score'): 
 		logger.info(f'[scraper] notify_user {json.dumps(data)}')
 		'''
 			{
@@ -74,10 +74,13 @@ class Scraper:
 		async_to_sync(channel_layer.group_send)(
 			'UFC_chat',
 			{
-				'type': 'live_score',
+				'type': type,
 				'data': data
 			}
 		)
+
+	def notify_test(self): 
+		self.notify_user({'data': 'notify ok'}, 'test-notify')
 
 	def start_events(self):
 		# upcoming events
@@ -368,4 +371,6 @@ if __name__ == '__main__':
 		scraper.start_events()
 	elif kind == 'bout':
 		scraper.start_bouts()
+	elif kind == 'notify':
+		scraper.notify_test()
 

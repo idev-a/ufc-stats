@@ -56,7 +56,10 @@ export default new Vuex.Store({
     // default handler called for all methods
     SOCKET_ONMESSAGE (state, message)  {
       state.socket.message = message
-      if (message.type == 'chat_message') {
+      if (message.type == 'test-notify') {
+        console.log(message)
+      }
+      else if (message.type == 'chat_message') {
         
       } else {
         if (message) {
