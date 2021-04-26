@@ -178,9 +178,9 @@ class GameViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
                 new_entry.save()
 
                 # add user to joined_users list in the game
-                if game.genre != 'free':
-                    game.joined_users.add(request.user)
-                    game.save()
+                # if game.genre != 'free':
+                game.joined_users.add(request.user)
+                game.save()
 
         except Exception as err:
             print(err)

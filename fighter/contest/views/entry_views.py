@@ -291,8 +291,10 @@ def get_fight_views(selections):
         user = dict(
             username=f"{selection.entry.user.displayname}", status=selection.bout.status
         )
+        died = None
         if "DEC" not in _bout.method:
             died = _bout.loser and _bout.loser.name
+
             if _bout.loser:
                 if (
                     selection.survivor1 and selection.survivor1.id == _bout.loser.id
@@ -302,7 +304,6 @@ def get_fight_views(selections):
                     if user["username"] not in died_users:
                         died_users.append(user["username"])
         if not view:
-            died = None
             view = dict(
                 id=_bout.id,
                 fighter1=_bout.fighter1.name,

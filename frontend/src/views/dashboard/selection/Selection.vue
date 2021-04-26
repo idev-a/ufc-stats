@@ -393,7 +393,13 @@
             }
           })
         }
+        this.changeSummary()
         this.startCountDown()
+      },
+      changeSummary () {
+        this.summary = this.curContest.summary
+        this.rulesSet = this.curContest.rules_set.split('\n')
+        this.instructions = this.curContest.instructions.split('\n')
       },
       gameName (item) {
         let name = item.name

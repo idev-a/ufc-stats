@@ -29,7 +29,7 @@ SECRET_KEY = 'u1jy5r$$5xc2d1=1ckb#ndnn2h99b2b!1xd9cw-@0_5nsttt@y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', 'test.fightquake.com', 'fightquake.com', 'www.fightquake.com', '18.224.59.163']
+ALLOWED_HOSTS = ['localhost', 'test.fightquake.com', 'fightquake.com', 'www.fightquake.com']
 
 DATABASES = { 'default' : dj_database_url.config(default=config('DATABASE_URL'))}
 
@@ -218,13 +218,13 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 CORS_ALLOWED_ORIGINS = [
     'http://3.140.186.130',
+    'http://18.224.59.163',
     'http://localhost:8085',
     'http://localhost:8000',
     'http://test.fightquake.com',
     'https://test.fightquake.com',
     'http://fightquake.com',
     'https://fightquake.com'
-    'http://18.224.59.163/'
 ]
 
 # Auth settings
