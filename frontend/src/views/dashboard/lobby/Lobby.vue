@@ -753,10 +753,6 @@
             value: 'event',
           },
           {
-            text: 'Custom Date',
-            value: 'custom_date',
-          },
-          {
             text: 'Buyin',
             value: 'buyin'
           },

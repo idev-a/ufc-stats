@@ -8,6 +8,7 @@ from django.contrib.auth.models import AbstractUser
 from django.template.defaultfilters import truncatewords  # or 
 from django import forms
 from django.conf import settings
+from datetime import datetime
 
 from .managers import CustomUserManager, EntryManager, EventManager
 from .constants import (
@@ -251,7 +252,11 @@ class Game(models.Model):
 	
 	@property
 	def date(self):
-		return self.event.date
+		if not self.custom_date:
+			return self.event.date
+		else:
+			_date = self.event.date.strftime('%Y-%m-%d') + ' ' + self.custom_date.strftime('%H:%M')
+			return datetime.strptime(_date, '%Y-%m-%d %H:%M')
 
 	@property
 	def action(self):
